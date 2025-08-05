@@ -1,0 +1,96 @@
+{
+  "users": [
+    {
+      "id": "uuid-user-1",
+      "name": "Aditi Rao",
+      "photo_url": "/avatars/aditi.png",
+      "role": "user",
+      "referral_code": "ADITI123",
+      "created_at": "2025-08-01T12:00:00Z"
+    },
+    {
+      "id": "uuid-user-2",
+      "name": "Ravi Iyer",
+      "photo_url": "/avatars/ravi.png",
+      "role": "admin",
+      "referral_code": "RAVI456",
+      "created_at": "2025-08-01T12:00:00Z"
+    }
+  ],
+  "communities": [
+    {
+      "id": "uuid-community-1",
+      "name": "Bangalore Bikers",
+      "description": "For riders who love weekend escapes.",
+      "city": "Bangalore",
+      "image_url": "/images/bikers.png",
+      "created_at": "2025-08-02T08:00:00Z"
+    }
+  ],
+  "community_members": [
+    {
+      "user_id": "uuid-user-1",
+      "community_id": "uuid-community-1",
+      "joined_at": "2025-08-03T10:00:00Z"
+    }
+  ],
+  "tags": [
+    {
+      "id": "uuid-tag-1",
+      "name": "Outdoors"
+    },
+    {
+      "id": "uuid-tag-2",
+      "name": "Tech"
+    }
+  ],
+  "events": [
+    {
+      "id": "uuid-event-1",
+      "community_id": "uuid-community-1",
+      "title": "Sunday Nandi Ride",
+      "description": "Early morning ride and breakfast at Nandi Hills",
+      "date_time": "2025-08-10T06:00:00Z",
+      "venue": "Nandi Hills",
+      "capacity": 30,
+      "tag_list": [
+        "uuid-tag-1"
+      ],
+      "host_id": "uuid-user-2",
+      "is_cancelled": false,
+      "created_at": "2025-08-03T09:00:00Z"
+    }
+  ],
+  "event_registrations": [
+    {
+      "id": "uuid-reg-1",
+      "user_id": "uuid-user-1",
+      "event_id": "uuid-event-1",
+      "status": "success",
+      "payment_id": "cf-pay-abc123",
+      "created_at": "2025-08-04T15:00:00Z"
+    }
+  ],
+  "discussions": [
+    {
+      "id": "uuid-disc-1",
+      "community_id": "uuid-community-1",
+      "title": "Pre-ride Checklist",
+      "prompt": "What do you pack for a 2-hour ride?",
+      "created_by": "uuid-user-2",
+      "expires_at": "2025-08-10T00:00:00Z",
+      "is_visible": true,
+      "extended": false
+    }
+  ],
+  "discussion_comments": [
+    {
+      "id": "uuid-comment-1",
+      "discussion_id": "uuid-disc-1",
+      "user_id": "uuid-user-1",
+      "text": "I always carry water, basic tools, and a power bank.",
+      "created_at": "2025-08-04T18:00:00Z",
+      "flagged_count": 0
+    }
+  ]
+}
