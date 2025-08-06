@@ -1,12 +1,154 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CalendarDays, Users, MapPin, Star } from "lucide-react";
 
 const Index = () => {
+  const { user } = useAuth();
+
+  const featuredEvents = [
+    {
+      id: 1,
+      title: "Community Garden Workshop",
+      description: "Learn sustainable gardening techniques with local experts",
+      location: "Central Park",
+      date: "March 15, 2024",
+      attendees: 24,
+      tags: ["Environment", "Learning"]
+    },
+    {
+      id: 2,
+      title: "Local Art Exhibition",
+      description: "Showcase of emerging artists from the neighborhood",
+      location: "Community Center",
+      date: "March 18, 2024",
+      attendees: 45,
+      tags: ["Art", "Culture"]
+    }
+  ];
+
+  const featuredCommunities = [
+    {
+      id: 1,
+      name: "Green Thumb Collective",
+      description: "Urban gardening and sustainability enthusiasts",
+      members: 156,
+      category: "Environment"
+    },
+    {
+      id: 2,
+      name: "Local Artists Network",
+      description: "Supporting and connecting creative minds in the area",
+      members: 89,
+      category: "Arts"
+    }
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="container mx-auto px-4 py-8 space-y-8">
+      {/* Hero Section */}
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl font-bold text-foreground">
+          Discover Your {" "}
+          <span className="text-primary">Third Place</span>
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Connect with local communities, discover exciting events, and build meaningful relationships in your neighborhood
+        </p>
+        {!user && (
+          <Button size="lg" className="mt-4">
+            Join the Community
+          </Button>
+        )}
       </div>
+
+      {/* Featured Events */}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-foreground">Featured Events</h2>
+          <Button variant="outline">View All Events</Button>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-6">
+          {featuredEvents.map((event) => (
+            <Card key={event.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg">{event.title}</CardTitle>
+                  <Star className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <CardDescription>{event.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <CalendarDays className="w-4 h-4" />
+                    {event.date}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4" />
+                    {event.location}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Users className="w-4 h-4" />
+                    {event.attendees} attending
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  {event.tags.map((tag) => (
+                    <Badge key={tag} variant="secondary">{tag}</Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Featured Communities */}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-foreground">Active Communities</h2>
+          <Button variant="outline">Explore Communities</Button>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-6">
+          {featuredCommunities.map((community) => (
+            <Card key={community.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="text-lg">{community.name}</CardTitle>
+                <CardDescription>{community.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="w-4 h-4" />
+                    {community.members} members
+                  </div>
+                  <Badge>{community.category}</Badge>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      {user && (
+        <section className="text-center space-y-4 py-8">
+          <h2 className="text-2xl font-semibold text-foreground">
+            Ready to get involved?
+          </h2>
+          <p className="text-muted-foreground">
+            Start by joining a community or attending an event near you
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Button>Browse Events</Button>
+            <Button variant="outline">Find Communities</Button>
+          </div>
+        </section>
+      )}
     </div>
   );
 };
