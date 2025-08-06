@@ -1,116 +1,129 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/contexts/AuthContext";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "@/hooks/use-toast";
+import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
-export const AuthPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+export default function AuthPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  
+  const [error, setError] = useState<string | null>(null);
+
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signIn, signUp, signInWithGoogle } = useAuth();
+  const { signIn, signUp, signInWithGoogle, user } = useAuth();
+  const { toast } = useToast();
 
-  const from = location.state?.from?.pathname || "/";
-
-  useEffect(() => {
-    if (user) {
-      navigate(from, { replace: true });
-    }
-  }, [user, navigate, from]);
+  // Redirect if already authenticated
+  const from = location.state?.from?.pathname || '/';
+  if (user) {
+    navigate(from, { replace: true });
+    return null;
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError(null);
 
-    const { error } = await signIn(email, password);
-    
-    if (error) {
-      setError(error.message);
-      toast({
-        variant: "destructive",
-        title: "Sign in failed",
-        description: error.message,
-      });
-    } else {
-      toast({
-        title: "Welcome back!",
-        description: "You've successfully signed in.",
-      });
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      setLoading(false);
+      return;
     }
-    
-    setLoading(false);
+
+    try {
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        setError(error.message);
+      } else {
+        toast({
+          title: "Welcome back!",
+          description: "You've been signed in successfully.",
+        });
+        navigate(from, { replace: true });
+      }
+    } catch (err) {
+      setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError(null);
+
+    if (!email || !password || !confirmPassword) {
+      setError('Please fill in all fields');
+      setLoading(false);
+      return;
+    }
 
     if (password !== confirmPassword) {
-      setError("Passwords don't match");
+      setError('Passwords do not match');
       setLoading(false);
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError('Password must be at least 6 characters long');
       setLoading(false);
       return;
     }
 
-    const { error } = await signUp(email, password);
-    
-    if (error) {
-      setError(error.message);
-      toast({
-        variant: "destructive",
-        title: "Sign up failed",
-        description: error.message,
-      });
-    } else {
-      toast({
-        title: "Account created!",
-        description: "Please check your email for verification.",
-      });
+    try {
+      const { error } = await signUp(email, password);
+      
+      if (error) {
+        setError(error.message);
+      } else {
+        toast({
+          title: "Account created!",
+          description: "Please check your email to verify your account.",
+        });
+      }
+    } catch (err) {
+      setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
-    const { error } = await signInWithGoogle();
-    
-    if (error) {
-      setError(error.message);
-      toast({
-        variant: "destructive",
-        title: "Google sign in failed",
-        description: error.message,
-      });
+    setError(null);
+
+    try {
+      const { error } = await signInWithGoogle();
+      
+      if (error) {
+        setError(error.message);
+      }
+      // Note: Google OAuth will redirect automatically
+    } catch (err) {
+      setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/20 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-primary">Welcome to MyThirdPlace</CardTitle>
+          <CardTitle className="text-2xl font-bold">Welcome</CardTitle>
           <CardDescription>
-            Connect with your local community and discover events
+            Sign in to your account or create a new one
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -119,8 +132,8 @@ export const AuthPage = () => {
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
-            
-            <TabsContent value="signin">
+
+            <TabsContent value="signin" className="space-y-4">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signin-email">Email</Label>
@@ -129,8 +142,8 @@ export const AuthPage = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
                     required
-                    disabled={loading}
                   />
                 </div>
                 <div className="space-y-2">
@@ -140,24 +153,22 @@ export const AuthPage = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
                     required
-                    disabled={loading}
                   />
                 </div>
-                
                 {error && (
                   <Alert variant="destructive">
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
-
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Signing in..." : "Sign In"}
+                  {loading ? 'Signing in...' : 'Sign In'}
                 </Button>
               </form>
             </TabsContent>
-            
-            <TabsContent value="signup">
+
+            <TabsContent value="signup" className="space-y-4">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
@@ -166,8 +177,8 @@ export const AuthPage = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
                     required
-                    disabled={loading}
                   />
                 </div>
                 <div className="space-y-2">
@@ -177,9 +188,8 @@ export const AuthPage = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Create a password"
                     required
-                    disabled={loading}
-                    minLength={6}
                   />
                 </div>
                 <div className="space-y-2">
@@ -189,20 +199,17 @@ export const AuthPage = () => {
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm your password"
                     required
-                    disabled={loading}
-                    minLength={6}
                   />
                 </div>
-                
                 {error && (
                   <Alert variant="destructive">
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
-
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Creating account..." : "Sign Up"}
+                  {loading ? 'Creating account...' : 'Sign Up'}
                 </Button>
               </form>
             </TabsContent>
@@ -219,20 +226,17 @@ export const AuthPage = () => {
                 </span>
               </div>
             </div>
-            
             <Button
               variant="outline"
               className="w-full mt-4"
               onClick={handleGoogleSignIn}
               disabled={loading}
             >
-              Continue with Google
+              {loading ? 'Connecting...' : 'Continue with Google'}
             </Button>
           </div>
         </CardContent>
       </Card>
     </div>
   );
-};
-
-export default AuthPage;
+}

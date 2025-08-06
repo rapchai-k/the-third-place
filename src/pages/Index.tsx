@@ -72,7 +72,7 @@ const Index = () => {
           Connect with local communities, discover exciting events, and build meaningful relationships in your neighborhood
         </p>
         {!user && (
-          <Button size="lg" className="mt-4">
+          <Button size="lg" className="mt-4" onClick={() => window.location.href = '/auth'}>
             Join the Community
           </Button>
         )}
