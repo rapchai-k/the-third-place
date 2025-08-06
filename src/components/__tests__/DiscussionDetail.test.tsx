@@ -4,21 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import DiscussionDetail from '@/pages/DiscussionDetail';
 import { AuthProvider } from '@/contexts/AuthContext';
-
-// Mock Supabase
-const mockSupabase = {
-  from: vi.fn(),
-  channel: vi.fn(() => ({
-    on: vi.fn(() => ({
-      subscribe: vi.fn(),
-    })),
-  })),
-  removeChannel: vi.fn(),
-};
-
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: mockSupabase,
-}));
+import { supabase } from '@/integrations/supabase/client';
 
 // Mock router params
 vi.mock('react-router-dom', async () => {
@@ -55,16 +41,16 @@ describe('DiscussionDetail', () => {
   });
 
   it('renders loading state initially', () => {
-    mockSupabase.from.mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
           single: vi.fn(() => new Promise(() => {})), // Never resolves
         })),
       })),
-    });
+    } as any);
 
     render(<DiscussionDetail />, { wrapper: createWrapper() });
-    
+
     // Should show loading animation
     expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
   });
@@ -80,14 +66,14 @@ describe('DiscussionDetail', () => {
       users: { name: 'Test User', photo_url: null },
     };
 
-    mockSupabase.from.mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
           single: vi.fn(() => Promise.resolve({ data: mockDiscussion, error: null })),
           order: vi.fn(() => Promise.resolve({ data: [], error: null })),
         })),
       })),
-    });
+    } as any);
 
     render(<DiscussionDetail />, { wrapper: createWrapper() });
 
@@ -106,14 +92,14 @@ describe('DiscussionDetail', () => {
       users: { name: 'Test User', photo_url: null },
     };
 
-    mockSupabase.from.mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
           single: vi.fn(() => Promise.resolve({ data: expiredDiscussion, error: null })),
           order: vi.fn(() => Promise.resolve({ data: [], error: null })),
         })),
       })),
-    });
+    } as any);
 
     render(<DiscussionDetail />, { wrapper: createWrapper() });
 
@@ -133,7 +119,7 @@ describe('DiscussionDetail', () => {
       users: { name: 'Test User', photo_url: null },
     };
 
-    mockSupabase.from.mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
           single: vi.fn(() => Promise.resolve({ data: mockDiscussion, error: null })),
@@ -141,7 +127,7 @@ describe('DiscussionDetail', () => {
         })),
       })),
       insert: vi.fn(() => Promise.resolve({ error: null })),
-    });
+    } as any);
 
     render(<DiscussionDetail />, { wrapper: createWrapper() });
 

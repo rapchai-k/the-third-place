@@ -1,22 +1,10 @@
-import { render } from '@testing-library/react'
-import { screen } from '@testing-library/dom'
 import { describe, it, beforeEach, expect, vi } from 'vitest'
-import { MemoryRouter } from 'react-router-dom'
+import { screen, waitFor } from '@testing-library/react'
+import { renderWithProviders } from '@/test/utils/test-utils'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
-import { AuthProvider } from '@/contexts/AuthContext'
 import { supabase } from '@/integrations/supabase/client'
 
-const TestComponent = () => <div>Protected Content</div>
-
-const renderWithRouter = (component: React.ReactElement, initialEntries = ['/']) => {
-  return render(
-    <MemoryRouter initialEntries={initialEntries}>
-      <AuthProvider>
-        {component}
-      </AuthProvider>
-    </MemoryRouter>
-  )
-}
+const TestComponent = () => <div data-testid="protected-content">Protected Content</div>
 
 describe('ProtectedRoute', () => {
   beforeEach(() => {
@@ -25,18 +13,19 @@ describe('ProtectedRoute', () => {
 
   it('shows loading skeleton when loading', () => {
     // Mock loading state
-    vi.mocked(supabase.auth.getSession).mockImplementation(() => 
+    vi.mocked(supabase.auth.getSession).mockImplementation(() =>
       new Promise(() => {}) // Never resolves to keep loading state
     )
 
-    renderWithRouter(
+    renderWithProviders(
       <ProtectedRoute>
         <TestComponent />
       </ProtectedRoute>
     )
 
     // Check if skeleton loading is rendered (ProtectedRoute uses Skeleton components when loading)
-    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument()
+    expect(document.querySelector('.animate-pulse')).toBeInTheDocument()
   })
 
   it('redirects to auth when user is not authenticated', async () => {
@@ -45,14 +34,16 @@ describe('ProtectedRoute', () => {
       error: null,
     })
 
-    renderWithRouter(
+    renderWithProviders(
       <ProtectedRoute>
         <TestComponent />
       </ProtectedRoute>
     )
 
-    // Should redirect to /auth, so protected content shouldn't be visible
-    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument()
+    // Should not render the protected content when redirecting
+    await waitFor(() => {
+      expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument()
+    })
   })
 
   it('renders children when user is authenticated', async () => {
@@ -64,12 +55,12 @@ describe('ProtectedRoute', () => {
       error: null,
     })
 
-    renderWithRouter(
+    renderWithProviders(
       <ProtectedRoute>
         <TestComponent />
       </ProtectedRoute>
     )
 
-    expect(await screen.findByText('Protected Content')).toBeInTheDocument()
+    expect(await screen.findByTestId('protected-content')).toBeInTheDocument()
   })
 })
