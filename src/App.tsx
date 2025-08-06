@@ -15,6 +15,7 @@ import CommunityDetail from "./pages/CommunityDetail";
 import EventsPage from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
 import DiscussionDetail from "./pages/DiscussionDetail";
+import DiscussionsPage from "./pages/Discussions";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
                 <Route path="communities/:id" element={<CommunityDetail />} />
                 <Route path="events" element={<EventsPage />} />
                 <Route path="events/:id" element={<EventDetail />} />
+                <Route path="discussions" element={<DiscussionsPage />} />
                 <Route path="discussions/:id" element={<DiscussionDetail />} />
                 <Route path="profile" element={
                   <ProtectedRoute>
