@@ -16,6 +16,7 @@ import EventsPage from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
 import DiscussionDetail from "./pages/DiscussionDetail";
 import DiscussionsPage from "./pages/Discussions";
+import ProfilePage from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -31,15 +32,39 @@ const App = () => (
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/" element={<AppLayout />}>
                 <Route index element={<Index />} />
-                <Route path="communities" element={<CommunitiesPage />} />
-                <Route path="communities/:id" element={<CommunityDetail />} />
-                <Route path="events" element={<EventsPage />} />
-                <Route path="events/:id" element={<EventDetail />} />
-                <Route path="discussions" element={<DiscussionsPage />} />
-                <Route path="discussions/:id" element={<DiscussionDetail />} />
+                <Route path="communities" element={
+                  <ProtectedRoute>
+                    <CommunitiesPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="communities/:id" element={
+                  <ProtectedRoute>
+                    <CommunityDetail />
+                  </ProtectedRoute>
+                } />
+                <Route path="events" element={
+                  <ProtectedRoute>
+                    <EventsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="events/:id" element={
+                  <ProtectedRoute>
+                    <EventDetail />
+                  </ProtectedRoute>
+                } />
+                <Route path="discussions" element={
+                  <ProtectedRoute>
+                    <DiscussionsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="discussions/:id" element={
+                  <ProtectedRoute>
+                    <DiscussionDetail />
+                  </ProtectedRoute>
+                } />
                 <Route path="profile" element={
                   <ProtectedRoute>
-                    <div>Profile page coming soon</div>
+                    <ProfilePage />
                   </ProtectedRoute>
                 } />
               </Route>

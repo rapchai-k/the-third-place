@@ -72,7 +72,7 @@ const Index = () => {
           Connect with local communities, discover exciting events, and build meaningful relationships in your neighborhood
         </p>
         {!user && (
-          <Button size="lg" className="mt-4">
+          <Button size="lg" className="mt-4" onClick={() => window.location.href = '/auth'}>
             Join the Community
           </Button>
         )}
@@ -82,7 +82,7 @@ const Index = () => {
       <section className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold text-foreground">Featured Events</h2>
-          <Button variant="outline">View All Events</Button>
+          <Button variant="outline" onClick={() => window.location.href = '/events'}>View All Events</Button>
         </div>
         
         <div className="grid md:grid-cols-2 gap-6">
@@ -130,7 +130,7 @@ const Index = () => {
       <section className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold text-foreground">Active Communities</h2>
-          <Button variant="outline">Explore Communities</Button>
+          <Button variant="outline" onClick={() => window.location.href = '/communities'}>Explore Communities</Button>
         </div>
         
         <div className="grid md:grid-cols-2 gap-6">
@@ -164,8 +164,8 @@ const Index = () => {
             Start by joining a community or attending an event near you
           </p>
           <div className="flex gap-4 justify-center">
-            <Button>Browse Events</Button>
-            <Button variant="outline">Find Communities</Button>
+            <Button onClick={() => window.location.href = '/events'}>Browse Events</Button>
+            <Button variant="outline" onClick={() => window.location.href = '/communities'}>Find Communities</Button>
           </div>
         </section>
       )}
