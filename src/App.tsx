@@ -17,6 +17,7 @@ import EventDetail from "./pages/EventDetail";
 import DiscussionDetail from "./pages/DiscussionDetail";
 import DiscussionsPage from "./pages/Discussions";
 import ProfilePage from "./pages/Profile";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,11 @@ const App = () => (
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/" element={<AppLayout />}>
                 <Route index element={<Index />} />
+                <Route path="dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
                 <Route path="communities" element={
                   <ProtectedRoute>
                     <CommunitiesPage />

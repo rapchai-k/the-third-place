@@ -30,6 +30,10 @@ const navigation = [
   { name: "Discussions", href: "/discussions", icon: MessageSquare },
 ];
 
+const userNavigation = [
+  { name: "Dashboard", href: "/dashboard", icon: User },
+];
+
 export const AppLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -70,6 +74,26 @@ export const AppLayout = () => {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            {user && (
+              <SidebarGroup>
+                <SidebarGroupLabel>Personal</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {userNavigation.map((item) => (
+                      <SidebarMenuItem key={item.name}>
+                        <SidebarMenuButton asChild isActive={isActive(item.href)}>
+                          <Link to={item.href}>
+                            <item.icon className="w-4 h-4" />
+                            <span>{item.name}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
 
             {user && (
               <div className="mt-auto p-4">
@@ -151,17 +175,19 @@ export const AppLayout = () => {
                 </Link>
               ))}
               {user && (
-                <Link
-                  to="/profile"
-                  className={`flex flex-col items-center py-2 px-3 rounded-md transition-colors ${
-                    isActive("/profile")
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <User className="w-5 h-5" />
-                  <span className="text-xs mt-1">Profile</span>
-                </Link>
+                <>
+                  <Link
+                    to="/dashboard"
+                    className={`flex flex-col items-center py-2 px-3 rounded-md transition-colors ${
+                      isActive("/dashboard")
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <User className="w-5 h-5" />
+                    <span className="text-xs mt-1">Dashboard</span>
+                  </Link>
+                </>
               )}
             </div>
           </nav>

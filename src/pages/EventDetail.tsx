@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CalendarDays, MapPin, Users, Clock, ArrowLeft, User } from "lucide-react";
+import { EventRegistrationButton } from "@/components/EventRegistrationButton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -269,40 +270,13 @@ export default function EventDetail() {
                 )}
 
                 <div className="pt-4 border-t">
-                  {!isPastEvent && user && (
-                    userRegistration ? (
-                      <Button 
-                        variant="outline" 
-                        onClick={handleCancelRegistration}
-                        className="w-full"
-                      >
-                        Cancel Registration
-                      </Button>
-                    ) : (
-                      <Button 
-                        onClick={handleRegister}
-                        disabled={isFull}
-                        className="w-full"
-                      >
-                        {isFull ? "Event Full" : "Register for Event"}
-                      </Button>
-                    )
-                  )}
-                  
-                  {!user && !isPastEvent && (
-                    <p className="text-sm text-muted-foreground text-center">
-                      <Link to="/auth" className="text-primary hover:underline">
-                        Sign in
-                      </Link>{" "}
-                      to register for this event
-                    </p>
-                  )}
-                  
-                  {isPastEvent && (
-                    <p className="text-sm text-muted-foreground text-center">
-                      This event has already taken place
-                    </p>
-                  )}
+                  <EventRegistrationButton
+                    eventId={event.id}
+                    eventDate={event.date_time}
+                    capacity={event.capacity}
+                    currentAttendees={registrationCount}
+                    className="w-full"
+                  />
                 </div>
               </CardContent>
             </Card>

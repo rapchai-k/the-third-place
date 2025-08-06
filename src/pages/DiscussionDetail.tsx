@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, MessageCircle, Clock, Flag } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { CommentForm } from "@/components/CommentForm";
 
 export default function DiscussionDetail() {
   const { id } = useParams<{ id: string }>();
@@ -227,31 +228,14 @@ export default function DiscussionDetail() {
           )}
         </div>
 
-        {/* Add Comment Form */}
-        {canComment && (
+        {/* Comment Form */}
+        {isMember && !isExpired ? (
           <Card>
             <CardContent className="pt-6">
-              <form onSubmit={handleSubmitComment} className="space-y-4">
-                <Textarea
-                  placeholder="Add your comment..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  className="min-h-[100px]"
-                />
-                <div className="flex justify-end">
-                  <Button 
-                    type="submit" 
-                    disabled={!newComment.trim() || addCommentMutation.isPending}
-                  >
-                    {addCommentMutation.isPending ? 'Posting...' : 'Post Comment'}
-                  </Button>
-                </div>
-              </form>
+              <CommentForm discussionId={id!} />
             </CardContent>
           </Card>
-        )}
-
-        {!user && (
+        ) : !user ? (
           <Card>
             <CardContent className="pt-6 text-center">
               <p className="text-muted-foreground mb-4">
@@ -260,9 +244,7 @@ export default function DiscussionDetail() {
               <Button onClick={() => navigate('/auth')}>Sign In</Button>
             </CardContent>
           </Card>
-        )}
-
-        {user && !isMember && !isExpired && (
+        ) : !isMember ? (
           <Card>
             <CardContent className="pt-6 text-center">
               <p className="text-muted-foreground mb-4">
@@ -271,6 +253,14 @@ export default function DiscussionDetail() {
               <Button onClick={() => navigate(`/communities/${discussion.community_id}`)}>
                 Join Community
               </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <p className="text-muted-foreground">
+                This discussion has expired and is no longer accepting comments.
+              </p>
             </CardContent>
           </Card>
         )}

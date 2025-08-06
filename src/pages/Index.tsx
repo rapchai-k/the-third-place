@@ -71,7 +71,11 @@ const Index = () => {
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Connect with local communities, discover exciting events, and build meaningful relationships in your neighborhood
         </p>
-        {!user && (
+        {user ? (
+          <Button size="lg" className="mt-4" onClick={() => window.location.href = '/dashboard'}>
+            View Your Dashboard
+          </Button>
+        ) : (
           <Button size="lg" className="mt-4" onClick={() => window.location.href = '/auth'}>
             Join the Community
           </Button>

@@ -18,7 +18,6 @@ interface UserProfile {
   id: string;
   name: string;
   photo_url?: string;
-  role: 'user' | 'admin';
   referral_code?: string;
   created_at: string;
 }
@@ -250,9 +249,9 @@ export const ProfilePage = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Role</Label>
+                    <Label>Account Type</Label>
                     <Badge variant="secondary" className="w-fit">
-                      {profile?.role}
+                      Community Member
                     </Badge>
                   </div>
 
