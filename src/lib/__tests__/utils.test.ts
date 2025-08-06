@@ -113,20 +113,24 @@ describe('cn utility function', () => {
   })
 
   it('works with component variant patterns', () => {
-    const variant = 'primary'
-    const size = 'lg'
+    const variant = 'primary' as const
+    const size = 'lg' as const
+    
+    const variantClasses = {
+      primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
+      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+    }
+    
+    const sizeClasses = {
+      default: 'h-10 px-4 py-2',
+      lg: 'h-11 rounded-md px-8',
+      sm: 'h-9 rounded-md px-3',
+    }
     
     const result = cn(
       'inline-flex items-center justify-center rounded-md font-medium transition-colors',
-      {
-        'bg-primary text-primary-foreground hover:bg-primary/90': variant === 'primary',
-        'bg-secondary text-secondary-foreground hover:bg-secondary/80': variant === 'secondary',
-      },
-      {
-        'h-10 px-4 py-2': size === 'default',
-        'h-11 rounded-md px-8': size === 'lg',
-        'h-9 rounded-md px-3': size === 'sm',
-      }
+      variantClasses[variant],
+      sizeClasses[size]
     )
     
     expect(result).toContain('bg-primary')

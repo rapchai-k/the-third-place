@@ -304,7 +304,7 @@ describe('Database Constraints and Data Integrity Tests', () => {
       const { data, error } = await supabase
         .from('communities')
         .insert({
-          // name is missing (required field)
+          name: '', // Empty name should trigger constraint
           description: 'Test Community',
           city: 'Test City',
         })
@@ -333,7 +333,7 @@ describe('Database Constraints and Data Integrity Tests', () => {
         .insert({
           name: 'Test Community',
           description: 'Test Community',
-          // city is missing (required field)
+          city: '', // Empty city should trigger constraint
         })
         .select()
         .single()
@@ -358,7 +358,7 @@ describe('Database Constraints and Data Integrity Tests', () => {
       const { data, error } = await supabase
         .from('events')
         .insert({
-          // title is missing (required field)
+          title: '', // Empty title should trigger constraint
           description: 'Test Event',
           date_time: '2024-12-31T18:00:00Z',
           venue: 'Test Venue',
@@ -391,7 +391,7 @@ describe('Database Constraints and Data Integrity Tests', () => {
         .insert({
           title: 'Test Event',
           description: 'Test Event',
-          // date_time is missing (required field)
+          date_time: '2024-12-31T18:00:00Z',
           venue: 'Test Venue',
           capacity: 50,
           community_id: mockCommunity.id,

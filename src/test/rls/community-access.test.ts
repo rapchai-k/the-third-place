@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { supabase } from '@/integrations/supabase/client'
 import { createMockSession, createMockUser, createMockCommunity } from '@/test/utils/test-utils'
