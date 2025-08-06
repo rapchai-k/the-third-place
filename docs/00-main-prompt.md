@@ -1,82 +1,110 @@
-# 🧠 Lovable Prompt: The Third Place
+## 🧠 Prompt: Build a community-powered event platform
 
-This project is for **The Third Place**, a curated platform where like-minded individuals join city-based communities, participate in offline events, and engage in focused, time-bound discussions. It is designed to foster real-world connections by building niche-interest micro-communities.
+This project defines a complete user journey, from discovering communities to attending events and participating in time-bound discussions. It includes:
 
----
+* Community and event exploration
+* User profiles and badges
+* Participation tracking
+* Admin controls
+* Payment and referral systems
+* Google OAuth-based login
 
-## 🔧 Architecture Overview
+All logic should be implemented using Supabase (Postgres, RLS, Auth, Storage) and a Next.js frontend using the ShadCN UI kit.
 
-This is a **Supabase-first** app with a full REST backend and rich React frontend using the following:
+### 🧩 Reference Files
 
-- Supabase: Auth, RLS-secured Postgres DB, Storage
-- REST APIs: Designed with “where it's used” approach
-- n8n-compatible: All events/actions emit webhook-compatible data
-- React 18 + Vite + ShadCN + Tailwind UI
-- Admin panel hosted on `admin.mythirdplace`
-- Circular Gallery for image carousel ([ReactBits Circular Gallery](https://reactbits.dev/components/circular-gallery))
-- Tilted Cards for Event/Community preview ([ReactBits Tilted Card](https://reactbits.dev/components/tilted-card))
+Refer to the following modular documents:
 
----
-
-## 📁 Prompt File Structure
-
-- `01-overview.md`: Product concept, user roles, modules
-- `01-rest-contracts.md`: Full list of REST API endpoints
-- `01-seed-data.json`: Sample users, communities, tags, events, discussion threads
-- `01-theme.css`: Full Tailwind-compatible theme variables
-- `01-ui-spec.md`: Page-level UX mapping (User and Admin flows)
-- `01-uml.puml`: UML entity diagram
-- `02-env.md`: Env variable expectations (OAuth, Webhooks)
-- `02-error-envelope.md`: Standard error shape & failure handling conventions
-- `02-shadcn-setup.md`: Preinstalled ShadCN components + CLI scaffolding
-- `02-ux-component-map.md`: Component selection map (ReactBits + ShadCN)
-- `03-rls-policies.sql`: All access rules as per RLS
-- `03-webhooks.md`: Events and payload structure for n8n webhook triggers
+* `01-overview.md`: Domain structure, definitions, and key flows
+* `01-rest-contracts.md`: REST API definitions
+* `01-seed-data.json`: Sample records for bootstrapping
+* `01-theme.css`: Color, radius, and font tokens
+* `01-ui-spec.md`: Key UI layouts and page interactions
+* `01-uml.puml`: Supabase schema as PlantUML
+* `02-env.md`: Required ENV vars and secrets
+* `02-error-envelope.md`: Consistent API error handling spec
+* `02-shadcn-setup.md`: UI library integration checklist
+* `02-ux-component-map.md`: Maps UI spec to frontend components
+* `03-rls-policies.sql`: Row-level security rules
+* `03-webhooks.md`: Payment callbacks, thread expiry, activity logging
 
 ---
 
-## 🎯 Execution Requirements
+## 🧪 Testing Requirements
 
-1. Use Supabase Auth (Google OAuth as primary)
-2. Enable RLS on all tables; see `03-rls-policies.sql`
-3. Implement analytics tracking of all user actions (joins, posts, referrals, etc.)
-4. Ensure privacy: event participants not exposed to frontend unless toggled
-5. Auto-expiring discussions with admin override
-6. Role-based flagging and banning with dynamic threshold
-7. Graceful error handling with `02-error-envelope.md`
-8. All features must work in both light/dark modes using `01-theme.css`
+> All generated features and endpoints should be accompanied by **automated test coverage** and **agent-led functionality tests** to validate business logic and user journey correctness.
 
----
+### **Testing Philosophy**
 
-## 🧪 Developer Notes
+Ensure that:
 
-- Admins are the only users who can create communities, events, or discussions
-- Hosts are manually assigned per event from existing community members
-- Users can express interest in upcoming events (not live) without payment
-- Payments, registration, and state changes must reflect in UI
-- Use `/internal/comms/preferences` for user notification settings
-- Events can have multiple tags and be filtered by city, tags, or community
-- Referral tracking and badge systems are extendable but not MVP-critical
+1. Each REST API follows the contracts defined in `01-rest-contracts.md`
+2. All RLS policies are enforced as defined in `03-rls-policies.sql`
+3. Frontend behavior mirrors the expected state flows and visual feedback
+4. Errors are gracefully handled and displayed using patterns from `02-error-envelope.md`
+5. Agent testers verify the end-to-end functionality of real user workflows
 
 ---
 
-## 💻 Output Expectations
+### **1. Backend Tests**
 
-- Supabase schema and SQL RLS setup
-- REST API scaffold
-- React frontend components
-- Admin dashboard on subdomain
-- Seeded test data
-- Webhook trigger support
-- UI theming via CSS variables
-- Error handling envelope
-- Type-safe codebase with sensible fallback UX
+* **Stack**: Supabase Functions with Deno test or Jest
+* **Tests**:
+
+  * API inputs/outputs, success + error cases
+  * Auth + RLS: insert/update/delete guarded by correct roles
+  * Side-effects (email triggers, activity logs, thread expiry)
 
 ---
 
-## 🚨 Do Not:
+### **2. Frontend Tests**
 
-- Generate random copy — use provided seed only
-- Build comms logic — only scaffold webhook-ready placeholders
-- Allow user-level CRUD on communities or events
-- Include group chat or DMs
+* **Stack**: Vitest + React Testing Library
+* **Tests**:
+
+  * UI rendering (e.g., Circular Gallery, Tilted Cards)
+  * Input validation (e.g., profile update, discussion post)
+  * State transitions (e.g., registered → confirmed → cancelled)
+  * Empty + failure states (e.g., no events, payment failure)
+
+---
+
+### **3. E2E Tests**
+
+* **Stack**: Playwright or Cypress
+* **Critical Workflows**:
+
+  * User sign-in via Google OAuth
+  * Join a community → View events
+  * Register for an event → see payment success/failure flow
+  * Post in a discussion → thread auto-closes
+  * Admin actions: extend thread, cancel reservation, assign host
+
+---
+
+### **4. Agent-Led Functionality Testing**
+
+Agents must:
+
+* Simulate end-user journeys to validate business logic
+* Test key flows:
+
+  * Community discovery → Join → See new events
+  * Profile update with image + interests
+  * Discussion creation by admin → participation by member
+  * Flagging + override process
+* Ensure test data matches `01-seed-data.json`
+
+Agents should **log edge cases** (e.g., viewing events without community join, host visibility, expired threads) and auto-correct where possible.
+
+---
+
+### **5. Automation & CI**
+
+* GitHub Actions workflow for:
+
+  * Linting
+  * Type-checking
+  * Unit + integration test runs
+  * E2E smoke tests on deploy preview or staging
+* All tests must pass before merging or releasing
