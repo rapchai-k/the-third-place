@@ -10,6 +10,10 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import AuthPage from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import CommunitiesPage from "./pages/Communities";
+import CommunityDetail from "./pages/CommunityDetail";
+import EventsPage from "./pages/Events";
+import EventDetail from "./pages/EventDetail";
 
 const queryClient = new QueryClient();
 
@@ -25,8 +29,10 @@ const App = () => (
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/" element={<AppLayout />}>
                 <Route index element={<Index />} />
-                <Route path="communities" element={<div>Communities page coming soon</div>} />
-                <Route path="events" element={<div>Events page coming soon</div>} />
+                <Route path="communities" element={<CommunitiesPage />} />
+                <Route path="communities/:id" element={<CommunityDetail />} />
+                <Route path="events" element={<EventsPage />} />
+                <Route path="events/:id" element={<EventDetail />} />
                 <Route path="discussions" element={<div>Discussions page coming soon</div>} />
                 <Route path="profile" element={
                   <ProtectedRoute>
