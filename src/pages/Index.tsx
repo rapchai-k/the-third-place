@@ -3,47 +3,62 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, Users, MapPin, Star } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 
 const Index = () => {
   const { user } = useAuth();
 
-  const featuredEvents = [
-    {
-      id: 1,
-      title: "Community Garden Workshop",
-      description: "Learn sustainable gardening techniques with local experts",
-      location: "Central Park",
-      date: "March 15, 2024",
-      attendees: 24,
-      tags: ["Environment", "Learning"]
-    },
-    {
-      id: 2,
-      title: "Local Art Exhibition",
-      description: "Showcase of emerging artists from the neighborhood",
-      location: "Community Center",
-      date: "March 18, 2024",
-      attendees: 45,
-      tags: ["Art", "Culture"]
-    }
-  ];
+  // Fetch featured events with registration counts
+  const { data: featuredEvents = [] } = useQuery({
+    queryKey: ['featured-events'],
+    queryFn: async () => {
+      const { data: events, error } = await supabase
+        .from('events')
+        .select(`
+          *,
+          communities(name),
+          event_tags(tags(name)),
+          event_registrations(id)
+        `)
+        .eq('is_cancelled', false)
+        .gte('date_time', new Date().toISOString())
+        .order('date_time', { ascending: true })
+        .limit(4);
 
-  const featuredCommunities = [
-    {
-      id: 1,
-      name: "Green Thumb Collective",
-      description: "Urban gardening and sustainability enthusiasts",
-      members: 156,
-      category: "Environment"
-    },
-    {
-      id: 2,
-      name: "Local Artists Network",
-      description: "Supporting and connecting creative minds in the area",
-      members: 89,
-      category: "Arts"
+      if (error) throw error;
+      
+      return events?.map(event => ({
+        ...event,
+        community_name: event.communities?.name,
+        tags: event.event_tags?.map(et => et.tags?.name).filter(Boolean) || [],
+        attendees: event.event_registrations?.length || 0
+      })) || [];
     }
-  ];
+  });
+
+  // Fetch featured communities with member counts
+  const { data: featuredCommunities = [] } = useQuery({
+    queryKey: ['featured-communities'],
+    queryFn: async () => {
+      const { data: communities, error } = await supabase
+        .from('communities')
+        .select(`
+          *,
+          community_members(id)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(4);
+
+      if (error) throw error;
+      
+      return communities?.map(community => ({
+        ...community,
+        members: community.community_members?.length || 0
+      })) || [];
+    }
+  });
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
@@ -84,11 +99,11 @@ const Index = () => {
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <CalendarDays className="w-4 h-4" />
-                    {event.date}
+                    {format(new Date(event.date_time), 'MMM dd, yyyy')}
                   </div>
                   <div className="flex items-center gap-1">
                     <MapPin className="w-4 h-4" />
-                    {event.location}
+                    {event.venue}
                   </div>
                   <div className="flex items-center gap-1">
                     <Users className="w-4 h-4" />
@@ -100,6 +115,11 @@ const Index = () => {
                     <Badge key={tag} variant="secondary">{tag}</Badge>
                   ))}
                 </div>
+                {event.community_name && (
+                  <div className="text-sm text-muted-foreground">
+                    Hosted by {event.community_name}
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
@@ -126,7 +146,7 @@ const Index = () => {
                     <Users className="w-4 h-4" />
                     {community.members} members
                   </div>
-                  <Badge>{community.category}</Badge>
+                  <Badge>{community.city}</Badge>
                 </div>
               </CardContent>
             </Card>
