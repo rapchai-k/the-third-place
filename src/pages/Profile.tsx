@@ -111,19 +111,19 @@ export const ProfilePage = () => {
 
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notification-preferences'] });
-      toast({
-        title: "Preferences updated",
-        description: "Your notification preferences have been updated.",
-      });
-    },
-    onError: (error) => {
+    onError: (error, variables, context) => {
+      // Rollback optimistic update on error
+      queryClient.invalidateQueries({ queryKey: ['notification-preferences', user?.id] });
+      
       toast({
         variant: "destructive",
         title: "Update failed",
-        description: error.message,
+        description: "Changes reverted. Please try again.",
       });
+    },
+    onSettled: () => {
+      // Refetch to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ['notification-preferences', user?.id] });
     }
   });
 
@@ -142,6 +142,17 @@ export const ProfilePage = () => {
   };
 
   const handlePreferenceChange = (key: keyof NotificationPreferences, value: boolean) => {
+    // Optimistic update - immediately reflect the change in UI
+    queryClient.setQueryData(['notification-preferences', user?.id], (old: any) => 
+      old ? { ...old, [key]: value } : { user_id: user?.id, [key]: value }
+    );
+    
+    // Show immediate feedback
+    toast({
+      title: "Preference updated",
+      description: `${key} notifications ${value ? 'enabled' : 'disabled'}`,
+    });
+    
     updatePreferencesMutation.mutate({ [key]: value });
   };
 

@@ -21,20 +21,59 @@ export const useEventRegistration = (eventId: string) => {
 
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-registration', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
-      toast({
-        title: "Registration successful!",
-        description: "You have been registered for this event.",
+    onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['user-registration', eventId] });
+      await queryClient.cancelQueries({ queryKey: ['event', eventId] });
+
+      // Snapshot previous values
+      const previousRegistration = queryClient.getQueryData(['user-registration', eventId]);
+      const previousEvent = queryClient.getQueryData(['event', eventId]);
+
+      // Optimistically update registration status
+      queryClient.setQueryData(['user-registration', eventId], {
+        user_id: user?.id,
+        event_id: eventId,
+        status: 'pending'
       });
+
+      // Update event attendee count optimistically
+      if (previousEvent) {
+        queryClient.setQueryData(['event', eventId], (old: any) => ({
+          ...old,
+          event_registrations: [{
+            count: (old.event_registrations?.[0]?.count || 0) + 1
+          }]
+        }));
+      }
+
+      // Show success toast immediately
+      toast({
+        title: "Registered!",
+        description: "You're now registered for this event.",
+      });
+
+      return { previousRegistration, previousEvent };
     },
-    onError: (error: any) => {
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousRegistration !== undefined) {
+        queryClient.setQueryData(['user-registration', eventId], context.previousRegistration);
+      }
+      if (context?.previousEvent !== undefined) {
+        queryClient.setQueryData(['event', eventId], context.previousEvent);
+      }
+      
       toast({
         title: "Registration failed",
-        description: error.message || "Failed to register for event",
+        description: "Please try again",
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({ queryKey: ['user-registration', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
     }
   });
 
@@ -50,20 +89,55 @@ export const useEventRegistration = (eventId: string) => {
 
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-registration', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+    onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['user-registration', eventId] });
+      await queryClient.cancelQueries({ queryKey: ['event', eventId] });
+
+      // Snapshot previous values
+      const previousRegistration = queryClient.getQueryData(['user-registration', eventId]);
+      const previousEvent = queryClient.getQueryData(['event', eventId]);
+
+      // Optimistically remove registration
+      queryClient.setQueryData(['user-registration', eventId], null);
+
+      // Update event attendee count optimistically
+      if (previousEvent) {
+        queryClient.setQueryData(['event', eventId], (old: any) => ({
+          ...old,
+          event_registrations: [{
+            count: Math.max((old.event_registrations?.[0]?.count || 0) - 1, 0)
+          }]
+        }));
+      }
+
+      // Show success toast immediately
       toast({
         title: "Registration cancelled",
-        description: "Your event registration has been cancelled.",
+        description: "You're no longer registered for this event.",
       });
+
+      return { previousRegistration, previousEvent };
     },
-    onError: (error: any) => {
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousRegistration !== undefined) {
+        queryClient.setQueryData(['user-registration', eventId], context.previousRegistration);
+      }
+      if (context?.previousEvent !== undefined) {
+        queryClient.setQueryData(['event', eventId], context.previousEvent);
+      }
+      
       toast({
         title: "Cancellation failed",
-        description: error.message || "Failed to cancel registration",
+        description: "Please try again",
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({ queryKey: ['user-registration', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
     }
   });
 

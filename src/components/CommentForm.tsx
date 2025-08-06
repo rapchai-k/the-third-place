@@ -31,21 +31,63 @@ export const CommentForm = ({ discussionId, onCommentAdded }: CommentFormProps) 
 
       if (error) throw error;
     },
-    onSuccess: () => {
+    onMutate: async (text: string) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['discussion-comments', discussionId] });
+
+      // Snapshot the previous value
+      const previousComments = queryClient.getQueryData(['discussion-comments', discussionId]);
+
+      // Create optimistic comment
+      const optimisticComment = {
+        id: `temp-${Date.now()}`,
+        discussion_id: discussionId,
+        user_id: user?.id,
+        text: text.trim(),
+        created_at: new Date().toISOString(),
+        users: {
+          name: user?.user_metadata?.name || 'You',
+          photo_url: user?.user_metadata?.avatar_url
+        },
+        isPending: true
+      };
+
+      // Optimistically update comments
+      queryClient.setQueryData(['discussion-comments', discussionId], (old: any) => 
+        old ? [...old, optimisticComment] : [optimisticComment]
+      );
+
+      // Clear form immediately
       setComment("");
-      queryClient.invalidateQueries({ queryKey: ['discussion-comments', discussionId] });
+
+      // Show success toast immediately
       toast({
-        title: "Comment added",
-        description: "Your comment has been posted successfully.",
+        title: "Comment posted!",
+        description: "Your comment has been added.",
       });
+
       onCommentAdded?.();
+
+      return { previousComments };
     },
-    onError: (error: any) => {
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousComments !== undefined) {
+        queryClient.setQueryData(['discussion-comments', discussionId], context.previousComments);
+      }
+      
+      // Restore comment text
+      setComment(variables);
+      
       toast({
         title: "Failed to post comment",
-        description: error.message || "Please try again.",
+        description: "Please try again.",
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      // Always refetch after error or success to get real data
+      queryClient.invalidateQueries({ queryKey: ['discussion-comments', discussionId] });
     }
   });
 

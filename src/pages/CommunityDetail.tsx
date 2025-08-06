@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,7 @@ export default function CommunityDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: community, isLoading } = useQuery({
     queryKey: ["community", id],
@@ -88,7 +89,133 @@ export default function CommunityDetail() {
     enabled: !!user && !!id,
   });
 
-  const handleJoinCommunity = async () => {
+  const joinCommunityMutation = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error('User not authenticated');
+      
+      const { error } = await supabase
+        .from("community_members")
+        .insert({ community_id: id!, user_id: user.id });
+
+      if (error) throw error;
+    },
+    onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["isMember", id, user?.id] });
+      await queryClient.cancelQueries({ queryKey: ["community", id] });
+
+      // Snapshot previous values
+      const previousMembership = queryClient.getQueryData(["isMember", id, user?.id]);
+      const previousCommunity = queryClient.getQueryData(["community", id]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(["isMember", id, user?.id], true);
+      
+      // Update member count optimistically
+      if (previousCommunity) {
+        queryClient.setQueryData(["community", id], (old: any) => ({
+          ...old,
+          community_members: [{
+            count: (old.community_members?.[0]?.count || 0) + 1
+          }]
+        }));
+      }
+
+      // Show success toast immediately
+      toast({
+        title: "You've joined!",
+        description: "Welcome to the community",
+      });
+
+      return { previousMembership, previousCommunity };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousMembership !== undefined) {
+        queryClient.setQueryData(["isMember", id, user?.id], context.previousMembership);
+      }
+      if (context?.previousCommunity !== undefined) {
+        queryClient.setQueryData(["community", id], context.previousCommunity);
+      }
+      
+      toast({
+        title: "Failed to join",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({ queryKey: ["isMember", id, user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["community", id] });
+    },
+  });
+
+  const leaveCommunityMutation = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error('User not authenticated');
+      
+      const { error } = await supabase
+        .from("community_members")
+        .delete()
+        .eq("community_id", id)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+    },
+    onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["isMember", id, user?.id] });
+      await queryClient.cancelQueries({ queryKey: ["community", id] });
+
+      // Snapshot previous values
+      const previousMembership = queryClient.getQueryData(["isMember", id, user?.id]);
+      const previousCommunity = queryClient.getQueryData(["community", id]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(["isMember", id, user?.id], false);
+      
+      // Update member count optimistically
+      if (previousCommunity) {
+        queryClient.setQueryData(["community", id], (old: any) => ({
+          ...old,
+          community_members: [{
+            count: Math.max((old.community_members?.[0]?.count || 0) - 1, 0)
+          }]
+        }));
+      }
+
+      // Show success toast immediately
+      toast({
+        title: "Left community",
+        description: "You've left the community",
+      });
+
+      return { previousMembership, previousCommunity };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousMembership !== undefined) {
+        queryClient.setQueryData(["isMember", id, user?.id], context.previousMembership);
+      }
+      if (context?.previousCommunity !== undefined) {
+        queryClient.setQueryData(["community", id], context.previousCommunity);
+      }
+      
+      toast({
+        title: "Failed to leave",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({ queryKey: ["isMember", id, user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["community", id] });
+    },
+  });
+
+  const handleJoinCommunity = () => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -97,50 +224,11 @@ export default function CommunityDetail() {
       });
       return;
     }
-
-    try {
-      const { error } = await supabase
-        .from("community_members")
-        .insert({ community_id: id!, user_id: user.id });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success!",
-        description: "You've joined the community",
-      });
-      refetchMembership();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to join community",
-        variant: "destructive",
-      });
-    }
+    joinCommunityMutation.mutate();
   };
 
-  const handleLeaveCommunity = async () => {
-    try {
-      const { error } = await supabase
-        .from("community_members")
-        .delete()
-        .eq("community_id", id)
-        .eq("user_id", user?.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Left community",
-        description: "You've left the community",
-      });
-      refetchMembership();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to leave community",
-        variant: "destructive",
-      });
-    }
+  const handleLeaveCommunity = () => {
+    leaveCommunityMutation.mutate();
   };
 
   if (isLoading) {
@@ -219,8 +307,12 @@ export default function CommunityDetail() {
                 onClick={isMember ? handleLeaveCommunity : handleJoinCommunity}
                 variant={isMember ? "outline" : "default"}
                 className="w-full md:w-auto"
+                disabled={joinCommunityMutation.isPending || leaveCommunityMutation.isPending}
               >
-                {isMember ? "Leave Community" : "Join Community"}
+                {(joinCommunityMutation.isPending || leaveCommunityMutation.isPending) 
+                  ? (isMember ? "Leaving..." : "Joining...") 
+                  : (isMember ? "Leave Community" : "Join Community")
+                }
               </Button>
             )}
           </CardContent>
