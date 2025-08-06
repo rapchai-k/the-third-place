@@ -18,6 +18,7 @@ import DiscussionDetail from "./pages/DiscussionDetail";
 import DiscussionsPage from "./pages/Discussions";
 import ProfilePage from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
+import AuthCallback from "./pages/AuthCallback";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/" element={<AppLayout />}>
                 <Route index element={<Index />} />
                 <Route path="dashboard" element={
@@ -38,36 +40,12 @@ const App = () => (
                     <Dashboard />
                   </ProtectedRoute>
                 } />
-                <Route path="communities" element={
-                  <ProtectedRoute>
-                    <CommunitiesPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="communities/:id" element={
-                  <ProtectedRoute>
-                    <CommunityDetail />
-                  </ProtectedRoute>
-                } />
-                <Route path="events" element={
-                  <ProtectedRoute>
-                    <EventsPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="events/:id" element={
-                  <ProtectedRoute>
-                    <EventDetail />
-                  </ProtectedRoute>
-                } />
-                <Route path="discussions" element={
-                  <ProtectedRoute>
-                    <DiscussionsPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="discussions/:id" element={
-                  <ProtectedRoute>
-                    <DiscussionDetail />
-                  </ProtectedRoute>
-                } />
+                <Route path="communities" element={<CommunitiesPage />} />
+                <Route path="communities/:id" element={<CommunityDetail />} />
+                <Route path="events" element={<EventsPage />} />
+                <Route path="events/:id" element={<EventDetail />} />
+                <Route path="discussions" element={<DiscussionsPage />} />
+                <Route path="discussions/:id" element={<DiscussionDetail />} />
                 <Route path="profile" element={
                   <ProtectedRoute>
                     <ProfilePage />
