@@ -92,8 +92,11 @@ describe('Flag Comment Integration', () => {
     // Missing required fields
     const invalidFlagData = {
       flagged_user_id: 'user-456',
+      flagged_by_id: 'user-123',
+      comment_id: 'comment-789',
+      reason: 'Test reason',
       // Missing flagged_by_id, comment_id, and reason
-    };
+    } as any;
 
     const { data, error } = await supabase
       .from('flags')
