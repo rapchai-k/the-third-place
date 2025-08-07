@@ -19,6 +19,7 @@ import DiscussionsPage from "./pages/Discussions";
 import ProfilePage from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import AuthCallback from "./pages/AuthCallback";
+import { PaymentSuccess } from "./pages/PaymentSuccess";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
                     <ProfilePage />
                   </ProtectedRoute>
                 } />
+                <Route path="payment-success" element={<PaymentSuccess />} />
               </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEventRegistration } from "@/hooks/useEventRegistration";
+import { PaymentButton } from "@/components/PaymentButton";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Users, UserCheck } from "lucide-react";
@@ -10,6 +11,9 @@ interface EventRegistrationButtonProps {
   eventDate: string;
   capacity: number;
   currentAttendees: number;
+  eventTitle: string;
+  price?: number;
+  currency?: string;
   className?: string;
 }
 
@@ -18,6 +22,9 @@ export const EventRegistrationButton = ({
   eventDate, 
   capacity, 
   currentAttendees,
+  eventTitle,
+  price = 0,
+  currency = 'INR',
   className 
 }: EventRegistrationButtonProps) => {
   const { user } = useAuth();
@@ -107,6 +114,21 @@ export const EventRegistrationButton = ({
     );
   }
 
+  // If event has a price, show payment button instead
+  if (price > 0) {
+    return (
+      <PaymentButton
+        eventId={eventId}
+        eventTitle={eventTitle}
+        price={price}
+        currency={currency}
+        className={className}
+        onPaymentSuccess={() => window.location.reload()} // Refresh to update registration status
+      />
+    );
+  }
+
+  // Free event - use original registration flow
   return (
     <Button 
       onClick={() => register()}
@@ -121,7 +143,7 @@ export const EventRegistrationButton = ({
       ) : (
         <>
           <Users className="w-4 h-4 mr-2" />
-          Register for Event
+          Register for Free
         </>
       )}
     </Button>

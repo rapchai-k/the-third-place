@@ -275,6 +275,9 @@ export default function EventDetail() {
                     eventDate={event.date_time}
                     capacity={event.capacity}
                     currentAttendees={registrationCount}
+                    eventTitle={event.title}
+                    price={event.price}
+                    currency={event.currency}
                     className="w-full"
                   />
                 </div>
