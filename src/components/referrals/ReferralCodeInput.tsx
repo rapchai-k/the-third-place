@@ -14,19 +14,81 @@ interface ReferralCodeInputProps {
   className?: string;
 }
 
-export const ReferralCodeInput = ({ 
-  onApplyCode, 
-  loading, 
-  error, 
+export const ReferralCodeInput = ({
+  onApplyCode,
+  loading,
+  error,
   success,
-  className 
+  className
 }: ReferralCodeInputProps) => {
   const [referralCode, setReferralCode] = useState('');
+  const [inputError, setInputError] = useState('');
+
+  // Function to extract referral code from URL
+  const extractReferralCode = (input: string): string => {
+    // Check if input is a URL
+    if (input.startsWith('http://') || input.startsWith('https://')) {
+      try {
+        const url = new URL(input);
+        const refParam = url.searchParams.get('ref');
+        if (refParam) {
+          return refParam.toUpperCase();
+        }
+        throw new Error('No referral code found in URL');
+      } catch {
+        throw new Error('Invalid URL format');
+      }
+    }
+
+    // If not a URL, validate as alphanumeric code
+    const cleanCode = input.trim().toUpperCase();
+    if (!/^[A-Z0-9]+$/.test(cleanCode)) {
+      throw new Error('Referral code must contain only letters and numbers');
+    }
+
+    return cleanCode;
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputError('');
+
+    // If input looks like a URL, try to extract the referral code
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      try {
+        const extractedCode = extractReferralCode(value);
+        setReferralCode(extractedCode);
+      } catch (error) {
+        setInputError(error instanceof Error ? error.message : 'Invalid input');
+        setReferralCode(value); // Keep the invalid input to show user what they typed
+      }
+    } else {
+      // For non-URL input, just convert to uppercase and validate
+      const upperValue = value.toUpperCase();
+      setReferralCode(upperValue);
+
+      // Validate if there's content
+      if (upperValue.trim() && !/^[A-Z0-9]+$/.test(upperValue.trim())) {
+        setInputError('Referral code must contain only letters and numbers');
+      }
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (referralCode.trim() && onApplyCode) {
-      onApplyCode(referralCode.trim().toUpperCase());
+
+    if (!referralCode.trim()) {
+      setInputError('Please enter a referral code');
+      return;
+    }
+
+    try {
+      const validCode = extractReferralCode(referralCode);
+      if (onApplyCode) {
+        onApplyCode(validCode);
+      }
+    } catch (error) {
+      setInputError(error instanceof Error ? error.message : 'Invalid referral code');
     }
   };
 
@@ -38,7 +100,7 @@ export const ReferralCodeInput = ({
           Have a Referral Code?
         </CardTitle>
         <CardDescription>
-          Enter a referral code to get special community benefits
+          Enter a referral code (like "8D604377") to get special community benefits
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -49,20 +111,22 @@ export const ReferralCodeInput = ({
               <Input
                 id="referral-code"
                 value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                placeholder="Enter referral code"
+                onChange={handleInputChange}
+                placeholder="Enter referral code (e.g., 8D604377)"
                 className="font-mono tracking-wider"
                 disabled={loading || success}
-                maxLength={8}
               />
-              <Button 
-                type="submit" 
-                disabled={!referralCode.trim() || loading || success}
+              <Button
+                type="submit"
+                disabled={!referralCode.trim() || !!inputError || loading || success}
                 className="shrink-0"
               >
                 {loading ? "Applying..." : "Apply"}
               </Button>
             </div>
+            {inputError && (
+              <p className="text-sm text-destructive">{inputError}</p>
+            )}
           </div>
 
           {error && (

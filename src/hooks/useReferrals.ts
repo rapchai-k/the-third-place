@@ -180,17 +180,18 @@ export const useReferrals = (userId?: string) => {
 
     switch (method) {
       case 'copy':
-        await navigator.clipboard.writeText(referralUrl);
+        // Copy only the referral code, not the full URL
+        await navigator.clipboard.writeText(code);
         toast({
           title: "Copied!",
-          description: "Referral link copied to clipboard",
+          description: `Referral code "${code}" copied to clipboard`,
         });
         break;
-      
+
       case 'whatsapp':
         window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         break;
-      
+
       case 'email':
         window.open(`mailto:?subject=Join our community&body=${encodeURIComponent(message)}`, '_blank');
         break;
