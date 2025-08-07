@@ -271,6 +271,7 @@ export type Database = {
           description: string | null
           host_id: string | null
           id: string
+          image_url: string | null
           is_cancelled: boolean
           price: number | null
           title: string
@@ -286,6 +287,7 @@ export type Database = {
           description?: string | null
           host_id?: string | null
           id?: string
+          image_url?: string | null
           is_cancelled?: boolean
           price?: number | null
           title: string
@@ -301,6 +303,7 @@ export type Database = {
           description?: string | null
           host_id?: string | null
           id?: string
+          image_url?: string | null
           is_cancelled?: boolean
           price?: number | null
           title?: string
@@ -744,6 +747,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      dispatch_webhook: {
+        Args: { event_type: string; event_data: Json; actor_user_id?: string }
+        Returns: undefined
+      }
       generate_referral_code: {
         Args: Record<PropertyKey, never>
         Returns: string

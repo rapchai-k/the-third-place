@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { BarChart3, Users, Calendar, MessageSquare, Settings } from 'lucide-react';
+import { BarChart3, Users, Calendar, MessageSquare, Settings, Webhook } from 'lucide-react';
 
 export const AdminNavigation = () => {
   const location = useLocation();
@@ -29,6 +29,12 @@ export const AdminNavigation = () => {
       icon: MessageSquare,
       label: 'Discussions',
       description: 'Monitor community discussions'
+    },
+    {
+      href: '/webhooks',
+      icon: Webhook,
+      label: 'Webhooks',
+      description: 'Manage webhook integrations'
     }
   ];
 
