@@ -11,11 +11,20 @@ import { EventRegistrationButton } from "@/components/EventRegistrationButton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
+import { useEffect } from "react";
 
 export default function EventDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { logEventView } = useActivityLogger();
+
+  useEffect(() => {
+    if (id) {
+      logEventView(id);
+    }
+  }, [id, logEventView]);
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["event", id],

@@ -6,9 +6,16 @@ import { CalendarDays, Users, MapPin, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
+import { useEffect } from "react";
 
 const Index = () => {
   const { user } = useAuth();
+  const { logPageView } = useActivityLogger();
+
+  useEffect(() => {
+    logPageView('home');
+  }, [logPageView]);
 
   // Fetch featured events with registration counts
   const { data: featuredEvents = [] } = useQuery({

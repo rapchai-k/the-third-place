@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, CreditCard } from "lucide-react";
 import { useState } from "react";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
 
 interface PaymentButtonProps {
   eventId: string;
@@ -25,6 +26,7 @@ export const PaymentButton = ({
 }: PaymentButtonProps) => {
   const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
+  const { logPaymentInitiated, logPaymentCompleted } = useActivityLogger();
 
   const createPaymentMutation = useMutation({
     mutationFn: async () => {
@@ -40,6 +42,9 @@ export const PaymentButton = ({
       return data;
     },
     onSuccess: (data) => {
+      // Log payment initiation
+      logPaymentInitiated(eventId, price, currency);
+      
       // Open payment URL in new tab
       window.open(data.payment_url, '_blank');
       
@@ -71,6 +76,9 @@ export const PaymentButton = ({
     },
     onSuccess: (data) => {
       if (data.payment_status === 'completed') {
+        // Log successful payment
+        logPaymentCompleted(eventId, price, currency, data.payment_id);
+        
         toast({
           title: "Payment successful!",
           description: "You are now registered for the event.",

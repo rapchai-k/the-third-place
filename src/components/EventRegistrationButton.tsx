@@ -5,6 +5,7 @@ import { PaymentButton } from "@/components/PaymentButton";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Users, UserCheck } from "lucide-react";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
 
 interface EventRegistrationButtonProps {
   eventId: string;
@@ -29,6 +30,7 @@ export const EventRegistrationButton = ({
 }: EventRegistrationButtonProps) => {
   const { user } = useAuth();
   const { register, cancel, isRegistering, isCancelling } = useEventRegistration(eventId);
+  const { logEventRegistration } = useActivityLogger();
 
   // Check if user is registered
   const { data: userRegistration, isLoading } = useQuery({
@@ -129,9 +131,14 @@ export const EventRegistrationButton = ({
   }
 
   // Free event - use original registration flow
+  const handleFreeRegistration = () => {
+    logEventRegistration(eventId, { event_type: 'free' });
+    register();
+  };
+
   return (
     <Button 
-      onClick={() => register()}
+      onClick={handleFreeRegistration}
       disabled={isRegistering}
       className={className}
     >
