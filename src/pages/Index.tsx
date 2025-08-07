@@ -46,16 +46,16 @@ const Index = () => {
         .from('communities')
         .select(`
           *,
-          community_members(id)
+          community_members(count)
         `)
         .order('created_at', { ascending: false })
         .limit(4);
 
       if (error) throw error;
-      
+
       return communities?.map(community => ({
         ...community,
-        members: community.community_members?.length || 0
+        members: community.community_members?.[0]?.count || 0
       })) || [];
     }
   });

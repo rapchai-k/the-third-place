@@ -49,25 +49,25 @@ const Dashboard = () => {
     queryKey: ['user-communities', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      
+
       const { data, error } = await supabase
         .from('community_members')
         .select(`
           joined_at,
           communities (
             *,
-            community_members(id)
+            community_members(count)
           )
         `)
         .eq('user_id', user.id)
         .order('joined_at', { ascending: false });
 
       if (error) throw error;
-      
+
       return data?.map(membership => ({
         ...membership.communities,
         joined_at: membership.joined_at,
-        member_count: membership.communities?.community_members?.length || 0
+        member_count: membership.communities?.community_members?.[0]?.count || 0
       })) || [];
     },
     enabled: !!user
