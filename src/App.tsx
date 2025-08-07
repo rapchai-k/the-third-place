@@ -21,7 +21,7 @@ import Dashboard from "./pages/Dashboard";
 import AuthCallback from "./pages/AuthCallback";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
 import Analytics from "./pages/Analytics";
-import Webhooks from "./pages/Webhooks";
+
 
 const queryClient = new QueryClient();
 
@@ -58,11 +58,6 @@ const App = () => (
                 <Route path="analytics" element={
                   <ProtectedRoute>
                     <Analytics />
-                  </ProtectedRoute>
-                } />
-                <Route path="webhooks" element={
-                  <ProtectedRoute>
-                    <Webhooks />
                   </ProtectedRoute>
                 } />
               </Route>
