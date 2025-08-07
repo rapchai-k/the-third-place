@@ -14,6 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { User, Settings, Bell, Gift } from "lucide-react";
+import { ReferralDashboard } from "@/components/referrals/ReferralDashboard";
 
 interface UserProfile {
   id: string;
@@ -369,55 +370,7 @@ export const ProfilePage = () => {
           </TabsContent>
 
           <TabsContent value="referrals">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Gift className="w-5 h-5" />
-                  Referral Program
-                </CardTitle>
-                <CardDescription>
-                  Invite friends and earn rewards for growing the community
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {profile?.referral_code && (
-                  <div className="space-y-2">
-                    <Label>Your Referral Code</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        value={profile.referral_code}
-                        readOnly
-                        className="bg-muted"
-                      />
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          navigator.clipboard.writeText(profile.referral_code!);
-                          toast({
-                            title: "Copied!",
-                            description: "Referral code copied to clipboard",
-                          });
-                        }}
-                      >
-                        Copy
-                      </Button>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Share this code with friends to invite them to the community
-                    </p>
-                  </div>
-                )}
-
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <h4 className="font-medium mb-2">How it works</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Share your referral code with friends</li>
-                    <li>• They join using your code</li>
-                    <li>• You both get community benefits</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
+            <ReferralDashboard userProfile={profile} />
           </TabsContent>
         </Tabs>
       </div>

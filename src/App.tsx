@@ -21,6 +21,7 @@ import Dashboard from "./pages/Dashboard";
 import AuthCallback from "./pages/AuthCallback";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
 import Analytics from "./pages/Analytics";
+import ReferralCenter from "./pages/ReferralCenter";
 
 
 const queryClient = new QueryClient();
@@ -58,6 +59,11 @@ const App = () => (
                 <Route path="analytics" element={
                   <ProtectedRoute>
                     <Analytics />
+                  </ProtectedRoute>
+                } />
+                <Route path="referrals" element={
+                  <ProtectedRoute>
+                    <ReferralCenter />
                   </ProtectedRoute>
                 } />
               </Route>

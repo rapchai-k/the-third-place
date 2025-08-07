@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { BarChart3, Users, Calendar, MessageSquare, Settings } from 'lucide-react';
+import { BarChart3, Users, Calendar, MessageSquare, Settings, Gift } from 'lucide-react';
 
 export const AdminNavigation = () => {
   const location = useLocation();
@@ -30,6 +30,12 @@ export const AdminNavigation = () => {
       label: 'Discussions',
       description: 'Monitor community discussions'
     },
+    {
+      href: '/referrals',
+      icon: Gift,
+      label: 'Referrals',
+      description: 'Monitor referral program'
+    }
   ];
 
   return (
