@@ -2,10 +2,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useActivityLogger } from '@/hooks/useActivityLogger';
 
 export const useEventRegistration = (eventId: string) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { logEventRegistrationCancel } = useActivityLogger();
 
   const registerMutation = useMutation({
     mutationFn: async () => {
@@ -110,6 +112,12 @@ export const useEventRegistration = (eventId: string) => {
           }]
         }));
       }
+
+      // Log registration cancellation
+      logEventRegistrationCancel(eventId, {
+        user_id: user?.id,
+        cancelled_at: new Date().toISOString()
+      });
 
       // Show success toast immediately
       toast({

@@ -132,7 +132,14 @@ export const EventRegistrationButton = ({
 
   // Free event - use original registration flow
   const handleFreeRegistration = () => {
-    logEventRegistration(eventId, { event_type: 'free' });
+    logEventRegistration(eventId, {
+      event_type: 'free',
+      event_title: eventTitle,
+      event_date: eventDate,
+      price: 0,
+      currency: currency,
+      registration_type: 'free'
+    });
     register();
   };
 

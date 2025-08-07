@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MapPin, Users, Calendar, MessageSquare, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { format } from "date-fns";
 
 export default function CommunityDetail() {
@@ -17,6 +19,7 @@ export default function CommunityDetail() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { logCommunityJoin, logCommunityLeave, logCommunityView } = useActivityLogger();
 
   const { data: community, isLoading } = useQuery({
     queryKey: ["community", id],
@@ -74,6 +77,17 @@ export default function CommunityDetail() {
     enabled: !!id,
   });
 
+  // Log community view when community data is loaded
+  useEffect(() => {
+    if (id && community) {
+      logCommunityView(id, {
+        community_name: community.name,
+        community_city: community.city,
+        member_count: community.community_members?.[0]?.count || 0
+      });
+    }
+  }, [id, community, logCommunityView]);
+
   const { data: isMember, refetch: refetchMembership } = useQuery({
     queryKey: ["isMember", id, user?.id],
     queryFn: async () => {
@@ -110,7 +124,7 @@ export default function CommunityDetail() {
 
       // Optimistically update to the new value
       queryClient.setQueryData(["isMember", id, user?.id], true);
-      
+
       // Update member count optimistically
       if (previousCommunity) {
         queryClient.setQueryData(["community", id], (old: any) => ({
@@ -119,6 +133,15 @@ export default function CommunityDetail() {
             count: (old.community_members?.[0]?.count || 0) + 1
           }]
         }));
+      }
+
+      // Log community join
+      if (community) {
+        logCommunityJoin(id!, {
+          community_name: community.name,
+          community_city: community.city,
+          member_count: community.community_members?.[0]?.count || 0
+        });
       }
 
       // Show success toast immediately
@@ -183,6 +206,15 @@ export default function CommunityDetail() {
             count: Math.max((old.community_members?.[0]?.count || 0) - 1, 0)
           }]
         }));
+      }
+
+      // Log community leave immediately
+      if (community) {
+        logCommunityLeave(id!, {
+          community_name: community.name,
+          community_city: community.city,
+          member_count: community.community_members?.[0]?.count || 0
+        });
       }
 
       // Show success toast immediately

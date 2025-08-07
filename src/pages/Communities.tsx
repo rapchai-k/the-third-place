@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Search, MapPin, Users, Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
 
 export default function Communities() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,6 +19,7 @@ export default function Communities() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { logCommunityJoin, logCommunityLeave } = useActivityLogger();
 
   const { data: communities, isLoading } = useQuery({
     queryKey: ["communities", searchTerm, selectedCity],
@@ -90,6 +92,16 @@ export default function Communities() {
         return old ? [...old, communityId] : [communityId];
       });
 
+      // Find community details for logging
+      const community = communities?.find(c => c.id === communityId);
+      if (community) {
+        logCommunityJoin(communityId, {
+          community_name: community.name,
+          community_city: community.city,
+          member_count: community.community_members?.[0]?.count || 0
+        });
+      }
+
       // Show success toast immediately
       toast({
         title: "Success!",
@@ -139,6 +151,16 @@ export default function Communities() {
       queryClient.setQueryData(["userMemberships", user?.id], (old: string[] | undefined) => {
         return old ? old.filter(id => id !== communityId) : [];
       });
+
+      // Find community details for logging
+      const community = communities?.find(c => c.id === communityId);
+      if (community) {
+        logCommunityLeave(communityId, {
+          community_name: community.name,
+          community_city: community.city,
+          member_count: community.community_members?.[0]?.count || 0
+        });
+      }
 
       // Show success toast immediately
       toast({

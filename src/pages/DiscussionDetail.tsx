@@ -12,6 +12,8 @@ import { ArrowLeft, MessageCircle, Clock, Flag } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { CommentForm } from "@/components/CommentForm";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
+import { format, isAfter } from "date-fns";
 
 export default function DiscussionDetail() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +21,7 @@ export default function DiscussionDetail() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [newComment, setNewComment] = useState('');
+  const { logDiscussionView } = useActivityLogger();
 
   // Fetch discussion details
   const { data: discussion, isLoading: discussionLoading } = useQuery({
@@ -74,6 +77,19 @@ export default function DiscussionDetail() {
     },
     enabled: !!user?.id && !!discussion?.community_id,
   });
+
+  // Log discussion view when discussion loads
+  useEffect(() => {
+    if (id && discussion) {
+      logDiscussionView(id, {
+        discussion_title: discussion.title,
+        community_id: discussion.community_id,
+        community_name: discussion.communities?.name,
+        expires_at: discussion.expires_at,
+        is_expired: isAfter(new Date(), new Date(discussion.expires_at))
+      });
+    }
+  }, [id, discussion, logDiscussionView]);
 
   // Real-time subscription for new comments
   useEffect(() => {

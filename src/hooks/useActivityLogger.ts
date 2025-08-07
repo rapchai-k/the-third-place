@@ -36,13 +36,16 @@ export const useActivityLogger = () => {
 
   // Pre-defined activity loggers for common actions
   const logPageView = useCallback((page: string, metadata?: Record<string, any>) => {
-    return logActivity({
-      action_type: 'page_view',
-      target_type: 'page',
-      target_id: page,
-      metadata,
-      anonymous: true
-    });
+    // TEMPORARILY DISABLED - return early without logging
+    return Promise.resolve();
+
+    // return logActivity({
+    //   action_type: 'page_view',
+    //   target_type: 'page',
+    //   target_id: page,
+    //   metadata,
+    //   anonymous: true
+    // });
   }, [logActivity]);
 
   const logEventView = useCallback((eventId: string, metadata?: Record<string, any>) => {
@@ -90,13 +93,25 @@ export const useActivityLogger = () => {
     });
   }, [logActivity]);
 
-  const logDiscussionView = useCallback((discussionId: string, metadata?: Record<string, any>) => {
+  const logCommunityLeave = useCallback((communityId: string, metadata?: Record<string, any>) => {
     return logActivity({
-      action_type: 'view',
-      target_type: 'discussion',
-      target_id: discussionId,
+      action_type: 'leave',
+      target_type: 'community',
+      target_id: communityId,
       metadata
     });
+  }, [logActivity]);
+
+  const logDiscussionView = useCallback((discussionId: string, metadata?: Record<string, any>) => {
+    // TEMPORARILY DISABLED - return early without logging
+    return Promise.resolve();
+
+    // return logActivity({
+    //   action_type: 'view',
+    //   target_type: 'discussion',
+    //   target_id: discussionId,
+    //   metadata
+    // });
   }, [logActivity]);
 
   const logCommentCreate = useCallback((discussionId: string, commentId: string, metadata?: Record<string, any>) => {
@@ -108,15 +123,109 @@ export const useActivityLogger = () => {
     });
   }, [logActivity]);
 
+  // Community view logging
+  const logCommunityView = useCallback((communityId: string, metadata?: Record<string, any>) => {
+    // TEMPORARILY DISABLED - return early without logging
+    return Promise.resolve();
+
+    // return logActivity({
+    //   action_type: 'view',
+    //   target_type: 'community',
+    //   target_id: communityId,
+    //   metadata
+    // });
+  }, [logActivity]);
+
+  // Event registration cancellation logging
+  const logEventRegistrationCancel = useCallback((eventId: string, metadata?: Record<string, any>) => {
+    return logActivity({
+      action_type: 'cancel_registration',
+      target_type: 'event',
+      target_id: eventId,
+      metadata
+    });
+  }, [logActivity]);
+
+  // Payment failure logging
+  const logPaymentFailed = useCallback((eventId: string, amount: number, currency: string, reason?: string) => {
+    return logActivity({
+      action_type: 'payment_failed',
+      target_type: 'event',
+      target_id: eventId,
+      metadata: { amount, currency, failure_reason: reason }
+    });
+  }, [logActivity]);
+
+  // Payment timeout/stuck logging
+  const logPaymentTimeout = useCallback((eventId: string, amount: number, currency: string) => {
+    return logActivity({
+      action_type: 'payment_timeout',
+      target_type: 'event',
+      target_id: eventId,
+      metadata: { amount, currency }
+    });
+  }, [logActivity]);
+
+  // Discussion creation logging
+  const logDiscussionCreate = useCallback((discussionId: string, metadata?: Record<string, any>) => {
+    return logActivity({
+      action_type: 'create',
+      target_type: 'discussion',
+      target_id: discussionId,
+      metadata
+    });
+  }, [logActivity]);
+
+  // User profile view logging
+  const logProfileView = useCallback((profileUserId: string, metadata?: Record<string, any>) => {
+    // TEMPORARILY DISABLED - return early without logging
+    return Promise.resolve();
+
+    // return logActivity({
+    //   action_type: 'view',
+    //   target_type: 'profile',
+    //   target_id: profileUserId,
+    //   metadata
+    // });
+  }, [logActivity]);
+
+  // User profile edit logging
+  const logProfileEdit = useCallback((profileUserId: string, metadata?: Record<string, any>) => {
+    return logActivity({
+      action_type: 'edit',
+      target_type: 'profile',
+      target_id: profileUserId,
+      metadata
+    });
+  }, [logActivity]);
+
   return {
     logActivity,
     logPageView,
-    logEventView,
+    logEventView: useCallback((eventId: string, metadata?: Record<string, any>) => {
+      // TEMPORARILY DISABLED - return early without logging
+      return Promise.resolve();
+
+      // return logActivity({
+      //   action_type: 'view',
+      //   target_type: 'event',
+      //   target_id: eventId,
+      //   metadata
+      // });
+    }, [logActivity]),
     logEventRegistration,
+    logEventRegistrationCancel,
     logPaymentInitiated,
     logPaymentCompleted,
+    logPaymentFailed,
+    logPaymentTimeout,
     logCommunityJoin,
+    logCommunityLeave,
+    logCommunityView,
     logDiscussionView,
-    logCommentCreate
+    logDiscussionCreate,
+    logCommentCreate,
+    logProfileView,
+    logProfileEdit
   };
 };

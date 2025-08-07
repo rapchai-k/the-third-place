@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { Send, Loader2 } from "lucide-react";
 
 interface CommentFormProps {
@@ -16,6 +17,7 @@ export const CommentForm = ({ discussionId, onCommentAdded }: CommentFormProps) 
   const [comment, setComment] = useState("");
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { logCommentCreate } = useActivityLogger();
 
   const addComment = useMutation({
     mutationFn: async (text: string) => {
@@ -30,6 +32,7 @@ export const CommentForm = ({ discussionId, onCommentAdded }: CommentFormProps) 
         });
 
       if (error) throw error;
+      return { commentId: `comment-${Date.now()}` }; // Return a temporary ID for logging
     },
     onMutate: async (text: string) => {
       // Cancel outgoing refetches
@@ -59,6 +62,12 @@ export const CommentForm = ({ discussionId, onCommentAdded }: CommentFormProps) 
 
       // Clear form immediately
       setComment("");
+
+      // Log comment creation
+      logCommentCreate(discussionId, optimisticComment.id, {
+        comment_text: text.trim(),
+        comment_length: text.trim().length
+      });
 
       // Show success toast immediately
       toast({

@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { User, Settings, Bell, Gift } from "lucide-react";
 
 interface UserProfile {
@@ -34,6 +35,7 @@ export const ProfilePage = () => {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
+  const { logProfileView, logProfileEdit } = useActivityLogger();
 
   // Fetch user profile
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -52,6 +54,16 @@ export const ProfilePage = () => {
     },
     enabled: !!user?.id
   });
+
+  // Log profile view when profile loads
+  useEffect(() => {
+    if (user?.id && profile) {
+      logProfileView(user.id, {
+        profile_name: profile.name,
+        account_created: profile.created_at
+      });
+    }
+  }, [user?.id, profile, logProfileView]);
 
   // Fetch notification preferences
   const { data: preferences } = useQuery({
@@ -85,6 +97,15 @@ export const ProfilePage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+
+      // Log profile edit
+      if (user?.id) {
+        logProfileEdit(user.id, {
+          updated_fields: ['name'],
+          new_name: name
+        });
+      }
+
       toast({
         title: "Profile updated",
         description: "Your profile has been successfully updated.",

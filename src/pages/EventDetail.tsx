@@ -18,13 +18,7 @@ export default function EventDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { logEventView } = useActivityLogger();
-
-  useEffect(() => {
-    if (id) {
-      logEventView(id);
-    }
-  }, [id, logEventView]);
+  const { logEventView, logEventRegistration } = useActivityLogger();
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["event", id],
@@ -63,6 +57,24 @@ export default function EventDetail() {
     enabled: !!user && !!id,
   });
 
+  const registrationCount = event?.event_registrations?.[0]?.count || 0;
+
+  useEffect(() => {
+    if (id && event) {
+      logEventView(id, {
+        event_title: event.title,
+        event_date: event.date_time,
+        community_id: event.community_id,
+        community_name: event.communities?.name,
+        community_city: event.communities?.city,
+        event_price: event.price || 0,
+        event_capacity: event.capacity,
+        current_attendees: registrationCount,
+        user_is_registered: !!userRegistration
+      });
+    }
+  }, [id, event, logEventView, registrationCount, userRegistration]);
+
   const handleRegister = async () => {
     if (!user) {
       toast({
@@ -83,6 +95,15 @@ export default function EventDetail() {
         });
 
       if (error) throw error;
+
+      // Add activity logging
+      logEventRegistration(id!, {
+        event_title: event?.title,
+        event_date: event?.date_time,
+        community_id: event?.community_id,
+        community_name: event?.communities?.name,
+        registration_type: 'free'
+      });
 
       toast({
         title: "Registration submitted!",
@@ -155,7 +176,6 @@ export default function EventDetail() {
 
   const eventDate = new Date(event.date_time);
   const isPastEvent = eventDate < new Date();
-  const registrationCount = event.event_registrations?.[0]?.count || 0;
   const isFull = registrationCount >= event.capacity;
 
   return (
