@@ -123,6 +123,15 @@ export const useActivityLogger = () => {
     });
   }, [logActivity]);
 
+  const logCommentFlag = useCallback((commentId: string, flaggedUserId: string, reason: string, metadata?: Record<string, any>) => {
+    return logActivity({
+      action_type: 'flag',
+      target_type: 'comment',
+      target_id: commentId,
+      metadata: { flagged_user_id: flaggedUserId, reason, ...metadata }
+    });
+  }, [logActivity]);
+
   // Community view logging
   const logCommunityView = useCallback((communityId: string, metadata?: Record<string, any>) => {
     // TEMPORARILY DISABLED - return early without logging
@@ -225,6 +234,7 @@ export const useActivityLogger = () => {
     logDiscussionView,
     logDiscussionCreate,
     logCommentCreate,
+    logCommentFlag,
     logProfileView,
     logProfileEdit
   };

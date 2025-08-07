@@ -11,8 +11,9 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, MessageCircle, Clock, Flag } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useActivityLogger } from '@/hooks/useActivityLogger';
 import { CommentForm } from "@/components/CommentForm";
-import { useActivityLogger } from "@/hooks/useActivityLogger";
+import { FlagCommentDialog } from '@/components/FlagCommentDialog';
 import { format, isAfter } from "date-fns";
 
 export default function DiscussionDetail() {
@@ -21,6 +22,9 @@ export default function DiscussionDetail() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [newComment, setNewComment] = useState('');
+  const [flagDialogOpen, setFlagDialogOpen] = useState(false);
+  const [commentToFlag, setCommentToFlag] = useState<{ id: string; userId: string } | null>(null);
+  const { logCommentFlag } = useActivityLogger();
   const { logDiscussionView } = useActivityLogger();
 
   // Fetch discussion details
@@ -144,6 +148,64 @@ export default function DiscussionDetail() {
     e.preventDefault();
     if (!newComment.trim()) return;
     addCommentMutation.mutate(newComment.trim());
+  };
+
+  // Flag comment mutation
+  const flagCommentMutation = useMutation({
+    mutationFn: async ({ commentId, commentUserId, reason }: { commentId: string; commentUserId: string; reason: string }) => {
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('flags')
+        .insert({
+          flagged_user_id: commentUserId,
+          flagged_by_id: user.id,
+          comment_id: commentId,
+          reason: reason
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      // Log flag activity
+      logCommentFlag(variables.commentId, variables.commentUserId, variables.reason);
+
+      toast.success('Comment flagged successfully');
+    },
+    onError: (error) => {
+      toast.error('Failed to flag comment');
+      console.error('Error flagging comment:', error);
+    },
+  });
+
+  const handleFlagComment = (commentId: string, commentUserId: string) => {
+    if (!user) {
+      toast.error('Please sign in to flag comments');
+      return;
+    }
+
+    if (user.id === commentUserId) {
+      toast.error('You cannot flag your own comment');
+      return;
+    }
+
+    // Open the flag dialog
+    setCommentToFlag({ id: commentId, userId: commentUserId });
+    setFlagDialogOpen(true);
+  };
+
+  const handleFlagSubmit = (reason: string) => {
+    if (!commentToFlag) return;
+
+    flagCommentMutation.mutate({
+      commentId: commentToFlag.id,
+      commentUserId: commentToFlag.userId,
+      reason
+    });
+
+    // Close dialog and reset state
+    setFlagDialogOpen(false);
+    setCommentToFlag(null);
   };
 
   const isExpired = discussion && new Date(discussion.expires_at) < new Date();
@@ -327,7 +389,13 @@ export default function DiscussionDetail() {
                         </div>
                         <p className="text-sm whitespace-pre-wrap">{comment.text}</p>
                       </div>
-                      <Button variant="ghost" size="sm">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleFlagComment(comment.id, comment.user_id)}
+                        disabled={flagCommentMutation.isPending}
+                        title="Flag comment"
+                      >
                         <Flag className="w-4 h-4" />
                       </Button>
                     </div>
@@ -348,6 +416,14 @@ export default function DiscussionDetail() {
           </Card>
         )}
       </div>
+
+      {/* Flag Comment Dialog */}
+      <FlagCommentDialog
+        open={flagDialogOpen}
+        onOpenChange={setFlagDialogOpen}
+        onSubmit={handleFlagSubmit}
+        isLoading={flagCommentMutation.isPending}
+      />
     </div>
   );
 }
