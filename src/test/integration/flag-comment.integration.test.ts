@@ -44,7 +44,14 @@ describe('Flag Comment Integration', () => {
 
     expect(error).toBeNull();
     expect(mockInsert).toHaveBeenCalledWith(flagData);
-    expect(data?.id).toBe('flag-123');
+    expect(data).toEqual({
+      id: 'flag-123',
+      flagged_user_id: 'user-456',
+      flagged_by_id: 'user-123',
+      comment_id: 'comment-789',
+      reason: 'Inappropriate content',
+      created_at: '2024-01-01T00:00:00Z',
+    });
   });
 
   it('should handle flag creation errors gracefully', async () => {
