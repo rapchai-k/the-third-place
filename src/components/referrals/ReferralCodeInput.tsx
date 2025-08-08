@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,8 @@ interface ReferralCodeInputProps {
   error?: string;
   success?: boolean;
   className?: string;
+  initialCode?: string;
+  minimal?: boolean; // When true, renders without Card wrapper
 }
 
 export const ReferralCodeInput = ({
@@ -19,10 +21,19 @@ export const ReferralCodeInput = ({
   loading,
   error,
   success,
-  className
+  className,
+  initialCode,
+  minimal = false
 }: ReferralCodeInputProps) => {
-  const [referralCode, setReferralCode] = useState('');
+  const [referralCode, setReferralCode] = useState(initialCode || '');
   const [inputError, setInputError] = useState('');
+
+  // Update referral code when initialCode changes
+  useEffect(() => {
+    if (initialCode) {
+      setReferralCode(initialCode);
+    }
+  }, [initialCode]);
 
   // Function to extract referral code from URL
   const extractReferralCode = (input: string): string => {
@@ -92,6 +103,54 @@ export const ReferralCodeInput = ({
     }
   };
 
+  const formContent = (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="referral-code">Referral Code (Optional)</Label>
+        <div className="flex gap-2">
+          <Input
+            id="referral-code"
+            value={referralCode}
+            onChange={handleInputChange}
+            placeholder="Enter referral code (e.g., 8D604377)"
+            className="font-mono tracking-wider"
+            disabled={loading || success}
+          />
+          <Button
+            type="submit"
+            disabled={!referralCode.trim() || !!inputError || loading || success}
+            className="shrink-0"
+          >
+            {loading ? "Applying..." : success ? "Applied!" : "Apply"}
+          </Button>
+        </div>
+        {inputError && (
+          <p className="text-sm text-destructive">{inputError}</p>
+        )}
+      </div>
+
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {success && (
+        <Alert className="border-green-200 bg-green-50 text-green-800">
+          <CheckCircle className="h-4 w-4" />
+          <AlertDescription>
+            Referral code ready! It will be applied when you create your account.
+          </AlertDescription>
+        </Alert>
+      )}
+    </form>
+  );
+
+  if (minimal) {
+    return <div className={className}>{formContent}</div>;
+  }
+
   return (
     <Card className={className}>
       <CardHeader>
@@ -104,47 +163,7 @@ export const ReferralCodeInput = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="referral-code">Referral Code</Label>
-            <div className="flex gap-2">
-              <Input
-                id="referral-code"
-                value={referralCode}
-                onChange={handleInputChange}
-                placeholder="Enter referral code (e.g., 8D604377)"
-                className="font-mono tracking-wider"
-                disabled={loading || success}
-              />
-              <Button
-                type="submit"
-                disabled={!referralCode.trim() || !!inputError || loading || success}
-                className="shrink-0"
-              >
-                {loading ? "Applying..." : "Apply"}
-              </Button>
-            </div>
-            {inputError && (
-              <p className="text-sm text-destructive">{inputError}</p>
-            )}
-          </div>
-
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {success && (
-            <Alert className="border-green-200 bg-green-50 text-green-800">
-              <CheckCircle className="h-4 w-4" />
-              <AlertDescription>
-                Referral code applied successfully! You and your referrer will both get special benefits.
-              </AlertDescription>
-            </Alert>
-          )}
-        </form>
+        {formContent}
 
         <div className="p-4 bg-muted/50 rounded-lg">
           <h4 className="font-medium mb-2">Benefits of Using a Referral Code</h4>

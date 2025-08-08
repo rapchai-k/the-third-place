@@ -174,7 +174,7 @@ export const useReferrals = (userId?: string) => {
   };
 
   // Share referral code
-  const shareReferralCode = async (code: string, method: 'copy' | 'whatsapp' | 'email') => {
+  const shareReferralCode = async (code: string, method: 'copy' | 'copyUrl' | 'whatsapp' | 'email') => {
     const referralUrl = `${window.location.origin}/auth?ref=${code}`;
     const message = `Join our amazing community! Use my referral code: ${code} or click here: ${referralUrl}`;
 
@@ -185,6 +185,15 @@ export const useReferrals = (userId?: string) => {
         toast({
           title: "Copied!",
           description: `Referral code "${code}" copied to clipboard`,
+        });
+        break;
+
+      case 'copyUrl':
+        // Copy the full referral URL
+        await navigator.clipboard.writeText(referralUrl);
+        toast({
+          title: "Copied!",
+          description: "Referral URL copied to clipboard",
         });
         break;
 

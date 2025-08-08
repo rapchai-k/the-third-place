@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ReferralCodeInput } from "@/components/referrals/ReferralCodeInput";
 import { useReferrals } from "@/hooks/useReferrals";
 import { toast } from "@/hooks/use-toast";
+import { shouldShowReferralModal } from "@/utils/userUtils";
 
 export const AuthPage = () => {
   const [email, setEmail] = useState("");
@@ -19,6 +20,7 @@ export const AuthPage = () => {
   const [error, setError] = useState("");
   const [referralCodeApplied, setReferralCodeApplied] = useState(false);
   const [referralError, setReferralError] = useState("");
+  const [currentTab, setCurrentTab] = useState("signin");
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,11 +31,20 @@ export const AuthPage = () => {
   const from = location.state?.from?.pathname || "/";
   const referralCodeFromUrl = searchParams.get('ref');
 
+  // Auto-apply referral code from URL when component mounts
+  useEffect(() => {
+    if (referralCodeFromUrl && !referralCodeApplied) {
+      setReferralCodeApplied(true);
+    }
+  }, [referralCodeFromUrl]);
+
   useEffect(() => {
     if (user) {
       // Apply referral code after successful authentication if needed
       const applyReferralAfterAuth = async () => {
-        if (referralCodeFromUrl && referralCodeApplied && user.id) {
+        // Only apply referral code automatically for non-OAuth users
+        // OAuth users will be handled by the Dashboard modal
+        if (referralCodeFromUrl && referralCodeApplied && user.id && !shouldShowReferralModal(user)) {
           const success = await applyReferralCode(referralCodeFromUrl, user.id);
           if (success) {
             toast({
@@ -43,7 +54,7 @@ export const AuthPage = () => {
           }
         }
       };
-      
+
       applyReferralAfterAuth();
       navigate(from, { replace: true });
     }
@@ -112,8 +123,14 @@ export const AuthPage = () => {
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
+
+    // Store referral code in localStorage before OAuth redirect
+    if (referralCodeFromUrl) {
+      localStorage.setItem('pendingReferralCode', referralCodeFromUrl);
+    }
+
     const result = await signInWithGoogle();
-    
+
     if (result.error) {
       setError(result.error.message);
       toast({
@@ -122,7 +139,7 @@ export const AuthPage = () => {
         description: result.error.message,
       });
     }
-    
+
     setLoading(false);
   };
 
@@ -139,7 +156,7 @@ export const AuthPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="w-full max-w-2xl">
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-primary">Welcome to MyThirdPlace</CardTitle>
@@ -148,7 +165,7 @@ export const AuthPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
+            <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -228,7 +245,18 @@ export const AuthPage = () => {
                       minLength={6}
                     />
                   </div>
-                  
+
+                  {/* Referral Code Input for Sign Up */}
+                  <div className="space-y-4">
+                    <ReferralCodeInput
+                      onApplyCode={handleApplyReferralCode}
+                      error={referralError}
+                      success={referralCodeApplied}
+                      initialCode={referralCodeFromUrl || undefined}
+                      minimal={true}
+                    />
+                  </div>
+
                   {error && (
                     <Alert variant="destructive">
                       <AlertDescription>{error}</AlertDescription>
@@ -253,7 +281,7 @@ export const AuthPage = () => {
                   </span>
                 </div>
               </div>
-              
+
               <Button
                 variant="outline"
                 className="w-full mt-4"
@@ -263,33 +291,27 @@ export const AuthPage = () => {
                 Continue with Google
               </Button>
             </div>
+
+            {/* Referral Code Display Card - Only show during sign-up */}
+            {currentTab === "signup" && referralCodeFromUrl && (
+              <div className="mt-6">
+                <Card className="border-primary/20 bg-primary/5">
+                  <CardContent className="p-4">
+                    <div className="text-center space-y-2">
+                      <p className="font-medium text-primary">You've been invited!</p>
+                      <p className="text-sm text-muted-foreground">
+                        Referral code from link: <code className="font-mono font-bold">{referralCodeFromUrl}</code>
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        The referral code has been automatically filled in above
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </CardContent>
         </Card>
-
-        {/* Referral Code Section */}
-        <div className="space-y-4">
-          <ReferralCodeInput
-            onApplyCode={handleApplyReferralCode}
-            error={referralError}
-            success={referralCodeApplied}
-          />
-          
-          {referralCodeFromUrl && (
-            <Card className="border-primary/20 bg-primary/5">
-              <CardContent className="p-4">
-                <div className="text-center space-y-2">
-                  <p className="font-medium text-primary">You've been invited!</p>
-                  <p className="text-sm text-muted-foreground">
-                    Referral code: <code className="font-mono font-bold">{referralCodeFromUrl}</code>
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Create your account to activate special benefits
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
       </div>
     </div>
   );

@@ -67,9 +67,10 @@ export const ReferralDashboard = ({ userProfile }: ReferralDashboardProps) => {
               Share this code with friends to invite them to our community
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Referral Code</Label>
+          <CardContent className="space-y-6">
+            {/* Referral Code Section */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Direct Code Sharing</Label>
               <div className="flex gap-2">
                 <Input
                   value={userProfile.referral_code}
@@ -79,31 +80,61 @@ export const ReferralDashboard = ({ userProfile }: ReferralDashboardProps) => {
                 <Button
                   variant="outline"
                   onClick={() => shareReferralCode(userProfile.referral_code!, 'copy')}
+                  title="Copy referral code"
                 >
                   <Copy className="w-4 h-4" />
                 </Button>
               </div>
+              <p className="text-xs text-muted-foreground">
+                Share this code directly for manual entry during sign-up
+              </p>
             </div>
-            
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => shareReferralCode(userProfile.referral_code!, 'whatsapp')}
-                className="flex items-center gap-2"
-              >
-                <MessageCircle className="w-4 h-4" />
-                WhatsApp
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => shareReferralCode(userProfile.referral_code!, 'email')}
-                className="flex items-center gap-2"
-              >
-                <Mail className="w-4 h-4" />
-                Email
-              </Button>
+
+            {/* Referral URL Section */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Referral Link Sharing</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={`${window.location.origin}/auth?ref=${userProfile.referral_code}`}
+                  readOnly
+                  className="bg-muted text-sm"
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => shareReferralCode(userProfile.referral_code!, 'copyUrl')}
+                  title="Copy referral URL"
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Share this link for automatic code pre-filling
+              </p>
+            </div>
+
+            {/* Social Sharing */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Share via</Label>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => shareReferralCode(userProfile.referral_code!, 'whatsapp')}
+                  className="flex items-center gap-2"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  WhatsApp
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => shareReferralCode(userProfile.referral_code!, 'email')}
+                  className="flex items-center gap-2"
+                >
+                  <Mail className="w-4 h-4" />
+                  Email
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

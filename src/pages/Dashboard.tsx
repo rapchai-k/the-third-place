@@ -1,16 +1,81 @@
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Users, MessageSquare, Star, Clock, MapPin } from "lucide-react";
+import { CalendarDays, Users, Star, Clock, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ReferralCodeModal } from "@/components/referrals/ReferralCodeModal";
+import { useReferrals } from "@/hooks/useReferrals";
+import { shouldShowReferralModal } from "@/utils/userUtils";
+import { toast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const { applyReferralCode } = useReferrals();
+
+  // Referral modal state
+  const [showReferralModal, setShowReferralModal] = useState(false);
+  const [referralCodeApplied, setReferralCodeApplied] = useState(false);
+  const [referralError, setReferralError] = useState("");
+  const [referralLoading, setReferralLoading] = useState(false);
+  const [currentReferralCode, setCurrentReferralCode] = useState<string | null>(null);
+
+  const referralCodeFromUrl = searchParams.get('ref');
+
+  // Show referral modal for new Google OAuth users
+  useEffect(() => {
+    if (user && shouldShowReferralModal(user)) {
+      // Check for referral code from URL params or localStorage
+      const storedReferralCode = localStorage.getItem('pendingReferralCode');
+      const referralCode = referralCodeFromUrl || storedReferralCode;
+
+      // Show modal for ALL new Google OAuth users, regardless of referral code presence
+      setCurrentReferralCode(referralCode); // This can be null if no code is available
+      setShowReferralModal(true);
+
+      // Clear the stored referral code since we're about to use it
+      if (storedReferralCode) {
+        localStorage.removeItem('pendingReferralCode');
+      }
+    }
+  }, [user, referralCodeFromUrl]);
+
+  // Handle referral code application
+  const handleApplyReferralCode = async (code: string) => {
+    if (!user?.id) return;
+
+    setReferralLoading(true);
+    setReferralError("");
+
+    const success = await applyReferralCode(code, user.id);
+
+    if (success) {
+      setReferralCodeApplied(true);
+      toast({
+        title: "Referral applied!",
+        description: "You've been successfully referred and will receive special benefits.",
+      });
+      // Close modal after a short delay
+      setTimeout(() => {
+        setShowReferralModal(false);
+      }, 2000);
+    } else {
+      setReferralError("Invalid referral code. Please check and try again.");
+    }
+
+    setReferralLoading(false);
+  };
+
+  // Handle modal skip
+  const handleSkipReferral = () => {
+    setShowReferralModal(false);
+  };
 
   // Fetch user's registered events
   const { data: userEvents = [], isLoading: eventsLoading } = useQuery({
@@ -259,6 +324,18 @@ const Dashboard = () => {
           </div>
         )}
       </section>
+
+      {/* Referral Code Modal for new Google OAuth users */}
+      <ReferralCodeModal
+        open={showReferralModal}
+        onOpenChange={setShowReferralModal}
+        onApplyCode={handleApplyReferralCode}
+        onSkip={handleSkipReferral}
+        referralCodeFromUrl={currentReferralCode}
+        loading={referralLoading}
+        error={referralError}
+        success={referralCodeApplied}
+      />
     </div>
   );
 };
