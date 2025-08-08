@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      bulk_operations: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_count: number
+          error_details: Json | null
+          id: string
+          initiated_by: string
+          operation_data: Json | null
+          operation_type: string
+          started_at: string
+          status: string
+          success_count: number
+          target_count: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_count?: number
+          error_details?: Json | null
+          id?: string
+          initiated_by: string
+          operation_data?: Json | null
+          operation_type: string
+          started_at?: string
+          status?: string
+          success_count?: number
+          target_count?: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_count?: number
+          error_details?: Json | null
+          id?: string
+          initiated_by?: string
+          operation_data?: Json | null
+          operation_type?: string
+          started_at?: string
+          status?: string
+          success_count?: number
+          target_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulk_operations_initiated_by_fkey"
+            columns: ["initiated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       communities: {
         Row: {
           city: string
@@ -335,6 +388,9 @@ export type Database = {
           flagged_user_id: string
           id: string
           reason: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["flag_status"]
         }
         Insert: {
           comment_id?: string | null
@@ -343,6 +399,9 @@ export type Database = {
           flagged_user_id: string
           id?: string
           reason: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["flag_status"]
         }
         Update: {
           comment_id?: string | null
@@ -351,6 +410,9 @@ export type Database = {
           flagged_user_id?: string
           id?: string
           reason?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["flag_status"]
         }
         Relationships: [
           {
@@ -612,6 +674,102 @@ export type Database = {
           },
         ]
       }
+      user_permissions: {
+        Row: {
+          expires_at: string | null
+          granted_at: string
+          granted_by: string | null
+          id: string
+          is_active: boolean
+          permission_type: string
+          resource_id: string | null
+          resource_type: string | null
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          permission_type: string
+          resource_id?: string | null
+          resource_type?: string | null
+          user_id: string
+        }
+        Update: {
+          expires_at?: string | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          permission_type?: string
+          resource_id?: string | null
+          resource_type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permissions_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          expires_at: string | null
+          granted_at: string
+          granted_by: string | null
+          id: string
+          is_active: boolean
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          expires_at?: string | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           created_at: string
@@ -755,12 +913,43 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_user_highest_role: {
+        Args: { _user_id?: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       get_user_role: {
         Args: { user_id?: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      has_permission: {
+        Args: {
+          _user_id: string
+          _permission_type: string
+          _resource_type?: string
+          _resource_id?: string
+        }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
+      is_admin: {
+        Args: { _user_id?: string }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role:
+        | "admin"
+        | "moderator"
+        | "community_manager"
+        | "event_organizer"
+        | "user"
+      flag_status: "open" | "resolved" | "urgent"
       registration_status: "pending" | "success" | "failed" | "cancelled"
       user_role: "user" | "admin"
     }
@@ -890,6 +1079,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: [
+        "admin",
+        "moderator",
+        "community_manager",
+        "event_organizer",
+        "user",
+      ],
+      flag_status: ["open", "resolved", "urgent"],
       registration_status: ["pending", "success", "failed", "cancelled"],
       user_role: ["user", "admin"],
     },

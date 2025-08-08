@@ -59,8 +59,8 @@ const Index = () => {
     }
   ];
 
-  // Photo gallery data for Masonry
-  const communityMoments = [
+  // Photo gallery data for Masonry - Using Supabase bucket for landing page images
+  const [galleryImages, setGalleryImages] = useState([
     { id: '1', src: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400', alt: 'Community Gathering', height: 250 },
     { id: '2', src: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400', alt: 'Local Event', height: 300 },
     { id: '3', src: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=400', alt: 'Workshop Session', height: 200 },
@@ -69,7 +69,39 @@ const Index = () => {
     { id: '6', src: 'https://images.unsplash.com/photo-1543269664-647b4d4c4c2e?w=400', alt: 'Group Discussion', height: 260 },
     { id: '7', src: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400', alt: 'Team Building', height: 240 },
     { id: '8', src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', alt: 'Community Service', height: 290 },
-  ];
+  ]);
+
+  // Fetch images from Supabase bucket when available
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      try {
+        const { data: files, error } = await supabase.storage
+          .from('landing-page-images')
+          .list('', { limit: 20 });
+
+        if (error) {
+          console.error('Error fetching gallery images:', error);
+          return;
+        }
+
+        if (files && files.length > 0) {
+          const bucketImages = files.map((file, index) => ({
+            id: file.id || `bucket-${index}`,
+            src: supabase.storage
+              .from('landing-page-images')
+              .getPublicUrl(file.name).data.publicUrl,
+            alt: file.name.replace(/\.[^/.]+$/, "").replace(/-|_/g, " "),
+            height: 200 + Math.floor(Math.random() * 100) // Random height for masonry effect
+          }));
+          setGalleryImages(bucketImages);
+        }
+      } catch (error) {
+        console.error('Error loading gallery images:', error);
+      }
+    };
+
+    fetchGalleryImages();
+  }, []);
 
   // Fetch featured events with registration counts
   const { data: featuredEvents = [] } = useQuery({
@@ -161,64 +193,76 @@ const Index = () => {
 
   return (
     <SilkBackground>
-      <div className="min-h-screen">
-        {/* 1. Logo */}
-        <div className="text-center pt-6 md:pt-8 pb-3 md:pb-4 px-4">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
+      <div className="min-h-screen mobile-safe overflow-x-hidden">
+        {/* Logo */}
+        <div className="text-center pt-8 md:pt-12 pb-4 md:pb-6 px-6 md:px-8">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">
             The Third Place
           </h1>
         </div>
 
-        {/* 2. Tagline */}
-        <div className="text-center px-4 pb-3 md:pb-4">
+        {/* Tagline */}
+        <div className="text-center px-6 md:px-8 pb-4 md:pb-6">
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-primary">
             Where Communities Come Alive
           </h2>
         </div>
 
-        {/* 3. Quick Description */}
-        <div className="text-center px-4 pb-6 md:pb-8">
-          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+        {/* Quick Description */}
+        <div className="text-center px-6 md:px-8 pb-8 md:pb-12">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Connect with local communities, discover exciting events, and build meaningful relationships in your neighborhood.
           </p>
         </div>
 
-        {/* 4. Primary CTA */}
-        <div className="text-center pb-8 md:pb-12 px-4">
+        {/* Primary CTA */}
+        <div className="text-center pb-12 md:pb-16 px-6 md:px-8">
           {user ? (
-            <Button size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto" onClick={() => window.location.href = '/dashboard'}>
+            <Button 
+              variant="gradient"
+              size="lg" 
+              className="text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" 
+              onClick={() => window.location.href = '/dashboard'}
+            >
               View Your Dashboard
             </Button>
           ) : (
-            <Button size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto" onClick={() => window.location.href = '/auth'}>
+            <Button 
+              variant="gradient"
+              size="lg" 
+              className="text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" 
+              onClick={() => window.location.href = '/auth'}
+            >
               Join the Community
             </Button>
           )}
         </div>
 
-        {/* 5. Community Header */}
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 pb-4 md:pb-6">
+        {/* Community Header */}
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-6 md:pb-8">
           <div className="text-center">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground mb-3 md:mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground mb-4 md:mb-6">
               Active Communities
             </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
               Discover vibrant communities in your area and connect with like-minded people
             </p>
           </div>
         </div>
 
-        {/* 6. Community Scroll Carousel */}
-        <div className="pb-12 md:pb-16">
-          <CommunityCarousel communities={allCommunities} />
+        {/* Community Scroll Carousel */}
+        <div className="pb-16 md:pb-20">
+          <div className="px-2 sm:px-4">
+            <CommunityCarousel communities={allCommunities} />
+          </div>
 
           {hasMoreCommunities && (
-            <div className="text-center mt-6 md:mt-8 px-4">
+            <div className="text-center mt-8 md:mt-12 px-6 md:px-8">
               <Button
                 variant="outline"
                 onClick={loadMoreCommunities}
                 disabled={loadingCommunities}
-                className="text-base sm:text-lg px-4 sm:px-6 py-2 w-full sm:w-auto"
+                className="text-base sm:text-lg px-6 sm:px-8 py-2 w-full sm:w-auto min-w-[200px]"
               >
                 {loadingCommunities ? "Loading..." : "Load More Communities"}
               </Button>
@@ -226,18 +270,18 @@ const Index = () => {
           )}
         </div>
 
-        {/* 7. "Why Third Place" Content Section */}
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 pb-12 md:pb-16">
-          <div className="text-center mb-8 md:mb-12">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground mb-3 md:mb-4">
+        {/* "Why Third Place" Content Section */}
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground mb-4 md:mb-6">
               Why The Third Place?
             </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
               Beyond home and work, discover the spaces where communities thrive and connections flourish
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
             {features.map((feature, index) => (
               <SpotlightCard
                 key={index}
@@ -250,43 +294,51 @@ const Index = () => {
           </div>
         </div>
 
-
-
-        {/* 8. Gallery */}
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 pb-12 md:pb-16">
-          <div className="text-center mb-8 md:mb-12">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
+        {/* Gallery */}
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground">
               Community Moments
             </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto mt-3 md:mt-4 leading-relaxed">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto mt-4 md:mt-6 leading-relaxed">
               Capturing the spirit of connection and shared experiences in our communities
             </p>
           </div>
 
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <Masonry
-              items={communityMoments}
+              items={galleryImages}
               columns={masonryColumns}
-              gap={12}
+              gap={16}
               className="w-full"
             />
           </div>
         </div>
 
-        {/* 9. Secondary CTA */}
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 pb-12 md:pb-16">
-          <div className="text-center space-y-4 md:space-y-6 bg-card/50 backdrop-blur-sm rounded-xl md:rounded-2xl p-6 sm:p-8 md:p-12 border border-border/50">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
+        {/* Secondary CTA */}
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
+          <div className="text-center space-y-6 md:space-y-8 bg-card/50 backdrop-blur-sm rounded-2xl md:rounded-3xl p-8 sm:p-10 md:p-16 border border-border/50 shadow-glow">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground">
               Ready to Find Your Third Place?
             </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Join thousands of people who have discovered meaningful connections and exciting opportunities in their local communities.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-              <Button size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto" onClick={() => window.location.href = '/communities'}>
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
+              <Button 
+                variant="gradient"
+                size="lg" 
+                className="text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" 
+                onClick={() => window.location.href = '/communities'}
+              >
                 Explore Communities
               </Button>
-              <Button size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto" onClick={() => window.location.href = '/events'}>
+              <Button 
+                variant="outline"
+                size="lg" 
+                className="text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" 
+                onClick={() => window.location.href = '/events'}
+              >
                 Browse Events
               </Button>
             </div>

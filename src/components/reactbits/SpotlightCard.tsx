@@ -68,25 +68,42 @@ export const SpotlightCard: React.FC<SpotlightCardProps> = ({
           background: `radial-gradient(600px circle at ${position.x}px ${position.y}px, rgba(129, 140, 248, 0.15), transparent 40%)`,
         }}
       />
-      <Card className="relative h-full bg-card/80 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-colors duration-300">
-        {title || description || icon ? (
-          <>
-            <CardHeader className="text-center">
-              {icon && (
-                <div className="flex justify-center mb-4">
-                  <div className="p-3 rounded-full bg-primary/10 text-primary">
-                    {icon}
-                  </div>
+      <Card className="group relative overflow-hidden bg-card/80 backdrop-blur-md border border-border/50 hover:shadow-glow transition-all duration-500 hover:scale-105 h-full">
+        <CardContent className="p-8">
+          <div className="relative z-10">
+            {/* Icon with gradient background */}
+            {icon && (
+              <div className="mb-6 inline-flex">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 text-primary group-hover:from-primary/30 group-hover:to-accent/30 transition-all duration-300 group-hover:scale-110">
+                  {icon}
                 </div>
-              )}
-              {title && <CardTitle className="text-xl">{title}</CardTitle>}
-              {description && <CardDescription className="text-base">{description}</CardDescription>}
-            </CardHeader>
-            {children && <CardContent>{children}</CardContent>}
-          </>
-        ) : (
-          children
-        )}
+              </div>
+            )}
+
+            {/* Title */}
+            {title && (
+              <h3 className="text-2xl font-bold mb-4 text-foreground group-hover:text-primary transition-smooth">
+                {title}
+              </h3>
+            )}
+
+            {/* Description */}
+            {description && (
+              <p className="text-muted-foreground leading-relaxed">
+                {description}
+              </p>
+            )}
+
+            {/* Custom children content */}
+            {children}
+          </div>
+
+          {/* Spotlight effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          {/* Subtle animated border */}
+          <div className="absolute inset-0 rounded-lg border border-primary/0 group-hover:border-primary/30 transition-all duration-500" />
+        </CardContent>
       </Card>
     </motion.div>
   );

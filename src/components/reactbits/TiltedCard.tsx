@@ -78,31 +78,36 @@ export const TiltedCard: React.FC<TiltedCardProps> = ({
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <Card className="hover:shadow-xl transition-all duration-300 bg-card/80 backdrop-blur-sm border border-border/50 h-full">
+      <Card className="hover:shadow-xl transition-all duration-300 bg-card/90 backdrop-blur-md border border-border/50 h-full overflow-hidden group">
         {community ? (
-          <div className="p-4 h-full flex flex-col">
+          <div className="p-6 h-full flex flex-col">
             {/* Community Name */}
-            <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">
+            <CardTitle className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-primary transition-smooth">
               {community.name}
             </CardTitle>
 
             {/* Community Description */}
-            <CardDescription className="text-sm text-muted-foreground mb-4 line-clamp-3 flex-grow">
+            <CardDescription className="text-sm text-muted-foreground mb-6 line-clamp-3 flex-grow">
               {community.description}
             </CardDescription>
 
-            {/* Member Count */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-              <Users className="w-4 h-4" />
-              <span>{community.members} members</span>
-            </div>
+            {/* Stats Row */}
+            <div className="space-y-3 mt-auto">
+              {/* Member Count */}
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full">
+                  <Users className="w-4 h-4 text-primary" />
+                  <span className="font-medium">{community.members} members</span>
+                </div>
+              </div>
 
-            {/* Location */}
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-muted-foreground" />
-              <Badge variant="secondary" className="text-xs">
-                {community.city}
-              </Badge>
+              {/* Location */}
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-accent" />
+                <Badge variant="secondary" className="text-xs bg-accent/10 text-accent border-accent/20 hover:bg-accent/20 transition-smooth">
+                  {community.city}
+                </Badge>
+              </div>
             </div>
           </div>
         ) : (

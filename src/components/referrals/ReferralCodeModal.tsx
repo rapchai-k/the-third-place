@@ -84,26 +84,26 @@ export const ReferralCodeModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md" onPointerDownOutside={handleClose}>
+      <DialogContent className="sm:max-w-md bg-card/95 backdrop-blur-md border border-border/50 shadow-glow" onPointerDownOutside={handleClose}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-foreground">
             <Gift className="w-5 h-5 text-primary" />
             Welcome! Do you have a referral code?
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-muted-foreground">
             If someone invited you to join, enter their referral code to get special community benefits.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {/* Show referral code from URL if present */}
           {referralCodeFromUrl && (
-            <Card className="border-primary/20 bg-primary/5">
+            <Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-accent/5 shadow-primary">
               <CardContent className="p-4">
                 <div className="text-center space-y-2">
                   <p className="font-medium text-primary">You've been invited!</p>
                   <p className="text-sm text-muted-foreground">
-                    Referral code: <code className="font-mono font-bold">{referralCodeFromUrl}</code>
+                    Referral code: <code className="font-mono font-bold text-primary">{referralCodeFromUrl}</code>
                   </p>
                   <p className="text-xs text-muted-foreground">
                     This code has been automatically filled in below
@@ -115,28 +115,28 @@ export const ReferralCodeModal = ({
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="modal-referral-code">Referral Code (Optional)</Label>
+              <Label htmlFor="modal-referral-code" className="text-foreground font-medium">Referral Code (Optional)</Label>
               <Input
                 id="modal-referral-code"
                 value={referralCode}
                 onChange={handleInputChange}
                 placeholder="Enter referral code (e.g., 8D604377)"
-                className="font-mono tracking-wider"
+                className="font-mono tracking-wider bg-background/50 border-border/50 focus:border-primary transition-smooth"
                 disabled={loading || success}
               />
             </div>
 
             {error && (
-              <Alert variant="destructive">
+              <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
             {success && (
-              <Alert className="border-green-200 bg-green-50 text-green-800">
-                <CheckCircle className="h-4 w-4" />
-                <AlertDescription>
+              <Alert className="border-accent/50 bg-accent/10 text-accent">
+                <CheckCircle className="h-4 w-4 text-accent" />
+                <AlertDescription className="text-accent">
                   Referral code applied successfully! You'll receive special benefits.
                 </AlertDescription>
               </Alert>
@@ -144,17 +144,20 @@ export const ReferralCodeModal = ({
           </form>
         </div>
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="gap-3">
           <Button
             variant="outline"
             onClick={handleSkip}
             disabled={loading}
+            className="transition-bounce hover:shadow-glow"
           >
             Skip for now
           </Button>
           <Button
+            variant="gradient"
             onClick={handleSubmit}
             disabled={!referralCode.trim() || loading || success}
+            className="transition-bounce"
           >
             {loading ? 'Applying...' : success ? 'Applied!' : 'Apply Code'}
           </Button>

@@ -36,66 +36,64 @@ export const CommunityCarousel: React.FC<CommunityCarouselProps> = ({
   };
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${className} mobile-safe`}>
       {/* Navigation Buttons - Hidden on mobile */}
-      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 -left-4 z-10">
+      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 -left-6 z-10">
         <Button
           variant="outline"
           size="icon"
           onClick={scrollLeft}
-          className="rounded-full bg-background/80 backdrop-blur-sm border-border/50 hover:bg-background"
+          className="rounded-full bg-background/90 backdrop-blur-md border-border/50 hover:bg-background hover:shadow-glow transition-bounce"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-5 h-5" />
         </Button>
       </div>
       
-      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 -right-4 z-10">
+      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 -right-6 z-10">
         <Button
           variant="outline"
           size="icon"
           onClick={scrollRight}
-          className="rounded-full bg-background/80 backdrop-blur-sm border-border/50 hover:bg-background"
+          className="rounded-full bg-background/90 backdrop-blur-md border-border/50 hover:bg-background hover:shadow-glow transition-bounce"
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-5 h-5" />
         </Button>
       </div>
 
       {/* Carousel Container */}
       <div
         ref={scrollRef}
-        className="flex gap-3 md:gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory px-4 md:px-0 -mx-4 md:mx-0"
+        className="flex gap-4 md:gap-8 overflow-x-auto no-scrollbar pb-6 snap-x snap-mandatory px-6 md:px-8 -mx-6 md:-mx-8"
         style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
           WebkitOverflowScrolling: 'touch',
         }}
       >
         {communities.map((community, index) => (
           <motion.div
             key={community.id}
-            className="flex-none w-[60vw] sm:w-[50vw] md:w-80 snap-start first:ml-4 md:first:ml-0 last:mr-4 md:last:mr-0"
+            className="flex-none w-[280px] sm:w-[320px] md:w-[360px] snap-start"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{
-              duration: 0.5,
+              duration: 0.6,
               delay: index * 0.1,
               type: "spring",
-              stiffness: 300,
-              damping: 30
+              stiffness: 260,
+              damping: 20
             }}
           >
-            <TiltedCard community={community} className="h-full" />
+            <TiltedCard community={community} className="h-full shadow-glow hover:shadow-primary transition-bounce" />
           </motion.div>
         ))}
       </div>
 
       {/* Scroll Indicator - Mobile only */}
-      <div className="md:hidden flex justify-center mt-4">
+      <div className="md:hidden flex justify-center mt-6">
         <div className="flex gap-2">
           {communities.slice(0, Math.min(communities.length, 5)).map((_, index) => (
             <div
               key={index}
-              className="w-2 h-2 rounded-full bg-muted-foreground/30"
+              className="w-2 h-2 rounded-full bg-primary/30 transition-smooth hover:bg-primary"
             />
           ))}
         </div>
