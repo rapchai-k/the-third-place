@@ -41,6 +41,9 @@ describe('userUtils', () => {
     it('should return true for users with Google provider', () => {
       const googleUser = {
         id: 'test-id',
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+        user_metadata: {},
         app_metadata: {
           providers: ['google']
         }
@@ -52,6 +55,9 @@ describe('userUtils', () => {
     it('should return false for users without Google provider', () => {
       const emailUser = {
         id: 'test-id',
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+        user_metadata: {},
         app_metadata: {
           providers: ['email']
         }
@@ -78,7 +84,9 @@ describe('userUtils', () => {
       const now = new Date();
       const newGoogleUser = {
         id: 'test-id',
+        aud: 'authenticated',
         created_at: new Date(now.getTime() - 2 * 60 * 1000).toISOString(), // 2 minutes ago
+        user_metadata: {},
         app_metadata: {
           providers: ['google']
         }
@@ -91,7 +99,9 @@ describe('userUtils', () => {
       const now = new Date();
       const oldGoogleUser = {
         id: 'test-id',
+        aud: 'authenticated',
         created_at: new Date(now.getTime() - 10 * 60 * 1000).toISOString(), // 10 minutes ago
+        user_metadata: {},
         app_metadata: {
           providers: ['google']
         }
@@ -104,7 +114,9 @@ describe('userUtils', () => {
       const now = new Date();
       const newEmailUser = {
         id: 'test-id',
+        aud: 'authenticated',
         created_at: new Date(now.getTime() - 2 * 60 * 1000).toISOString(), // 2 minutes ago
+        user_metadata: {},
         app_metadata: {
           providers: ['email']
         }
