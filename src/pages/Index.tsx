@@ -2,20 +2,74 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Users, MapPin, Star } from "lucide-react";
+import { CalendarDays, Users, MapPin, Star, Heart, Search, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { SilkBackground, TiltedCard, SpotlightCard, Masonry, InfiniteScroll, CommunityCarousel } from "@/components/reactbits";
 
 const Index = () => {
   const { user } = useAuth();
   const { logPageView } = useActivityLogger();
+  const [communitiesPage, setCommunitiesPage] = useState(0);
+  const [allCommunities, setAllCommunities] = useState<any[]>([]);
+  const [hasMoreCommunities, setHasMoreCommunities] = useState(true);
+  const [loadingCommunities, setLoadingCommunities] = useState(false);
+  const [masonryColumns, setMasonryColumns] = useState(3);
 
   useEffect(() => {
     logPageView('home');
   }, [logPageView]);
+
+  // Handle responsive masonry columns
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setMasonryColumns(1);
+      } else if (window.innerWidth < 1024) {
+        setMasonryColumns(2);
+      } else {
+        setMasonryColumns(3);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Features data for SpotlightCard
+  const features = [
+    {
+      icon: <Heart className="w-6 h-6" />,
+      title: "Connect",
+      description: "Build meaningful relationships with like-minded people in your community"
+    },
+    {
+      icon: <Search className="w-6 h-6" />,
+      title: "Discover",
+      description: "Find exciting events, activities, and opportunities happening around you"
+    },
+    {
+      icon: <MessageCircle className="w-6 h-6" />,
+      title: "Engage",
+      description: "Participate in discussions, share experiences, and contribute to your community"
+    }
+  ];
+
+  // Photo gallery data for Masonry
+  const communityMoments = [
+    { id: '1', src: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400', alt: 'Community Gathering', height: 250 },
+    { id: '2', src: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400', alt: 'Local Event', height: 300 },
+    { id: '3', src: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=400', alt: 'Workshop Session', height: 200 },
+    { id: '4', src: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=400', alt: 'Community Meeting', height: 280 },
+    { id: '5', src: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400', alt: 'Social Activity', height: 220 },
+    { id: '6', src: 'https://images.unsplash.com/photo-1543269664-647b4d4c4c2e?w=400', alt: 'Group Discussion', height: 260 },
+    { id: '7', src: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400', alt: 'Team Building', height: 240 },
+    { id: '8', src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', alt: 'Community Service', height: 290 },
+  ];
 
   // Fetch featured events with registration counts
   const { data: featuredEvents = [] } = useQuery({
@@ -45,7 +99,7 @@ const Index = () => {
     }
   });
 
-  // Fetch featured communities with member counts
+  // Fetch featured communities with member counts (initial load)
   const { data: featuredCommunities = [] } = useQuery({
     queryKey: ['featured-communities'],
     queryFn: async () => {
@@ -60,127 +114,186 @@ const Index = () => {
 
       if (error) throw error;
 
-      return communities?.map(community => ({
+      const mappedCommunities = communities?.map(community => ({
         ...community,
         members: community.community_members?.[0]?.count || 0
       })) || [];
+
+      setAllCommunities(mappedCommunities);
+      return mappedCommunities;
     }
   });
 
+  // Load more communities function for infinite scroll
+  const loadMoreCommunities = useCallback(async () => {
+    if (loadingCommunities) return;
+
+    setLoadingCommunities(true);
+    try {
+      const { data: communities, error } = await supabase
+        .from('communities')
+        .select(`
+          *,
+          community_members(count)
+        `)
+        .order('created_at', { ascending: false })
+        .range(communitiesPage * 4, (communitiesPage + 1) * 4 - 1);
+
+      if (error) throw error;
+
+      const mappedCommunities = communities?.map(community => ({
+        ...community,
+        members: community.community_members?.[0]?.count || 0
+      })) || [];
+
+      if (mappedCommunities.length < 4) {
+        setHasMoreCommunities(false);
+      }
+
+      setAllCommunities(prev => [...prev, ...mappedCommunities]);
+      setCommunitiesPage(prev => prev + 1);
+    } catch (error) {
+      console.error('Error loading more communities:', error);
+    } finally {
+      setLoadingCommunities(false);
+    }
+  }, [communitiesPage, loadingCommunities]);
+
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
-      {/* Hero Section */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-foreground">
-          Discover Your {" "}
-          <span className="text-primary">Third Place</span>
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Connect with local communities, discover exciting events, and build meaningful relationships in your neighborhood
-        </p>
-        {user ? (
-          <Button size="lg" className="mt-4" onClick={() => window.location.href = '/dashboard'}>
-            View Your Dashboard
-          </Button>
-        ) : (
-          <Button size="lg" className="mt-4" onClick={() => window.location.href = '/auth'}>
-            Join the Community
-          </Button>
-        )}
-      </div>
+    <SilkBackground>
+      <div className="min-h-screen">
+        {/* 1. Logo */}
+        <div className="text-center pt-6 md:pt-8 pb-3 md:pb-4 px-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
+            The Third Place
+          </h1>
+        </div>
 
-      {/* Featured Events */}
-      <section className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-foreground">Featured Events</h2>
-          <Button variant="outline" onClick={() => window.location.href = '/events'}>View All Events</Button>
-        </div>
-        
-        <div className="grid md:grid-cols-2 gap-6">
-          {featuredEvents.map((event) => (
-            <Card key={event.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg">{event.title}</CardTitle>
-                  <Star className="w-5 h-5 text-muted-foreground" />
-                </div>
-                <CardDescription>{event.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <CalendarDays className="w-4 h-4" />
-                    {format(new Date(event.date_time), 'MMM dd, yyyy')}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    {event.venue}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users className="w-4 h-4" />
-                    {event.attendees} attending
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  {event.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary">{tag}</Badge>
-                  ))}
-                </div>
-                {event.community_name && (
-                  <div className="text-sm text-muted-foreground">
-                    Hosted by {event.community_name}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Featured Communities */}
-      <section className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-foreground">Active Communities</h2>
-          <Button variant="outline" onClick={() => window.location.href = '/communities'}>Explore Communities</Button>
-        </div>
-        
-        <div className="grid md:grid-cols-2 gap-6">
-          {featuredCommunities.map((community) => (
-            <Card key={community.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-lg">{community.name}</CardTitle>
-                <CardDescription>{community.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="w-4 h-4" />
-                    {community.members} members
-                  </div>
-                  <Badge>{community.city}</Badge>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Call to Action */}
-      {user && (
-        <section className="text-center space-y-4 py-8">
-          <h2 className="text-2xl font-semibold text-foreground">
-            Ready to get involved?
+        {/* 2. Tagline */}
+        <div className="text-center px-4 pb-3 md:pb-4">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-primary">
+            Where Communities Come Alive
           </h2>
-          <p className="text-muted-foreground">
-            Start by joining a community or attending an event near you
+        </div>
+
+        {/* 3. Quick Description */}
+        <div className="text-center px-4 pb-6 md:pb-8">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Connect with local communities, discover exciting events, and build meaningful relationships in your neighborhood.
           </p>
-          <div className="flex gap-4 justify-center">
-            <Button onClick={() => window.location.href = '/events'}>Browse Events</Button>
-            <Button variant="outline" onClick={() => window.location.href = '/communities'}>Find Communities</Button>
+        </div>
+
+        {/* 4. Primary CTA */}
+        <div className="text-center pb-8 md:pb-12 px-4">
+          {user ? (
+            <Button size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto" onClick={() => window.location.href = '/dashboard'}>
+              View Your Dashboard
+            </Button>
+          ) : (
+            <Button size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto" onClick={() => window.location.href = '/auth'}>
+              Join the Community
+            </Button>
+          )}
+        </div>
+
+        {/* 5. Community Header */}
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 pb-4 md:pb-6">
+          <div className="text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground mb-3 md:mb-4">
+              Active Communities
+            </h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Discover vibrant communities in your area and connect with like-minded people
+            </p>
           </div>
-        </section>
-      )}
-    </div>
+        </div>
+
+        {/* 6. Community Scroll Carousel */}
+        <div className="pb-12 md:pb-16">
+          <CommunityCarousel communities={allCommunities} />
+
+          {hasMoreCommunities && (
+            <div className="text-center mt-6 md:mt-8 px-4">
+              <Button
+                variant="outline"
+                onClick={loadMoreCommunities}
+                disabled={loadingCommunities}
+                className="text-base sm:text-lg px-4 sm:px-6 py-2 w-full sm:w-auto"
+              >
+                {loadingCommunities ? "Loading..." : "Load More Communities"}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* 7. "Why Third Place" Content Section */}
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 pb-12 md:pb-16">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground mb-3 md:mb-4">
+              Why The Third Place?
+            </h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Beyond home and work, discover the spaces where communities thrive and connections flourish
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+            {features.map((feature, index) => (
+              <SpotlightCard
+                key={index}
+                title={feature.title}
+                description={feature.description}
+                icon={feature.icon}
+                className="h-full"
+              />
+            ))}
+          </div>
+        </div>
+
+
+
+        {/* 8. Gallery */}
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 pb-12 md:pb-16">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
+              Community Moments
+            </h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto mt-3 md:mt-4 leading-relaxed">
+              Capturing the spirit of connection and shared experiences in our communities
+            </p>
+          </div>
+
+          <div className="max-w-6xl mx-auto">
+            <Masonry
+              items={communityMoments}
+              columns={masonryColumns}
+              gap={12}
+              className="w-full"
+            />
+          </div>
+        </div>
+
+        {/* 9. Secondary CTA */}
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 pb-12 md:pb-16">
+          <div className="text-center space-y-4 md:space-y-6 bg-card/50 backdrop-blur-sm rounded-xl md:rounded-2xl p-6 sm:p-8 md:p-12 border border-border/50">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
+              Ready to Find Your Third Place?
+            </h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Join thousands of people who have discovered meaningful connections and exciting opportunities in their local communities.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+              <Button size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto" onClick={() => window.location.href = '/communities'}>
+                Explore Communities
+              </Button>
+              <Button size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-2 sm:py-3 w-full sm:w-auto" onClick={() => window.location.href = '/events'}>
+                Browse Events
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </SilkBackground>
   );
 };
 
