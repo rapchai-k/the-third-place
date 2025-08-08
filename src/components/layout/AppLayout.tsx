@@ -35,7 +35,6 @@ import {
 } from "@mui/icons-material";
 
 const navigation = [
-  { name: "Explore", href: "/", icon: Home, muiIcon: HomeIcon },
   { name: "Communities", href: "/communities", icon: Users, muiIcon: PeopleIcon },
   { name: "Events", href: "/events", icon: Calendar, muiIcon: EventIcon },
   { name: "Discussions", href: "/discussions", icon: MessageSquare, muiIcon: ForumIcon },
@@ -98,23 +97,17 @@ export const AppLayout = () => {
   // Get current tab value based on location
   const getCurrentTab = () => {
     if (!user) {
-      // Non-authenticated users only see Explore tab
-      return location.pathname === "/" ? 0 : -1;
+      return -1;
     } else {
       // Authenticated users see all tabs
       const allNavItems = [...navigation, ...userNavigation];
       const currentItem = allNavItems.find(item => item.href === location.pathname);
-      return currentItem ? allNavItems.indexOf(currentItem) : 0;
+      return currentItem ? allNavItems.indexOf(currentItem) : -1;
     }
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    if (!user) {
-      // Non-authenticated users only have Explore tab
-      if (newValue === 0) {
-        navigate("/");
-      }
-    } else {
+    if (user) {
       // Authenticated users have all tabs
       const allNavItems = [...navigation, ...userNavigation];
       const targetItem = allNavItems[newValue];
@@ -130,12 +123,25 @@ export const AppLayout = () => {
       <div className="min-h-screen flex flex-col w-full">
         {/* Unified Material UI Top Navigation */}
         <AppBar position="static" elevation={2}>
-          <Toolbar variant="regular">
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Toolbar variant="regular" sx={{ justifyContent: 'center' }}>
+            <Typography 
+              variant="h6" 
+              component="div" 
+              sx={{ 
+                position: 'absolute',
+                left: '16px',
+                fontWeight: 'bold',
+                background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                color: 'transparent',
+                fontSize: '1.25rem'
+              }}
+            >
               MyThirdPlace
             </Typography>
 
-            {/* Desktop Navigation Tabs - Hidden on mobile */}
+            {/* Desktop Navigation Tabs - Center aligned */}
             <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
               <Tabs
                 value={getCurrentTab()}
@@ -148,19 +154,9 @@ export const AppLayout = () => {
                   },
                 }}
               >
-                {/* Show only Explore for non-authenticated users */}
-                {!user ? (
-                  <Tab
-                    label="Explore"
-                    icon={<HomeIcon />}
-                    iconPosition="start"
-                    sx={{
-                      '& .MuiTab-iconWrapper': { mr: 1 }
-                    }}
-                  />
-                ) : (
+                {/* Show navigation for users */}
+                {user && (
                   <>
-                    {/* Show all navigation for authenticated users including Explore */}
                     {navigation.map((item) => (
                       <Tab
                         key={item.name}
@@ -189,7 +185,7 @@ export const AppLayout = () => {
             </Box>
 
             {/* Right side controls */}
-            <Box sx={{ ml: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ position: 'absolute', right: '16px', display: 'flex', alignItems: 'center', gap: 1 }}>
               {/* Theme Toggle */}
               <IconButton
                 onClick={() => setTheme(theme === "light" ? "dark" : "light")}
@@ -242,8 +238,11 @@ export const AppLayout = () => {
             elevation={8}
             className="md:hidden"
             sx={{
-              position: 'sticky',
+              position: 'fixed',
               bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 1000,
               borderRadius: 0,
               borderTop: 1,
               borderColor: 'divider'
