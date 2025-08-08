@@ -28,7 +28,7 @@ export const AuthPage = () => {
   const { user, signIn, signUp, signInWithGoogle } = useAuth();
   const { applyReferralCode } = useReferrals();
 
-  const from = location.state?.from?.pathname || "/";
+  const from = location.state?.from?.pathname || "/dashboard";
   const referralCodeFromUrl = searchParams.get('ref');
 
   // Auto-apply referral code from URL when component mounts

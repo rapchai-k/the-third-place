@@ -54,13 +54,14 @@ export const Masonry: React.FC<MasonryProps> = ({
     setItemPositions(positions);
   }, [items, columns, gap]);
 
-  const containerHeight = Math.max(...columnHeights);
+  const containerHeight = columnHeights.length > 0 ? Math.max(...columnHeights) : 0;
+  const safeContainerHeight = isFinite(containerHeight) ? containerHeight : 0;
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className={`relative ${className}`}
-      style={{ height: containerHeight }}
+      style={{ height: safeContainerHeight }}
     >
       {items.map((item, index) => {
         const position = itemPositions[index];

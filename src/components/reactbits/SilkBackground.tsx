@@ -48,6 +48,7 @@ export const SilkBackground: React.FC<SilkBackgroundProps> = ({
               repeat: Infinity,
               ease: "easeInOut"
             }}
+            style={{ willChange: 'auto' }}
           />
           
           {/* Second silk wave */}
@@ -67,6 +68,7 @@ export const SilkBackground: React.FC<SilkBackgroundProps> = ({
               ease: "easeInOut",
               delay: 2
             }}
+            style={{ willChange: 'auto' }}
           />
           
           {/* Third silk wave */}
@@ -86,6 +88,7 @@ export const SilkBackground: React.FC<SilkBackgroundProps> = ({
               ease: "easeInOut",
               delay: 4
             }}
+            style={{ willChange: 'auto' }}
           />
         </svg>
         

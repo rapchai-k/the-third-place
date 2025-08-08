@@ -63,7 +63,7 @@ export const CommunityCarousel: React.FC<CommunityCarouselProps> = ({
       {/* Carousel Container */}
       <div
         ref={scrollRef}
-        className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory px-4 md:px-0 -mx-4 md:mx-0"
+        className="flex gap-3 md:gap-6 overflow-x-auto scrollbar-hide pb-4 snap-x snap-mandatory px-4 md:px-0 -mx-4 md:mx-0"
         style={{
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
@@ -73,7 +73,7 @@ export const CommunityCarousel: React.FC<CommunityCarouselProps> = ({
         {communities.map((community, index) => (
           <motion.div
             key={community.id}
-            className="flex-none w-64 sm:w-72 md:w-80 snap-start first:ml-4 md:first:ml-0 last:mr-4 md:last:mr-0"
+            className="flex-none w-[60vw] sm:w-[50vw] md:w-80 snap-start first:ml-4 md:first:ml-0 last:mr-4 md:last:mr-0"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{

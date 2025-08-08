@@ -76,16 +76,16 @@ export const AuthCallback = () => {
     };
 
     const cleanURLAndRedirect = () => {
-      // Get redirect destination from state or default to home
-      const redirectTo = location.state?.from?.pathname || '/';
-      
+      // Get redirect destination from state or default to dashboard
+      const redirectTo = location.state?.from?.pathname || '/dashboard';
+
       // Clean the URL to remove tokens
       window.history.replaceState(
-        {}, 
-        document.title, 
+        {},
+        document.title,
         window.location.pathname + window.location.search
       );
-      
+
       // Redirect after a short delay to show success state
       setTimeout(() => {
         navigate(redirectTo, { replace: true });
