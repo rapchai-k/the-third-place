@@ -61,21 +61,19 @@ export const AppLayout = () => {
   const muiTheme = createTheme({
     palette: {
       mode: theme === 'dark' ? 'dark' : 'light',
-      primary: {
-        main: theme === 'dark' ? '#3b82f6' : '#2563eb',
-      },
+      primary: { main: 'hsl(var(--primary))' },
       background: {
-        default: theme === 'dark' ? '#0a0a0a' : '#ffffff',
-        paper: theme === 'dark' ? '#1a1a1a' : '#ffffff',
+        default: 'hsl(var(--background))',
+        paper: 'hsl(var(--background))',
       },
     },
     components: {
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: theme === 'dark' ? '#1a1a1a' : '#ffffff',
-            color: theme === 'dark' ? '#ffffff' : '#000000',
-            borderBottom: `1px solid ${theme === 'dark' ? '#2a2a2a' : '#e5e7eb'}`,
+            backgroundColor: 'hsl(var(--background))',
+            color: 'hsl(var(--foreground))',
+            borderBottom: '1px solid hsl(var(--border))',
           },
         },
       },
@@ -86,7 +84,7 @@ export const AppLayout = () => {
             minWidth: 0,
             fontWeight: 500,
             '&.Mui-selected': {
-              color: theme === 'dark' ? '#3b82f6' : '#2563eb',
+              color: 'hsl(var(--primary))',
             },
           },
         },
@@ -122,7 +120,7 @@ export const AppLayout = () => {
       <CssBaseline />
       <div className="min-h-screen flex flex-col w-full">
         {/* Unified Material UI Top Navigation */}
-        <AppBar position="static" elevation={2}>
+        <AppBar position="static" elevation={2} color="transparent" sx={{ backgroundColor: 'hsl(var(--background))' }}>
           <Toolbar variant="regular" sx={{ justifyContent: 'center' }}>
             <Typography 
               variant="h6" 
@@ -131,7 +129,7 @@ export const AppLayout = () => {
                 position: 'absolute',
                 left: '16px',
                 fontWeight: 'bold',
-                background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))',
+                background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)) / 0.7)',
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 color: 'transparent',
@@ -146,6 +144,8 @@ export const AppLayout = () => {
               <Tabs
                 value={getCurrentTab()}
                 onChange={handleTabChange}
+                textColor="inherit"
+                TabIndicatorProps={{ sx: { backgroundColor: 'hsl(var(--primary))', height: 2, borderRadius: 1 } }}
                 sx={{
                   minHeight: 48,
                   '& .MuiTab-root': {
@@ -244,8 +244,9 @@ export const AppLayout = () => {
               right: 0,
               zIndex: 1000,
               borderRadius: 0,
-              borderTop: 1,
-              borderColor: 'divider'
+              borderTop: '1px solid hsl(var(--border))',
+              backgroundColor: 'hsl(var(--background))',
+              color: 'hsl(var(--foreground))'
             }}
           >
             <nav className="px-4 py-2">
