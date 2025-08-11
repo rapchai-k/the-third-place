@@ -62,7 +62,7 @@ export const AppLayout = () => {
       <CssBaseline />
       <div className="min-h-screen flex flex-col w-full">
         {/* Unified Material UI Top Navigation */}
-        <div className="bg-background border-b border-border">
+        <div className="bg-background">
           <div className="flex items-center justify-center h-16 px-4 relative">
             {/* Brand Logo */}
             <div className="absolute left-4">

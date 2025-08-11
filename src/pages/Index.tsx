@@ -239,7 +239,7 @@ const Index = () => {
         </div>
 
         {/* Community Header */}
-        <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-6 md:pb-8">
+        <div className="container mx-auto px-6 md:px-8 lg:px-12 pt-12 md:pt-16 pb-6 md:pb-8">
           <div className="text-center">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground mb-4 md:mb-6">
               Active Communities

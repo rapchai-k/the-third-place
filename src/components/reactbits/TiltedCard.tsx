@@ -31,8 +31,8 @@ export const TiltedCard: React.FC<TiltedCardProps> = ({
   const mouseXSpring = useSpring(x);
   const mouseYSpring = useSpring(y);
 
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["17.5deg", "-17.5deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-17.5deg", "17.5deg"]);
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["0deg", "0deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["0deg", "0deg"]);
   
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return;
@@ -74,9 +74,9 @@ export const TiltedCard: React.FC<TiltedCardProps> = ({
         transformStyle: "preserve-3d",
       }}
       className={`perspective-1000 cursor-pointer ${className}`}
-      whileHover={{ scale: 1.05 }}
+      whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
     >
       <Card className="hover:shadow-xl transition-all duration-300 bg-card/90 backdrop-blur-md border border-border/50 h-full overflow-hidden group">
         {community ? (
