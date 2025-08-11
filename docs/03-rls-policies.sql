@@ -1,0 +1,13 @@
+-- USERS (public.users)
+-- SELECT: owner or admin; UPDATE: owner or admin; INSERT: service; DELETE: admin
+-- COMMUNITY_MEMBERS: INSERT only when auth.uid() = user_id; DELETE same or admin; SELECT owner or admin, or minimal public aggregated reads if needed.
+-- COMMUNITIES: SELECT public; INSERT/UPDATE/DELETE admin only.
+-- EVENTS: SELECT public; INSERT/UPDATE/DELETE admin only.
+-- EVENT_REGISTRATIONS: SELECT owner or admin; INSERT if auth.uid() = user_id; UPDATE by webhook/service or admin; DELETE (cancel) owner or admin.
+-- DISCUSSIONS: SELECT public if is_visible=true; admin can see all; INSERT/UPDATE/DELETE admin only.
+-- DISCUSSION_COMMENTS: SELECT public (for visible discussions); INSERT only if user is member of community AND discussion not expired; DELETE/UPDATE owner (grace period) or admin.
+-- FLAGS: INSERT any authenticated; SELECT/UPDATE/DELETE admin only.
+-- TAGS/EVENT_TAGS: SELECT public; mutations admin only.
+-- REFERRALS: SELECT rows where referrer_id=relying user OR referred_user_id=relying user; admin all; INSERT service/webhook.
+-- USER_ACTIVITY_LOG: SELECT owner or admin; INSERT service; DELETE/UPDATE admin only.
+-- NOTIFICATION_PREFERENCES: SELECT/UPDATE owner; INSERT on user creation (service); admins read-only.
