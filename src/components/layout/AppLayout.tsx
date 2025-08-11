@@ -11,37 +11,19 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {
-  AppBar,
-  Toolbar,
-  Tabs,
-  Tab,
-  Box,
-  IconButton,
-  Typography,
-  useTheme as useMuiTheme,
   ThemeProvider as MuiThemeProvider,
   createTheme,
-  CssBaseline,
-  Paper
+  CssBaseline
 } from "@mui/material";
-import {
-  Home as HomeIcon,
-  People as PeopleIcon,
-  Event as EventIcon,
-  Forum as ForumIcon,
-  Dashboard as DashboardIcon,
-  LightMode,
-  DarkMode
-} from "@mui/icons-material";
 
 const navigation = [
-  { name: "Communities", href: "/communities", icon: Users, muiIcon: PeopleIcon },
-  { name: "Events", href: "/events", icon: Calendar, muiIcon: EventIcon },
-  { name: "Discussions", href: "/discussions", icon: MessageSquare, muiIcon: ForumIcon },
+  { name: "Communities", href: "/communities", icon: Users },
+  { name: "Events", href: "/events", icon: Calendar },
+  { name: "Discussions", href: "/discussions", icon: MessageSquare },
 ];
 
 const userNavigation = [
-  { name: "Dashboard", href: "/dashboard", icon: User, muiIcon: DashboardIcon },
+  { name: "Dashboard", href: "/dashboard", icon: User },
 ];
 
 export const AppLayout = () => {
@@ -57,156 +39,96 @@ export const AppLayout = () => {
     navigate('/auth');
   };
 
-  // Create Material UI theme based on current theme
+  // Simplified Material UI theme without problematic CSS variables
   const muiTheme = createTheme({
     palette: {
       mode: theme === 'dark' ? 'dark' : 'light',
-      primary: { main: 'hsl(var(--primary))' },
+      primary: {
+        main: theme === 'dark' ? '#8b5cf6' : '#7c3aed',
+      },
       background: {
-        default: 'hsl(var(--background))',
-        paper: 'hsl(var(--background))',
+        default: theme === 'dark' ? '#000000' : '#ffffff',
+        paper: theme === 'dark' ? '#000000' : '#ffffff',
       },
-    },
-    components: {
-      MuiAppBar: {
-        styleOverrides: {
-          root: {
-            backgroundColor: 'hsl(var(--background))',
-            color: 'hsl(var(--foreground))',
-            borderBottom: '1px solid hsl(var(--border))',
-          },
-        },
-      },
-      MuiTab: {
-        styleOverrides: {
-          root: {
-            textTransform: 'none',
-            minWidth: 0,
-            fontWeight: 500,
-            '&.Mui-selected': {
-              color: 'hsl(var(--primary))',
-            },
-          },
-        },
-      },
+      text: {
+        primary: theme === 'dark' ? '#ffffff' : '#000000',
+      }
     },
   });
 
-  // Get current tab value based on location
-  const getCurrentTab = () => {
-    if (!user) {
-      return -1;
-    } else {
-      // Authenticated users see all tabs
-      const allNavItems = [...navigation, ...userNavigation];
-      const currentItem = allNavItems.find(item => item.href === location.pathname);
-      return currentItem ? allNavItems.indexOf(currentItem) : -1;
-    }
-  };
-
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    if (user) {
-      // Authenticated users have all tabs
-      const allNavItems = [...navigation, ...userNavigation];
-      const targetItem = allNavItems[newValue];
-      if (targetItem) {
-        navigate(targetItem.href);
-      }
-    }
-  };
 
   return (
     <MuiThemeProvider theme={muiTheme}>
       <CssBaseline />
       <div className="min-h-screen flex flex-col w-full">
         {/* Unified Material UI Top Navigation */}
-        <AppBar position="static" elevation={2} color="transparent" sx={{ backgroundColor: 'hsl(var(--background))' }}>
-          <Toolbar variant="regular" sx={{ justifyContent: 'center' }}>
-            <Typography 
-              variant="h6" 
-              component="div" 
-              sx={{ 
-                position: 'absolute',
-                left: '16px',
-                fontWeight: 'bold',
-                background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)) / 0.7)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                color: 'transparent',
-                fontSize: '1.25rem'
-              }}
-            >
-              MyThirdPlace
-            </Typography>
+        <div className="bg-background border-b border-border">
+          <div className="flex items-center justify-center h-16 px-4 relative">
+            {/* Brand Logo */}
+            <div className="absolute left-4">
+              <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                MyThirdPlace
+              </h1>
+            </div>
 
             {/* Desktop Navigation Tabs - Center aligned */}
-            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-              <Tabs
-                value={getCurrentTab()}
-                onChange={handleTabChange}
-                textColor="inherit"
-                TabIndicatorProps={{ sx: { backgroundColor: 'hsl(var(--primary))', height: 2, borderRadius: 1 } }}
-                sx={{
-                  minHeight: 48,
-                  '& .MuiTab-root': {
-                    minHeight: 48,
-                    px: 2,
-                  },
-                }}
-              >
-                {/* Show navigation for users */}
-                {user && (
-                  <>
-                    {navigation.map((item) => (
-                      <Tab
-                        key={item.name}
-                        label={item.name}
-                        icon={<item.muiIcon />}
-                        iconPosition="start"
-                        sx={{
-                          '& .MuiTab-iconWrapper': { mr: 1 }
-                        }}
-                      />
-                    ))}
-                    {userNavigation.map((item) => (
-                      <Tab
-                        key={item.name}
-                        label={item.name}
-                        icon={<item.muiIcon />}
-                        iconPosition="start"
-                        sx={{
-                          '& .MuiTab-iconWrapper': { mr: 1 }
-                        }}
-                      />
-                    ))}
-                  </>
-                )}
-              </Tabs>
-            </Box>
+            {user && (
+              <div className="hidden md:flex items-center space-x-8">
+                {navigation.map((item) => (
+                  <button
+                    key={item.name}
+                    onClick={() => navigate(item.href)}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      isActive(item.href)
+                        ? "text-primary bg-primary/10 border border-primary/20"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                  </button>
+                ))}
+                {userNavigation.map((item) => (
+                  <button
+                    key={item.name}
+                    onClick={() => navigate(item.href)}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      isActive(item.href)
+                        ? "text-primary bg-primary/10 border border-primary/20"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Right side controls */}
-            <Box sx={{ position: 'absolute', right: '16px', display: 'flex', alignItems: 'center', gap: 1 }}>
+            <div className="absolute right-4 flex items-center space-x-2">
               {/* Theme Toggle */}
-              <IconButton
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-                color="inherit"
-                size="small"
+                className="w-9 h-9"
               >
-                {theme === 'dark' ? <LightMode /> : <DarkMode />}
-              </IconButton>
+                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </Button>
 
               {/* User Menu or Sign In */}
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <IconButton size="small" sx={{ ml: 1 }}>
-                      <Avatar className="w-8 h-8">
+                    <Button variant="ghost" size="icon" className="w-9 h-9">
+                      <Avatar className="w-7 h-7">
                         <AvatarImage src={user.user_metadata?.avatar_url} />
-                        <AvatarFallback>
+                        <AvatarFallback className="text-xs">
                           {user.email?.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                    </IconButton>
+                    </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => navigate('/profile')}>
@@ -223,32 +145,18 @@ export const AppLayout = () => {
                   Sign In
                 </Button>
               )}
-            </Box>
-          </Toolbar>
-        </AppBar>
+            </div>
+          </div>
+        </div>
 
         {/* Page Content */}
         <main className={`flex-1 overflow-auto ${user ? 'pb-16 md:pb-0' : ''}`}>
           <Outlet />
         </main>
 
-        {/* Mobile Bottom Navigation with Material Design - Only for authenticated users */}
+        {/* Mobile Bottom Navigation - Only for authenticated users */}
         {user && (
-          <Paper
-            elevation={8}
-            className="md:hidden"
-            sx={{
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              zIndex: 1000,
-              borderRadius: 0,
-              borderTop: '1px solid hsl(var(--border))',
-              backgroundColor: 'hsl(var(--background))',
-              color: 'hsl(var(--foreground))'
-            }}
-          >
+          <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border">
             <nav className="px-4 py-2">
               <div className="flex justify-around">
                 {/* Show all navigation for authenticated users */}
@@ -256,7 +164,7 @@ export const AppLayout = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`flex flex-col items-center py-2 px-3 rounded-md transition-colors ${
+                    className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
                       isActive(item.href)
                         ? "text-primary bg-primary/10"
                         : "text-muted-foreground hover:text-foreground"
@@ -270,7 +178,7 @@ export const AppLayout = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`flex flex-col items-center py-2 px-3 rounded-md transition-colors ${
+                    className={`flex flex-col items-center py-2 px-3 rounded-lg transition-all duration-200 ${
                       isActive(item.href)
                         ? "text-primary bg-primary/10"
                         : "text-muted-foreground hover:text-foreground"
@@ -282,7 +190,7 @@ export const AppLayout = () => {
                 ))}
               </div>
             </nav>
-          </Paper>
+          </div>
         )}
       </div>
     </MuiThemeProvider>
