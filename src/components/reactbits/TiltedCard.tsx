@@ -14,6 +14,7 @@ interface TiltedCardProps {
     description: string;
     members: number;
     city: string;
+    image_url?: string;
   };
 }
 
@@ -80,33 +81,47 @@ export const TiltedCard: React.FC<TiltedCardProps> = ({
     >
       <Card className="hover:shadow-xl transition-all duration-300 bg-card/90 backdrop-blur-md border border-border/50 h-full overflow-hidden group">
         {community ? (
-          <div className="p-6 h-full flex flex-col">
-            {/* Community Name */}
-            <CardTitle className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-primary transition-smooth">
-              {community.name}
-            </CardTitle>
-
-            {/* Community Description */}
-            <CardDescription className="text-sm text-muted-foreground mb-6 line-clamp-3 flex-grow">
-              {community.description}
-            </CardDescription>
-
-            {/* Stats Row */}
-            <div className="space-y-3 mt-auto">
-              {/* Member Count */}
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full">
-                  <Users className="w-4 h-4 text-primary" />
-                  <span className="font-medium">{community.members} members</span>
-                </div>
+          <div className="h-full flex flex-col">
+            {/* Community Image */}
+            {community.image_url && (
+              <div className="relative h-48 overflow-hidden">
+                <img 
+                  src={community.image_url} 
+                  alt={community.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
               </div>
+            )}
+            
+            <div className="p-6 flex-1 flex flex-col">
+              {/* Community Name */}
+              <CardTitle className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-primary transition-smooth">
+                {community.name}
+              </CardTitle>
 
-              {/* Location */}
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-accent" />
-                <Badge variant="secondary" className="text-xs bg-accent/10 text-accent border-accent/20 hover:bg-accent/20 transition-smooth">
-                  {community.city}
-                </Badge>
+              {/* Community Description */}
+              <CardDescription className="text-sm text-muted-foreground mb-6 line-clamp-3 flex-grow">
+                {community.description}
+              </CardDescription>
+
+              {/* Stats Row */}
+              <div className="space-y-3 mt-auto">
+                {/* Member Count */}
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full">
+                    <Users className="w-4 h-4 text-primary" />
+                    <span className="font-medium">{community.members} members</span>
+                  </div>
+                </div>
+
+                {/* Location */}
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-accent" />
+                  <Badge variant="secondary" className="text-xs bg-accent/10 text-accent border-accent/20 hover:bg-accent/20 transition-smooth">
+                    {community.city}
+                  </Badge>
+                </div>
               </div>
             </div>
           </div>
