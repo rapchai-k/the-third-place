@@ -57,7 +57,7 @@ export default function DiscussionDetail() {
           users (name, photo_url)
         `)
         .eq('discussion_id', id)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data;

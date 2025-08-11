@@ -94,11 +94,17 @@ export default function CommunityDetail() {
       if (!user) return false;
       const { data, error } = await supabase
         .from("community_members")
-        .select("id")
+        .select("user_id")
         .eq("community_id", id)
         .eq("user_id", user.id)
-        .single();
-      return !error && !!data;
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error checking membership:', error);
+        return false;
+      }
+      
+      return !!data;
     },
     enabled: !!user && !!id,
   });
@@ -334,17 +340,23 @@ export default function CommunityDetail() {
               {community.description}
             </p>
             
-            {user && (
-              <Button
-                onClick={isMember ? handleLeaveCommunity : handleJoinCommunity}
-                variant={isMember ? "outline" : "default"}
-                className="w-full md:w-auto"
-                disabled={joinCommunityMutation.isPending || leaveCommunityMutation.isPending}
-              >
-                {(joinCommunityMutation.isPending || leaveCommunityMutation.isPending) 
-                  ? (isMember ? "Leaving..." : "Joining...") 
-                  : (isMember ? "Leave Community" : "Join Community")
-                }
+            {user ? (
+              <div className="space-y-2">
+                <Button
+                  onClick={isMember ? handleLeaveCommunity : handleJoinCommunity}
+                  variant={isMember ? "outline" : "default"}
+                  className="w-full md:w-auto"
+                  disabled={joinCommunityMutation.isPending || leaveCommunityMutation.isPending}
+                >
+                  {(joinCommunityMutation.isPending || leaveCommunityMutation.isPending) 
+                    ? (isMember ? "Leaving..." : "Joining...") 
+                    : (isMember ? "Leave Community" : "Join Community")
+                  }
+                </Button>
+              </div>
+            ) : (
+              <Button variant="outline" disabled className="w-full md:w-auto">
+                Sign in to join community
               </Button>
             )}
           </CardContent>

@@ -195,67 +195,67 @@ export default function Discussions() {
               const commentCount = discussion.discussion_comments?.length || 0;
 
               return (
-                <Card key={discussion.id} className="hover:bg-accent/50 transition-colors">
-                  <CardContent className="pt-6">
-                    <Link 
-                      to={`/discussions/${discussion.id}`}
-                      className="block space-y-4"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-lg font-semibold hover:text-primary transition-colors">
-                              {discussion.title}
-                            </h3>
-                            <Badge variant={isExpired ? "secondary" : "default"}>
-                              {isExpired ? "Expired" : "Active"}
-                            </Badge>
+                <Link 
+                  to={`/discussions/${discussion.id}`}
+                  className="block"
+                >
+                  <Card className="hover:bg-accent/50 transition-colors cursor-pointer">
+                    <CardContent className="pt-4 pb-4">
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="text-lg font-semibold hover:text-primary transition-colors truncate">
+                                {discussion.title}
+                              </h3>
+                              <Badge variant={isExpired ? "secondary" : "default"} className="shrink-0">
+                                {isExpired ? "Expired" : "Active"}
+                              </Badge>
+                            </div>
+                            
+                            {discussion.prompt && (
+                              <p className="text-muted-foreground line-clamp-1 text-sm mb-2">
+                                {discussion.prompt}
+                              </p>
+                            )}
                           </div>
-                          
-                          {discussion.prompt && (
-                            <p className="text-muted-foreground line-clamp-2">
-                              {discussion.prompt}
-                            </p>
-                          )}
+                        </div>
 
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-2">
-                              <Avatar className="w-6 h-6">
-                                <AvatarImage src={discussion.users?.photo_url || ''} />
-                                <AvatarFallback>
-                                  {discussion.users?.name?.charAt(0) || 'U'}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span>{discussion.users?.name}</span>
-                            </div>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+                          <div className="flex items-center gap-1">
+                            <Avatar className="w-4 h-4">
+                              <AvatarImage src={discussion.users?.photo_url || ''} />
+                              <AvatarFallback className="text-xs">
+                                {discussion.users?.name?.charAt(0) || 'U'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="truncate max-w-24">{discussion.users?.name}</span>
+                          </div>
 
-                            <Link 
-                              to={`/communities/${discussion.communities?.id}`}
-                              className="flex items-center gap-1 hover:text-primary transition-colors"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Users className="w-4 h-4" />
-                              {discussion.communities?.name}
-                            </Link>
+                          <div className="flex items-center gap-1">
+                            <Users className="w-3 h-3" />
+                            <span className="truncate max-w-24">{discussion.communities?.name}</span>
+                          </div>
 
-                            <div className="flex items-center gap-1">
-                              <MessageCircle className="w-4 h-4" />
-                              {commentCount} comments
-                            </div>
+                          <div className="flex items-center gap-1">
+                            <MessageCircle className="w-3 h-3" />
+                            <span>{commentCount}</span>
+                          </div>
 
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span className="truncate">
                               {isExpired 
                                 ? `Expired ${new Date(discussion.expires_at).toLocaleDateString()}`
                                 : `Expires ${new Date(discussion.expires_at).toLocaleDateString()}`
                               }
-                            </div>
+                            </span>
                           </div>
                         </div>
                       </div>
-                    </Link>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Link>
               );
             })}
           </div>
