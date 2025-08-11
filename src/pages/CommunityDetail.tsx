@@ -97,8 +97,14 @@ export default function CommunityDetail() {
         .select("id")
         .eq("community_id", id)
         .eq("user_id", user.id)
-        .single();
-      return !error && !!data;
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error checking membership:', error);
+        return false;
+      }
+      
+      return !!data;
     },
     enabled: !!user && !!id,
   });
@@ -334,17 +340,27 @@ export default function CommunityDetail() {
               {community.description}
             </p>
             
-            {user && (
-              <Button
-                onClick={isMember ? handleLeaveCommunity : handleJoinCommunity}
-                variant={isMember ? "outline" : "default"}
-                className="w-full md:w-auto"
-                disabled={joinCommunityMutation.isPending || leaveCommunityMutation.isPending}
-              >
-                {(joinCommunityMutation.isPending || leaveCommunityMutation.isPending) 
-                  ? (isMember ? "Leaving..." : "Joining...") 
-                  : (isMember ? "Leave Community" : "Join Community")
-                }
+            {user ? (
+              <div className="space-y-2">
+                <Button
+                  onClick={isMember ? handleLeaveCommunity : handleJoinCommunity}
+                  variant={isMember ? "outline" : "default"}
+                  className="w-full md:w-auto"
+                  disabled={joinCommunityMutation.isPending || leaveCommunityMutation.isPending}
+                >
+                  {(joinCommunityMutation.isPending || leaveCommunityMutation.isPending) 
+                    ? (isMember ? "Leaving..." : "Joining...") 
+                    : (isMember ? "Leave Community" : "Join Community")
+                  }
+                </Button>
+                {/* Debug info - remove in production */}
+                <p className="text-xs text-muted-foreground">
+                  Membership status: {isMember ? "Member" : "Not a member"} | User ID: {user?.id?.slice(0, 8)}...
+                </p>
+              </div>
+            ) : (
+              <Button variant="outline" disabled className="w-full md:w-auto">
+                Sign in to join community
               </Button>
             )}
           </CardContent>
