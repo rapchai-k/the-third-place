@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/contexts/ThemeProvider";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import AuthPage from "./pages/Auth";
+import { AuthPage } from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import CommunitiesPage from "./pages/Communities";
 import CommunityDetail from "./pages/CommunityDetail";
