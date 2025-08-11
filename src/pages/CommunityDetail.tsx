@@ -94,7 +94,7 @@ export default function CommunityDetail() {
       if (!user) return false;
       const { data, error } = await supabase
         .from("community_members")
-        .select("id")
+        .select("user_id")
         .eq("community_id", id)
         .eq("user_id", user.id)
         .maybeSingle();
@@ -353,10 +353,6 @@ export default function CommunityDetail() {
                     : (isMember ? "Leave Community" : "Join Community")
                   }
                 </Button>
-                {/* Debug info - remove in production */}
-                <p className="text-xs text-muted-foreground">
-                  Membership status: {isMember ? "Member" : "Not a member"} | User ID: {user?.id?.slice(0, 8)}...
-                </p>
               </div>
             ) : (
               <Button variant="outline" disabled className="w-full md:w-auto">
