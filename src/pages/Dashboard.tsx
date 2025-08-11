@@ -180,7 +180,7 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
             <CalendarDays className="w-8 h-8 mx-auto mb-2 text-primary" />
@@ -200,15 +200,6 @@ const Dashboard = () => {
             <Star className="w-8 h-8 mx-auto mb-2 text-primary" />
             <div className="text-2xl font-bold">{pastEvents.length}</div>
             <div className="text-sm text-muted-foreground">Events Attended</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Clock className="w-8 h-8 mx-auto mb-2 text-primary" />
-            <div className="text-2xl font-bold">
-              {userCommunities.reduce((total, community) => total + community.member_count, 0)}
-            </div>
-            <div className="text-sm text-muted-foreground">Total Connections</div>
           </CardContent>
         </Card>
       </div>

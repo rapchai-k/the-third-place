@@ -264,70 +264,63 @@ export default function Communities() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {communities?.map((community) => (
-            <Card key={community.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg">{community.name}</CardTitle>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      {community.city}
+            <Link key={community.id} to={`/communities/${community.id}`}>
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-1">
+                      <CardTitle className="text-lg">{community.name}</CardTitle>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        {community.city}
+                      </div>
+                    </div>
+                    {community.image_url && (
+                      <img
+                        src={community.image_url}
+                        alt={community.name}
+                        className="w-12 h-12 rounded-lg object-cover"
+                      />
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <CardDescription className="line-clamp-3">
+                    {community.description}
+                  </CardDescription>
+                  
+                  <div className="flex items-center justify-between">
+                    <Badge variant="secondary" className="flex items-center gap-1">
+                      <Users className="h-3 w-3" />
+                      {community.community_members?.[0]?.count || 0} members
+                    </Badge>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant={user && isUserMember(community.id) ? "outline" : "default"}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (!user) {
+                            handleJoinCommunity(community.id);
+                            return;
+                          }
+                          isUserMember(community.id)
+                            ? handleLeaveCommunity(community.id)
+                            : handleJoinCommunity(community.id);
+                        }}
+                        disabled={joinCommunityMutation.isPending || leaveCommunityMutation.isPending}
+                      >
+                        {(joinCommunityMutation.isPending || leaveCommunityMutation.isPending)
+                          ? (user && isUserMember(community.id) ? "Leaving..." : "Joining...")
+                          : (user && isUserMember(community.id) ? "Leave" : "Join")
+                        }
+                      </Button>
                     </div>
                   </div>
-                  {community.image_url && (
-                    <img
-                      src={community.image_url}
-                      alt={community.name}
-                      className="w-12 h-12 rounded-lg object-cover"
-                    />
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <CardDescription className="line-clamp-3">
-                  {community.description}
-                </CardDescription>
-                
-                <div className="flex items-center justify-between">
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    <Users className="h-3 w-3" />
-                    {community.community_members?.[0]?.count || 0} members
-                  </Badge>
-                  
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
-                    >
-                      <Link to={`/communities/${community.id}`}>
-                        View
-                      </Link>
-                    </Button>
-                    
-                    <Button
-                      size="sm"
-                      variant={user && isUserMember(community.id) ? "outline" : "default"}
-                      onClick={() => {
-                        if (!user) {
-                          handleJoinCommunity(community.id);
-                          return;
-                        }
-                        isUserMember(community.id)
-                          ? handleLeaveCommunity(community.id)
-                          : handleJoinCommunity(community.id);
-                      }}
-                      disabled={joinCommunityMutation.isPending || leaveCommunityMutation.isPending}
-                    >
-                      {(joinCommunityMutation.isPending || leaveCommunityMutation.isPending)
-                        ? (user && isUserMember(community.id) ? "Leaving..." : "Joining...")
-                        : (user && isUserMember(community.id) ? "Leave" : "Join")
-                      }
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 

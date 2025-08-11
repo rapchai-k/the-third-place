@@ -151,60 +151,50 @@ export default function Events() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events?.map((event) => (
-            <Card key={event.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="space-y-2">
-                  <CardTitle className="text-lg line-clamp-2">{event.title}</CardTitle>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    {format(new Date(event.date_time), "MMM d, yyyy")}
-                    <Clock className="h-4 w-4 ml-3 mr-1" />
-                    {format(new Date(event.date_time), "h:mm a")}
+            <Link key={event.id} to={`/events/${event.id}`}>
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <div className="space-y-2">
+                    <CardTitle className="text-lg line-clamp-2">{event.title}</CardTitle>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {format(new Date(event.date_time), "MMM d, yyyy")}
+                      <Clock className="h-4 w-4 ml-3 mr-1" />
+                      {format(new Date(event.date_time), "h:mm a")}
+                    </div>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      {event.venue}
+                    </div>
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    {event.venue}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <CardDescription className="line-clamp-3">
-                  {event.description}
-                </CardDescription>
-                
-                <div className="flex flex-wrap gap-2">
-                  {event.event_tags?.map((et, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {et.tags?.name}
-                    </Badge>
-                  ))}
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Badge variant="secondary" className="flex items-center gap-1 w-fit">
-                      <Users className="h-3 w-3" />
-                      {event.event_registrations?.[0]?.count || 0}/{event.capacity}
-                    </Badge>
-                    <p className="text-xs text-muted-foreground">
-                      by {event.communities?.name}
-                    </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <CardDescription className="line-clamp-3">
+                    {event.description}
+                  </CardDescription>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {event.event_tags?.map((et, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {et.tags?.name}
+                      </Badge>
+                    ))}
                   </div>
                   
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
-                    >
-                      <Link to={`/events/${event.id}`}>
-                        View Details
-                      </Link>
-                    </Button>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+                        <Users className="h-3 w-3" />
+                        {event.event_registrations?.[0]?.count || 0}/{event.capacity}
+                      </Badge>
+                      <p className="text-xs text-muted-foreground">
+                        by {event.communities?.name}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 
