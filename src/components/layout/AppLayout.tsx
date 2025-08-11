@@ -3,6 +3,7 @@ import { Home, Users, Calendar, MessageSquare, User, Sun, Moon } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/contexts/AuthContext";
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -29,8 +30,13 @@ const userNavigation = [
 export const AppLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const { user, signOut } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -39,21 +45,32 @@ export const AppLayout = () => {
     navigate('/auth');
   };
 
-  // Simplified Material UI theme without problematic CSS variables
+  // Material UI theme using CSS variables and resolvedTheme
   const muiTheme = createTheme({
     palette: {
-      mode: theme === 'dark' ? 'dark' : 'light',
+      mode: resolvedTheme === 'dark' ? 'dark' : 'light',
       primary: {
-        main: theme === 'dark' ? '#8b5cf6' : '#7c3aed',
+        main: resolvedTheme === 'dark' ? 'hsl(var(--primary))' : 'hsl(var(--primary))',
       },
       background: {
-        default: theme === 'dark' ? '#000000' : '#ffffff',
-        paper: theme === 'dark' ? '#000000' : '#ffffff',
+        default: 'hsl(var(--background))',
+        paper: 'hsl(var(--card))',
       },
       text: {
-        primary: theme === 'dark' ? '#ffffff' : '#000000',
+        primary: 'hsl(var(--foreground))',
+        secondary: 'hsl(var(--muted-foreground))',
       }
     },
+    components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          body: {
+            backgroundColor: 'hsl(var(--background))',
+            color: 'hsl(var(--foreground))',
+          }
+        }
+      }
+    }
   });
 
 
@@ -111,10 +128,17 @@ export const AppLayout = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                onClick={() => setTheme(resolvedTheme === "light" ? "dark" : "light")}
                 className="w-9 h-9"
+                disabled={!mounted}
               >
-                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {!mounted ? (
+                  <div className="w-4 h-4 animate-pulse bg-muted rounded" />
+                ) : resolvedTheme === 'dark' ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
               </Button>
 
               {/* User Menu or Sign In */}

@@ -1,18 +1,26 @@
 import { ThemeProvider as NextThemesProvider } from "next-themes"
+import { useState, useEffect } from "react"
 
 export function ThemeProvider({
   children,
   ...props
 }: React.ComponentProps<typeof NextThemesProvider>) {
+  const [mounted, setMounted] = useState(false)
+
+  // Ensure hydration is complete before rendering theme-dependent content
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="system"
+      defaultTheme="light"
       enableSystem
-      disableTransitionOnChange
+      storageKey="mythirdplace-theme"
       {...props}
     >
-      {children}
+      {mounted ? children : <div className="min-h-screen bg-background" />}
     </NextThemesProvider>
   )
 }
