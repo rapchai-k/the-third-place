@@ -81,6 +81,10 @@ export function ScheduleEquipmentModal({ isOpen, onClose, onSuccess, riders }: S
           m.set(`${lvl.equipment_item_id}|${lvl.size}`, Number(lvl.stock_count) || 0);
         });
         setAvailableMap(m);
+        
+        // Debug: Log catalog and available stock
+        console.log('🔍 EQUIPMENT CATALOG: Loaded catalog:', mapped);
+        console.log('🔍 EQUIPMENT STOCK: Available stock map:', m);
       } catch (e) {
         console.error('Failed to load equipment catalog/levels', e);
         setCatalog(FALLBACK_CATALOG.map((f, idx) => ({ id: `fallback-${idx}`, ...f })) as any);
@@ -130,8 +134,15 @@ export function ScheduleEquipmentModal({ isOpen, onClose, onSuccess, riders }: S
   // Set default values when modal opens (prefill in edit mode)
   useEffect(() => {
     if (!isOpen) return;
+    
+    console.log('🔍 MODAL OPEN: Modal opened with riders:', riders);
+    console.log('🔍 MODAL OPEN: Is edit mode:', isEditMode);
+    console.log('🔍 MODAL OPEN: Single rider:', singleRider);
 
     if (isEditMode && singleRider) {
+      console.log('🔍 EDIT MODE: Processing rider data:', singleRider.data);
+      console.log('🔍 EDIT MODE: Equipment allocated items:', singleRider.data?.equipment_allocated_items);
+      
       const existingDate = singleRider.data?.equipment_scheduled_date;
       const existingTime = singleRider.data?.equipment_scheduled_time;
       const existingLocation = singleRider.data?.equipment_location;
@@ -148,7 +159,9 @@ export function ScheduleEquipmentModal({ isOpen, onClose, onSuccess, riders }: S
       // Handle existing equipment data with proper structure validation
       const existingEquipment: EquipmentItem[] = [];
       if (singleRider.data?.equipment_allocated_items && Array.isArray(singleRider.data.equipment_allocated_items)) {
-        singleRider.data.equipment_allocated_items.forEach((item: any) => {
+        singleRider.data.equipment_allocated_items.forEach((item: any, index: number) => {
+          console.log(`🔍 EDIT MODE: Processing item ${index}:`, item);
+          
           if (item && item.name) {
             // Handle different possible data structures
             let sizes: Record<string, number> = {};
@@ -157,21 +170,26 @@ export function ScheduleEquipmentModal({ isOpen, onClose, onSuccess, riders }: S
               // If sizes is already an object with size:quantity mapping
               if (typeof item.sizes === 'object' && !Array.isArray(item.sizes)) {
                 sizes = { ...item.sizes };
+                console.log(`🔍 EDIT MODE: Item ${item.name} - sizes object:`, sizes);
               } else if (Array.isArray(item.sizes)) {
                 // If sizes is an array, convert to object with default quantity 1
                 sizes = { [item.sizes[0] || 'One Size']: 1 };
+                console.log(`🔍 EDIT MODE: Item ${item.name} - sizes array converted:`, sizes);
               }
             } else if (item.size && item.quantity) {
               // If using size and quantity fields
               sizes = { [item.size]: item.quantity };
+              console.log(`🔍 EDIT MODE: Item ${item.name} - size/quantity fields:`, sizes);
             } else if (item.size) {
               // If only size is available
               sizes = { [item.size]: 1 };
+              console.log(`🔍 EDIT MODE: Item ${item.name} - size only:`, sizes);
             }
             
             // Ensure we have at least one size with quantity >= 1
             if (Object.keys(sizes).length === 0) {
               sizes = { 'One Size': 1 };
+              console.log(`🔍 EDIT MODE: Item ${item.name} - fallback to One Size:`, sizes);
             }
             
             // Ensure all quantities are at least 1
@@ -180,6 +198,11 @@ export function ScheduleEquipmentModal({ isOpen, onClose, onSuccess, riders }: S
             });
             
             existingEquipment.push({
+              name: item.name,
+              sizes: sizes
+            });
+            
+            console.log(`🔍 EDIT MODE: Final processed item ${item.name}:`, {
               name: item.name,
               sizes: sizes
             });
@@ -378,6 +401,10 @@ export function ScheduleEquipmentModal({ isOpen, onClose, onSuccess, riders }: S
   };
 
   const onSubmit = async (data: ScheduleFormData) => {
+    console.log('🔍 FORM SUBMIT: Submitting form with data:', data);
+    console.log('🔍 FORM SUBMIT: Selected equipment:', selectedEquipment);
+    console.log('🔍 FORM SUBMIT: Is edit mode:', isEditMode);
+    
     // Validate equipment allocation - ensure each equipment has exactly one size with count >= 1
     if (selectedEquipment.length === 0) {
       toast.error('Please allocate at least one equipment item');
