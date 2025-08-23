@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
@@ -906,7 +906,7 @@ export type Database = {
     }
     Functions: {
       dispatch_webhook: {
-        Args: { event_type: string; event_data: Json; actor_user_id?: string }
+        Args: { actor_user_id?: string; event_data: Json; event_type: string }
         Returns: undefined
       }
       generate_referral_code: {
@@ -923,17 +923,17 @@ export type Database = {
       }
       has_permission: {
         Args: {
-          _user_id: string
           _permission_type: string
-          _resource_type?: string
           _resource_id?: string
+          _resource_type?: string
+          _user_id: string
         }
         Returns: boolean
       }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
