@@ -941,6 +941,14 @@ export type Database = {
         Args: { _user_id?: string }
         Returns: boolean
       }
+      is_admin_user: {
+        Args: { _user_id?: string }
+        Returns: boolean
+      }
+      is_community_member: {
+        Args: { _community_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:
