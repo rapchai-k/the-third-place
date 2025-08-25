@@ -34,19 +34,19 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='email_logs' AND policyname='Service can insert email logs'
   ) THEN
-    EXECUTE $$CREATE POLICY "Service can insert email logs" ON public.email_logs FOR INSERT WITH CHECK (true)$$;
+    EXECUTE 'CREATE POLICY "Service can insert email logs" ON public.email_logs FOR INSERT WITH CHECK (true)';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='email_logs' AND policyname='Service can update email logs'
   ) THEN
-    EXECUTE $$CREATE POLICY "Service can update email logs" ON public.email_logs FOR UPDATE USING (true)$$;
+    EXECUTE 'CREATE POLICY "Service can update email logs" ON public.email_logs FOR UPDATE USING (true)';
   END IF;
 
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='email_logs' AND policyname='Admins can view email logs'
   ) THEN
-    EXECUTE $$CREATE POLICY "Admins can view email logs" ON public.email_logs FOR SELECT USING (public.get_user_role() = 'admin')$$;
+    EXECUTE 'CREATE POLICY "Admins can view email logs" ON public.email_logs FOR SELECT USING (public.get_user_role() = ''admin'')';
   END IF;
 END$$;
 
