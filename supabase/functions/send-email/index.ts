@@ -67,14 +67,21 @@ serve(async (req) => {
       throw new Error("Invalid email address format");
     }
 
-    // Normalize tags into Resend's expected shape [{ name, value }]
+    // Normalize tags into Resend's expected shape [{ name, value }] with unique, sanitized names
+    const sanitize = (s: string) => String(s).replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 256);
+    const seen = new Set<string>();
     const normalizedTags = (emailRequest.tags ?? [])
-      .map((t: any) => typeof t === "string" ? { name: "label", value: t } : t)
-      .filter((t: any) => t && typeof t.name === "string" && typeof t.value === "string")
-      .map((t: any) => ({
-        name: String(t.name).slice(0, 256),
-        value: String(t.value).slice(0, 256),
-      }));
+      .map((t: any, idx: number) => {
+        const raw = typeof t === "string"
+          ? { name: sanitize(t), value: "true" }
+          : { name: sanitize(t?.name), value: sanitize(t?.value) };
+        let base = raw.name || `tag_${idx + 1}`;
+        let name = base;
+        let n = 2;
+        while (seen.has(name)) name = `${base}_${n++}`;
+        seen.add(name);
+        return { name, value: raw.value || "true" };
+      });
 
     // Prepare email payload for Resend API
     const emailPayload: Record<string, unknown> = {
