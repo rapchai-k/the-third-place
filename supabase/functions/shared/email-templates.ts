@@ -1,13 +1,169 @@
 /**
  * Email templates for The Third Place platform
- * All templates are responsive and follow brand guidelines
+ * Configurable template system with dynamic variable substitution
  */
 
 export interface EmailTemplateData {
-  userName: string;
+  [key: string]: any; // Allow any variable
+  userName?: string;
   userEmail?: string;
   dashboardUrl?: string;
   unsubscribeUrl?: string;
+}
+
+export interface EmailTemplate {
+  id: string;
+  name: string;
+  display_name: string;
+  event_type: string;
+  subject: string;
+  html_content: string;
+  variables: string[];
+  is_active: boolean;
+  version: number;
+}
+
+export interface TemplateRenderContext {
+  templateName: string;
+  eventType: string;
+  variables: EmailTemplateData;
+  userId?: string;
+  correlationId?: string;
+}
+
+/**
+ * Dynamic Template Processor
+ * Handles variable substitution and template rendering
+ */
+export class TemplateProcessor {
+  private supabase: any;
+  private correlationId: string;
+
+  constructor(supabase: any, correlationId?: string) {
+    this.supabase = supabase;
+    this.correlationId = correlationId || crypto.randomUUID();
+  }
+
+  /**
+   * Fetch template from database by name and event type
+   */
+  async getTemplate(templateName: string, eventType: string): Promise<EmailTemplate | null> {
+    try {
+      const { data, error } = await this.supabase
+        .from('email_templates')
+        .select('*')
+        .eq('name', templateName)
+        .eq('event_type', eventType)
+        .eq('is_active', true)
+        .single();
+
+      if (error || !data) {
+        console.warn(`[TemplateProcessor] Template not found: ${templateName}/${eventType}`, error);
+        return null;
+      }
+
+      return data as EmailTemplate;
+    } catch (error) {
+      console.error(`[TemplateProcessor] Error fetching template: ${templateName}/${eventType}`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Render template with variable substitution
+   */
+  renderTemplate(template: EmailTemplate, variables: EmailTemplateData): { subject: string; html: string } {
+    // Validate required variables
+    const requiredVars = template.variables;
+    const missingVars = requiredVars.filter(varName => !(varName in variables));
+    
+    if (missingVars.length > 0) {
+      console.warn(`[TemplateProcessor] Missing variables: ${missingVars.join(', ')} for template ${template.name}`);
+    }
+
+    // Add system variables
+    const enrichedVariables = {
+      ...variables,
+      dashboardUrl: variables.dashboardUrl || "https://thethirdplace.community/dashboard",
+      unsubscribeUrl: variables.unsubscribeUrl || "https://thethirdplace.community/unsubscribe",
+      supportEmail: variables.supportEmail || "support@thethirdplace.community",
+      platformName: variables.platformName || "The Third Place",
+      timestamp: new Date().toISOString(),
+      correlationId: this.correlationId
+    };
+
+    // Render subject and content
+    const subject = this.substituteVariables(template.subject, enrichedVariables);
+    const html = this.substituteVariables(template.html_content, enrichedVariables);
+
+    return { subject, html };
+  }
+
+  /**
+   * Variable substitution with {{variable}} syntax
+   */
+  private substituteVariables(template: string, variables: EmailTemplateData): string {
+    return template.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
+      const value = variables[varName];
+      if (value === undefined || value === null) {
+        console.warn(`[TemplateProcessor] Variable ${varName} not provided, keeping placeholder`);
+        return match; // Keep original placeholder if variable not found
+      }
+      return String(value);
+    });
+  }
+
+  /**
+   * Process template with full context and fallback to legacy templates
+   */
+  async processTemplate(context: TemplateRenderContext): Promise<{ subject: string; html: string; templateId?: string }> {
+    try {
+      // Try to get dynamic template from database
+      const template = await this.getTemplate(context.templateName, context.eventType);
+      
+      if (template) {
+        console.log(`[TemplateProcessor] Using dynamic template: ${template.name} (ID: ${template.id})`);
+        const rendered = this.renderTemplate(template, context.variables);
+        return {
+          ...rendered,
+          templateId: template.id
+        };
+      }
+
+      // Fallback to legacy hardcoded templates
+      console.log(`[TemplateProcessor] Falling back to legacy template: ${context.templateName}`);
+      return this.getLegacyTemplate(context);
+
+    } catch (error) {
+      console.error(`[TemplateProcessor] Error processing template ${context.templateName}:`, error);
+      // Final fallback to legacy templates
+      return this.getLegacyTemplate(context);
+    }
+  }
+
+  /**
+   * Fallback to legacy hardcoded templates
+   */
+  private getLegacyTemplate(context: TemplateRenderContext): { subject: string; html: string } {
+    console.log(`[TemplateProcessor] Using legacy template fallback for: ${context.templateName}`);
+    
+    switch (context.templateName) {
+      case 'welcome_email':
+        return {
+          subject: `Welcome to The Third Place, ${context.variables.userName || 'User'}! 🎉`,
+          html: generateWelcomeEmailTemplate(context.variables)
+        };
+      
+      case 'event_reminder':
+        return {
+          subject: `Don't forget: ${context.variables.eventName || 'Your Event'} is coming up!`,
+          html: generateEventReminderTemplate(context.variables as any)
+        };
+      
+      default:
+        throw new Error(`Unknown template: ${context.templateName}`);
+    }
+  }
 }
 
 /**
@@ -162,7 +318,7 @@ const baseStyles = `
 `;
 
 /**
- * Welcome email template for new users
+ * Legacy welcome email template for backward compatibility
  */
 export function generateWelcomeEmailTemplate(data: EmailTemplateData): string {
   const { userName, dashboardUrl = "https://thethirdplace.community/dashboard" } = data;

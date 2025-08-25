@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
@@ -228,6 +228,113 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      email_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_type: string | null
+          id: string
+          message_id: string | null
+          provider: string
+          recipient: string
+          sent_at: string | null
+          status: string
+          subject: string
+          template_id: string | null
+          template_name: string | null
+          updated_at: string
+          user_id: string | null
+          variables_used: Json | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_type?: string | null
+          id?: string
+          message_id?: string | null
+          provider?: string
+          recipient: string
+          sent_at?: string | null
+          status?: string
+          subject: string
+          template_id?: string | null
+          template_name?: string | null
+          updated_at?: string
+          user_id?: string | null
+          variables_used?: Json | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_type?: string | null
+          id?: string
+          message_id?: string | null
+          provider?: string
+          recipient?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          template_id?: string | null
+          template_name?: string | null
+          updated_at?: string
+          user_id?: string | null
+          variables_used?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_name: string
+          event_type: string
+          html_content: string
+          id: string
+          is_active: boolean
+          name: string
+          subject: string
+          updated_at: string
+          variables: Json
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_name: string
+          event_type: string
+          html_content: string
+          id?: string
+          is_active?: boolean
+          name: string
+          subject: string
+          updated_at?: string
+          variables?: Json
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_name?: string
+          event_type?: string
+          html_content?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          subject?: string
+          updated_at?: string
+          variables?: Json
+          version?: number
+        }
+        Relationships: []
       }
       event_registrations: {
         Row: {
@@ -781,6 +888,8 @@ export type Database = {
           referred_by: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
+          welcome_email_sent: string | null
+          welcome_email_sent_at: string | null
         }
         Insert: {
           created_at?: string
@@ -792,6 +901,8 @@ export type Database = {
           referred_by?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
+          welcome_email_sent?: string | null
+          welcome_email_sent_at?: string | null
         }
         Update: {
           created_at?: string
@@ -803,6 +914,8 @@ export type Database = {
           referred_by?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
+          welcome_email_sent?: string | null
+          welcome_email_sent_at?: string | null
         }
         Relationships: [
           {
@@ -906,7 +1019,7 @@ export type Database = {
     }
     Functions: {
       dispatch_webhook: {
-        Args: { event_type: string; event_data: Json; actor_user_id?: string }
+        Args: { actor_user_id?: string; event_data: Json; event_type: string }
         Returns: undefined
       }
       generate_referral_code: {
@@ -923,22 +1036,30 @@ export type Database = {
       }
       has_permission: {
         Args: {
-          _user_id: string
           _permission_type: string
-          _resource_type?: string
           _resource_id?: string
+          _resource_type?: string
+          _user_id: string
         }
         Returns: boolean
       }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
       is_admin: {
         Args: { _user_id?: string }
+        Returns: boolean
+      }
+      is_admin_user: {
+        Args: { _user_id?: string }
+        Returns: boolean
+      }
+      is_community_member: {
+        Args: { _community_id: string; _user_id: string }
         Returns: boolean
       }
     }

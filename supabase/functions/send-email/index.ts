@@ -117,22 +117,50 @@ serve(async (req) => {
 
     logStep("Email sent successfully", { messageId: resendData.id });
 
-    // Log email delivery to database for tracking
+    // Enhanced email logging with template information for analytics
     try {
+      const logData: any = {
+        recipient: emailRequest.to,
+        subject: emailRequest.subject,
+        message_id: resendData.id,
+        status: "sent",
+        provider: "resend",
+        sent_at: new Date().toISOString()
+      };
+
+      // Add template information if provided in tags
+      const tags = emailRequest.tags || [];
+      const templateIdTag = tags.find(t => typeof t === 'object' && t.name === 'template_id');
+      const templateNameTag = tags.find(t => typeof t === 'object' && t.name === 'template_name');
+      const eventTypeTag = tags.find(t => typeof t === 'object' && t.name === 'event_type');
+      const userIdTag = tags.find(t => typeof t === 'object' && t.name === 'user_id');
+      const variablesTag = tags.find(t => typeof t === 'object' && t.name === 'variables_used');
+
+      if (templateIdTag) logData.template_id = templateIdTag.value;
+      if (templateNameTag) logData.template_name = templateNameTag.value;
+      if (eventTypeTag) logData.event_type = eventTypeTag.value;
+      if (userIdTag) logData.user_id = userIdTag.value;
+      if (variablesTag) {
+        try {
+          logData.variables_used = JSON.parse(variablesTag.value);
+        } catch {
+          logData.variables_used = variablesTag.value;
+        }
+      }
+
       const { error: logError } = await supabaseClient
         .from("email_logs")
-        .insert({
-          recipient: emailRequest.to,
-          subject: emailRequest.subject,
-          message_id: resendData.id,
-          status: "sent",
-          provider: "resend",
-          sent_at: new Date().toISOString()
-        });
+        .insert(logData);
 
       if (logError) {
         logStep("Failed to log email delivery", { error: logError.message });
         // Don't fail the request if logging fails
+      } else {
+        logStep("Email delivery logged successfully", { 
+          templateName: logData.template_name,
+          eventType: logData.event_type,
+          userId: logData.user_id 
+        });
       }
     } catch (logErr) {
       logStep("Email logging error", { error: logErr });

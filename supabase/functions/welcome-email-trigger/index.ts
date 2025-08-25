@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { generateWelcomeEmailTemplate } from "../shared/email-templates.ts";
+import { TemplateProcessor, TemplateRenderContext } from "../shared/email-templates.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -130,19 +130,52 @@ serve(async (req) => {
       });
     }
 
-    // Compose email (keep minimal if debugging HTML issues)
-    const emailHtml = generateWelcomeEmailTemplate({
-      userName: body.userName,
-      userEmail: body.userEmail,
+    // Use dynamic template processor with fallback to legacy templates
+    const templateProcessor = new TemplateProcessor(supabase, correlationId);
+    
+    const templateContext: TemplateRenderContext = {
+      templateName: 'welcome_email',
+      eventType: 'user_signup',
+      variables: {
+        userName: body.userName,
+        userEmail: body.userEmail,
+        dashboardUrl: "https://thethirdplace.community/dashboard"
+      },
+      userId: body.userId,
+      correlationId
+    };
+
+    log("template.render.begin", { templateName: templateContext.templateName, eventType: templateContext.eventType });
+
+    const templateResult = await templateProcessor.processTemplate(templateContext);
+    
+    log("template.render.success", { 
+      templateId: templateResult.templateId,
+      subjectPreview: templateResult.subject.slice(0, 50),
+      hasHtml: !!templateResult.html
     });
+
+    // Prepare enhanced email tags for analytics
+    const emailTags = [
+      "welcome", 
+      "onboarding", 
+      `cid:${correlationId}`,
+      { name: 'template_name', value: templateContext.templateName },
+      { name: 'event_type', value: templateContext.eventType },
+      { name: 'user_id', value: body.userId },
+      { name: 'variables_used', value: JSON.stringify(Object.keys(templateContext.variables)) }
+    ];
+
+    if (templateResult.templateId) {
+      emailTags.push({ name: 'template_id', value: templateResult.templateId });
+    }
 
     const emailPayload = {
       from: "onboarding@rapchai.com",
       to: body.userEmail,
-      subject: "Welcome to The Third Place - Your Community Awaits!",
-      html: emailHtml,
-      // add tags that will show up in Resend Activity (forwarded by downstream)
-      tags: ["welcome", "onboarding", `cid:${correlationId}`],
+      subject: templateResult.subject,
+      html: templateResult.html,
+      tags: emailTags,
     };
 
     log("send-email.call.begin", {
