@@ -178,7 +178,7 @@ serve(async (req) => {
 
     if (!emailRes.ok || !emailJson?.success) {
       // surface exact downstream error
-      const reason = emailJson?.error ?? emailRaw || `HTTP ${emailRes.status}`;
+      const reason = emailJson?.error ?? (emailRaw || `HTTP ${emailRes.status}`);
       throw new Error(`Failed to send welcome email: ${reason}`);
     }
 
