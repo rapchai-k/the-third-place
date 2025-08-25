@@ -12,7 +12,7 @@ interface EmailRequest {
   html: string;
   from?: string;
   replyTo?: string;
-  tags?: string[];
+  tags?: (string | { name: string; value: string })[];
 }
 
 interface EmailResponse {
@@ -67,14 +67,23 @@ serve(async (req) => {
       throw new Error("Invalid email address format");
     }
 
+    // Normalize tags into Resend's expected shape [{ name, value }]
+    const normalizedTags = (emailRequest.tags ?? [])
+      .map((t: any) => typeof t === "string" ? { name: "label", value: t } : t)
+      .filter((t: any) => t && typeof t.name === "string" && typeof t.value === "string")
+      .map((t: any) => ({
+        name: String(t.name).slice(0, 256),
+        value: String(t.value).slice(0, 256),
+      }));
+
     // Prepare email payload for Resend API
-    const emailPayload = {
+    const emailPayload: Record<string, unknown> = {
       from: emailRequest.from || "The Third Place <noreply@thethirdplace.community>",
       to: [emailRequest.to],
       subject: emailRequest.subject,
       html: emailRequest.html,
-      reply_to: emailRequest.replyTo,
-      tags: emailRequest.tags || []
+      ...(emailRequest.replyTo ? { reply_to: emailRequest.replyTo } : {}),
+      ...(normalizedTags.length ? { tags: normalizedTags } : {}),
     };
 
     logStep("Sending email via Resend API");
