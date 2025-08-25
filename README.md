@@ -137,6 +137,22 @@ To enable Google authentication:
 
 The app is deployed on Vercel with automatic deployments from the main branch.
 
+## Email System
+
+Automated welcome emails are sent to new users on signup.
+- Flow: Auth user created -> DB trigger -> welcome-email-trigger -> send-email (Resend)
+- Template: supabase/functions/shared/email-templates.ts (generateWelcomeEmailTemplate)
+- Sender: onboarding@rapchai.com (verified in Resend)
+
+Monitoring:
+- Supabase Functions Dashboard: https://supabase.com/dashboard/project/ggochdssgkfnvcrrmtlp/functions
+- Check email_logs table for delivery status and message IDs
+
+Troubleshooting:
+- Resend API errors: ensure verified sender domain and valid RESEND_API_KEY
+- Missing env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY must be set in Supabase
+- Delivery failures: inspect email_logs.error_message and provider dashboard (Resend Activity)
+
 ## Project URL
 
 **Lovable Project**: https://lovable.dev/projects/99bdd782-1d5e-4414-8dcc-7b9b24d22ad7

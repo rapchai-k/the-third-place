@@ -50,6 +50,17 @@
 ### Phase 3: Webhook System ⏳
 **n8n Compatible Webhook System**
 
+### Completed: Email System ✅
+- Welcome email flow implemented via Supabase Edge Functions
+  - welcome-email-trigger (orchestrates/guards idempotency)
+  - send-email (Resend integration)
+  - webhook-dispatcher (optional analytics)
+- Database:
+  - users.welcome_email_sent_at for idempotency
+  - email_logs for delivery tracking
+- Tests: see src/test/integration/email-service.integration.test.ts
+- Maintenance guide: docs/EMAIL_SYSTEM_MAINTENANCE.md
+
 #### 3.1 Webhook Infrastructure
 - [ ] `supabase/functions/webhook-dispatcher/index.ts` - Central webhook handler
 - [ ] Webhook registration system
