@@ -137,6 +137,7 @@ serve(async (req) => {
     });
 
     const emailPayload = {
+      from: "onboarding@rapchai.com",
       to: body.userEmail,
       subject: "Welcome to The Third Place - Your Community Awaits!",
       html: emailHtml,
