@@ -54,13 +54,19 @@ describe('useWelcomeEmail Hook', () => {
       const mockUser = {
         id: 'test-user-id',
         email: 'test@example.com',
-        user_metadata: { name: 'Test User' }
-      };
+        user_metadata: { name: 'Test User' },
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: '2025-01-01T00:00:00Z'
+      } as any;
 
       const mockSession = {
         access_token: 'test-token',
+        refresh_token: 'refresh-token',
+        expires_in: 3600,
+        token_type: 'bearer',
         user: mockUser
-      };
+      } as any;
 
       mockUseAuth.mockReturnValue({
         user: mockUser,
@@ -124,12 +130,21 @@ describe('useWelcomeEmail Hook', () => {
       const mockUser = {
         id: 'test-user-id',
         email: 'test@example.com',
-        user_metadata: { name: 'Test User' }
-      };
+        user_metadata: { name: 'Test User' },
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: '2025-01-01T00:00:00Z'
+      } as any;
 
       mockUseAuth.mockReturnValue({
         user: mockUser,
-        session: { access_token: 'test-token', user: mockUser },
+        session: { 
+          access_token: 'test-token', 
+          refresh_token: 'refresh-token',
+          expires_in: 3600,
+          token_type: 'bearer',
+          user: mockUser 
+        } as any,
         loading: false,
         signUp: vi.fn(),
         signIn: vi.fn(),
@@ -169,13 +184,19 @@ describe('useWelcomeEmail Hook', () => {
       const mockUser = {
         id: 'new-user-id',
         email: 'newuser@example.com',
-        user_metadata: { name: 'New User' }
-      };
+        user_metadata: { name: 'New User' },
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: '2025-01-01T00:00:00Z'
+      } as any;
 
       const mockSession = {
         access_token: 'test-token',
+        refresh_token: 'refresh-token',
+        expires_in: 3600,
+        token_type: 'bearer',
         user: mockUser
-      };
+      } as any;
 
       mockUseAuth.mockReturnValue({
         user: mockUser,
@@ -204,8 +225,13 @@ describe('useWelcomeEmail Hook', () => {
         invoke: vi.fn().mockResolvedValue({
           data: { success: true, messageId: 'test-message-id' },
           error: null
-        })
-      };
+        }),
+        url: 'mock-url',
+        headers: {},
+        region: 'mock-region',
+        fetch: vi.fn(),
+        setAuth: vi.fn()
+      } as any;
 
       mockSupabase.from = mockFrom;
       mockSupabase.functions = mockFunctions;
@@ -232,12 +258,21 @@ describe('useWelcomeEmail Hook', () => {
       const mockUser = {
         id: 'existing-user-id',
         email: 'existing@example.com',
-        user_metadata: { name: 'Existing User' }
-      };
+        user_metadata: { name: 'Existing User' },
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: '2025-01-01T00:00:00Z'
+      } as any;
 
       mockUseAuth.mockReturnValue({
         user: mockUser,
-        session: { access_token: 'test-token', user: mockUser },
+        session: { 
+          access_token: 'test-token', 
+          refresh_token: 'refresh-token',
+          expires_in: 3600,
+          token_type: 'bearer',
+          user: mockUser 
+        } as any,
         loading: false,
         signUp: vi.fn(),
         signIn: vi.fn(),
@@ -258,8 +293,13 @@ describe('useWelcomeEmail Hook', () => {
       });
 
       const mockFunctions = {
-        invoke: vi.fn()
-      };
+        invoke: vi.fn(),
+        url: 'mock-url',
+        headers: {},
+        region: 'mock-region',
+        fetch: vi.fn(),
+        setAuth: vi.fn()
+      } as any;
 
       mockSupabase.from = mockFrom;
       mockSupabase.functions = mockFunctions;
@@ -280,12 +320,21 @@ describe('useWelcomeEmail Hook', () => {
       const mockUser = {
         id: 'user-no-name',
         email: 'noname@example.com',
-        user_metadata: {} // No name provided
-      };
+        user_metadata: {}, // No name provided
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: '2025-01-01T00:00:00Z'
+      } as any;
 
       mockUseAuth.mockReturnValue({
         user: mockUser,
-        session: { access_token: 'test-token', user: mockUser },
+        session: { 
+          access_token: 'test-token', 
+          refresh_token: 'refresh-token',
+          expires_in: 3600,
+          token_type: 'bearer',
+          user: mockUser 
+        } as any,
         loading: false,
         signUp: vi.fn(),
         signIn: vi.fn(),
@@ -308,8 +357,13 @@ describe('useWelcomeEmail Hook', () => {
         invoke: vi.fn().mockResolvedValue({
           data: { success: true },
           error: null
-        })
-      };
+        }),
+        url: 'mock-url',
+        headers: {},
+        region: 'mock-region',
+        fetch: vi.fn(),
+        setAuth: vi.fn()
+      } as any;
 
       mockSupabase.from = mockFrom;
       mockSupabase.functions = mockFunctions;
@@ -338,12 +392,21 @@ describe('useWelcomeEmail Hook', () => {
       const mockUser = {
         id: 'manual-user-id',
         email: 'manual@example.com',
-        user_metadata: { name: 'Manual User' }
-      };
+        user_metadata: { name: 'Manual User' },
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: '2025-01-01T00:00:00Z'
+      } as any;
 
       mockUseAuth.mockReturnValue({
         user: mockUser,
-        session: { access_token: 'test-token', user: mockUser },
+        session: { 
+          access_token: 'test-token', 
+          refresh_token: 'refresh-token',
+          expires_in: 3600,
+          token_type: 'bearer',
+          user: mockUser 
+        } as any,
         loading: false,
         signUp: vi.fn(),
         signIn: vi.fn(),
@@ -355,8 +418,13 @@ describe('useWelcomeEmail Hook', () => {
         invoke: vi.fn().mockResolvedValue({
           data: { success: true, messageId: 'manual-message-id' },
           error: null
-        })
-      };
+        }),
+        url: 'mock-url',
+        headers: {},
+        region: 'mock-region',
+        fetch: vi.fn(),
+        setAuth: vi.fn()
+      } as any;
 
       mockSupabase.functions = mockFunctions;
 
@@ -383,12 +451,21 @@ describe('useWelcomeEmail Hook', () => {
       const mockUser = {
         id: 'error-user-id',
         email: 'error@example.com',
-        user_metadata: { name: 'Error User' }
-      };
+        user_metadata: { name: 'Error User' },
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: '2025-01-01T00:00:00Z'
+      } as any;
 
       mockUseAuth.mockReturnValue({
         user: mockUser,
-        session: { access_token: 'test-token', user: mockUser },
+        session: { 
+          access_token: 'test-token', 
+          refresh_token: 'refresh-token',
+          expires_in: 3600,
+          token_type: 'bearer',
+          user: mockUser 
+        } as any,
         loading: false,
         signUp: vi.fn(),
         signIn: vi.fn(),
@@ -400,8 +477,13 @@ describe('useWelcomeEmail Hook', () => {
         invoke: vi.fn().mockResolvedValue({
           data: null,
           error: { message: 'Function error' }
-        })
-      };
+        }),
+        url: 'mock-url',
+        headers: {},
+        region: 'mock-region',
+        fetch: vi.fn(),
+        setAuth: vi.fn()
+      } as any;
 
       mockSupabase.functions = mockFunctions;
 
