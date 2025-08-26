@@ -12,6 +12,15 @@ Based on my analysis of the codebase, here's a comprehensive status document map
 
 ---
 
+## 📌 Status update (2025-08-25)
+
+- Email system: Implemented end-to-end with Supabase Edge Functions (welcome-email-trigger, send-email) and database tracking (email_logs, users.welcome_email_sent_at)
+- Webhook system: Infrastructure and dispatcher implemented; Admin UI for configuration/monitoring will live in the separate Admin Panel app (not in this repo yet)
+- Payment integration: In progress. DB tables and migrations (payment_sessions, payment_logs, event price), Edge Functions (create-payment, payment-callback, verify-payment) and frontend components (PaymentButton, PaymentHistory, PaymentSuccess) exist; signature verification in payment-callback is placeholder; refunds not implemented; production secrets required
+- Activity logging: In progress. Edge function (log-activity) and user_activity_log table exist; useActivityLogger hook wired for key actions, while some passive view logs are temporarily disabled to reduce noise; analytics UI to be built in Admin Panel
+- Referral: Completed per spec (code-only copy behavior, sign-up flow rules)
+
+
 ## 📋 **Phase 1: Architecture Segregation** ✅ **COMPLETED**
 
 ### 1.1 Clean Architecture Setup
@@ -95,69 +104,56 @@ Based on my analysis of the codebase, here's a comprehensive status document map
 
 ---
 
-## 🎯 **Current Status: USER APP FULLY OPTIMIZED** ✅
+## 🚀 **Phase 4: Referral System Enhancement** ✅ **COMPLETED**
 
-The user-facing mobile app is **fully functional and optimized** with all core features implemented:
+### 4.1 Referral Modal Display Logic Enhancement
+- ✅ **Universal Modal Display**: Modal now shows for ALL new Google OAuth users
+- ✅ **Enhanced User Experience**: Users can manually enter referral codes even without URL invitation
+- ✅ **URL Parameter Preservation**: Referral codes from URLs still pre-filled automatically
+- ✅ **localStorage Integration**: Referral codes persist through OAuth redirect flow
 
-- **Authentication**: OAuth working with proper session handling
-- **Communities**: Discovery, joining, viewing with optimistic updates
-- **Events**: Registration system with real-time capacity tracking
-- **Discussions**: Comment system with community-gated access
-- **Dashboard**: Personalized user experience
-- **Referral System**: Complete referral tracking with enhanced sharing options
-- **Mobile UX**: Fully optimized for mobile-first usage with enhanced community cards
-- **Navigation**: Material UI navigation system with proper authentication-based routing
-- **Layout**: Clean footer positioning and responsive design across all devices
-- **Performance**: Optimized animations and clean development environment
+### 4.2 Referral Sharing System Enhancement
+- ✅ **Dual Sharing Options**: Both direct code and full URL sharing implemented
+- ✅ **Direct Code Sharing**: Copy referral code only (e.g., "8D604377") for manual entry
+- ✅ **URL Sharing**: Copy full referral URLs for automatic pre-filling
+- ✅ **Enhanced UI**: Clear labeling and separate sections for each sharing method
+- ✅ **Social Integration**: Maintained WhatsApp and Email sharing functionality
+- ✅ **Improved Feedback**: Clear toast notifications for all sharing actions
 
----
+### 4.3 Referral Tracking System Analysis & Verification
+- ✅ **Database Schema Verification**: Confirmed proper referrals table structure
+- ✅ **RLS Policy Validation**: Verified service-level insertion permissions
+- ✅ **Constraint Analysis**: Unique constraint ensures single referral per user
+- ✅ **Function Logic Review**: Validated applyReferralCode implementation
+- ✅ **Error Handling**: Robust error handling throughout referral flow
 
-## 🚀 **Phase 3: Webhook System Implementation** ✅ **COMPLETED**
-
-### 3.1 Webhook Infrastructure
-- ✅ **Database Schema**: `webhook_configurations` & `webhook_deliveries` tables
-- ✅ **RLS Policies**: Admin-only access with proper security
-- ✅ **Event Types**: Comprehensive webhook events (user actions, community events, system events)
-- ✅ **Dispatch Function**: Database function for reliable event dispatching
-
-### 3.2 Webhook Dispatcher Service
-- ✅ **Edge Function**: `webhook-dispatcher` for processing delivery queue
-- ✅ **Retry Logic**: Maximum 3 attempts with exponential backoff
-- ✅ **Security**: HMAC-SHA256 signature verification
-- ✅ **Error Handling**: Comprehensive logging and error tracking
-- ✅ **Batch Processing**: Efficient queue processing with status updates
-
-### 3.3 Admin Interface
-- ✅ **Configuration Management**: Create, edit, delete webhook endpoints
-- ✅ **Event Subscription**: Granular event selection for each webhook
-- ✅ **Delivery Monitoring**: Real-time status tracking with detailed logs
-- ✅ **Testing Tools**: One-click webhook testing functionality
-- ✅ **Manual Processing**: Force queue processing for debugging
-
-### 3.4 Integration Ready
-- ✅ **n8n Compatible**: Standard webhook format for automation platforms
-- ✅ **Signature Verification**: Secure webhook authentication
-- ✅ **Event Documentation**: Complete event payload specifications
-- ✅ **Admin Navigation**: Integrated into admin panel navigation
+### 4.4 Code Quality & Maintenance
+- ✅ **Production Ready**: Removed debug code and console logs
+- ✅ **Type Safety**: Updated TypeScript interfaces for new functionality
+- ✅ **Build Verification**: Confirmed successful builds with no errors
+- ✅ **Documentation**: Comprehensive implementation documentation
 
 ---
 
-## 🚀 **Phase 6: Navigation & Layout Optimization** ✅ **COMPLETED**
 
-### 6.1 Material UI Navigation System Enhancement
+
+
+## 🚀 **Phase 5: Navigation & Layout Optimization** ✅ **COMPLETED**
+
+### 5.1 Material UI Navigation System Enhancement
 - ✅ **Authentication-based Navigation**: Fixed conditional rendering logic for authenticated vs non-authenticated users
 - ✅ **Desktop Tab Navigation**: Resolved routing issues with Material UI Tabs component
 - ✅ **Mobile Navigation Optimization**: Fixed crashes and improved responsive behavior
 - ✅ **Logout Functionality**: Verified and ensured proper sign-out flow
 - ✅ **Double Header Issue**: Eliminated duplicate AppBar components for clean UI
 
-### 6.2 Footer Layout & Mobile UX Fixes
+### 5.2 Footer Layout & Mobile UX Fixes
 - ✅ **Footer Overlay Resolution**: Fixed mobile bottom navigation overlaying main content
 - ✅ **Conditional Footer Display**: Removed footer for non-authenticated users (single tab experience)
 - ✅ **Content Spacing**: Added proper padding to prevent content overlap
 - ✅ **Responsive Design**: Ensured seamless desktop/mobile transitions
 
-### 6.3 Community Cards Mobile Redesign
+### 5.3 Community Cards Mobile Redesign
 - ✅ **Mobile-Optimized Sizing**: Redesigned cards to 60% screen width for optimal mobile viewing
 - ✅ **Complete Information Display**: Added community name, description, member count, and location
 - ✅ **Full Card Clickability**: Made entire cards clickable with navigation to community details
@@ -165,14 +161,14 @@ The user-facing mobile app is **fully functional and optimized** with all core f
 - ✅ **Text Truncation**: Implemented proper line-clamp utilities for clean text display
 - ✅ **Accessibility Improvements**: Proper contrast, touch targets, and semantic structure
 
-### 6.4 Development Environment Optimization
+### 5.4 Development Environment Optimization
 - ✅ **Console Warning Cleanup**: Fixed Material UI prop warnings and development noise
 - ✅ **Masonry Component Fixes**: Resolved infinite height CSS issues
 - ✅ **React Router Future-Proofing**: Added v7 compatibility flags to eliminate deprecation warnings
 - ✅ **SVG Animation Optimization**: Enhanced Framer Motion path animations for better performance
 - ✅ **Build Stability**: Ensured all changes maintain production build compatibility
 
-### 6.5 Code Quality & Performance
+### 5.5 Code Quality & Performance
 - ✅ **TypeScript Compliance**: All changes maintain strict type safety
 - ✅ **CSS Utilities Enhancement**: Added line-clamp utilities for consistent text truncation
 - ✅ **Animation Performance**: Optimized SVG animations with proper willChange properties
@@ -181,85 +177,55 @@ The user-facing mobile app is **fully functional and optimized** with all core f
 
 ---
 
-## 🚀 **Next Development Phase: Advanced Features**
 
-### Phase 7: Enhanced Admin Panel (PENDING)
-- ❌ **Advanced Analytics**: User engagement metrics, retention analysis
-- ❌ **Content Moderation**: Automated comment flagging and moderation tools
-- ❌ **User Badge System**: Achievement tracking and gamification
-- ❌ **Notification System**: Email/SMS notifications for important events
-- ❌ **Export Tools**: Data export capabilities for reporting
-- ❌ **System Settings**: Global configuration management
-- ❌ **API Documentation**: Comprehensive webhook and API documentation
+## 🚀 **Phase 6: Webhook System Infrastructure** 🟡 PARTIALLY COMPLETED
 
-### Phase 8: Payment Integration (PENDING)
-- ❌ **Payment Gateway**: Cashfree integration for event payments
-- ❌ **Event Pricing**: Support for paid events with dynamic pricing
-- ❌ **Payment Sessions**: Secure payment session management
-- ❌ **Payment Tracking**: Complete payment audit trail
-- ❌ **Refund System**: Automated refund processing for cancellations
+### 6.1 Infrastructure
+- ✅ **Database Schema**: `webhook_configurations` & `webhook_deliveries` tables
+- ✅ **RLS Policies**: Admin-only access with proper security
+- ✅ **Event Types**: Event queueing via DB function for user/community/system events
+- ✅ **Dispatch Function**: Database function for reliable event dispatching
 
----
+### 6.2 Webhook Dispatcher Service
+- ✅ **Edge Function**: `webhook-dispatcher` for processing delivery queue
+- ✅ **Retry Logic**: Maximum 3 attempts with exponential backoff
+- ✅ **Security**: HMAC-SHA256 signature generation for outgoing webhooks
+- ✅ **Error Handling**: Comprehensive logging and error tracking
+- ✅ **Batch Processing**: Efficient queue processing with status updates
 
-## 🚀 **Phase 5: Referral System Enhancement** ✅ **COMPLETED**
+### 6.3 Admin Interface (Pending in Admin Panel repo)
+- ❌ **Configuration Management**: Create, edit, delete webhook endpoints UI
+- ❌ **Event Subscription**: Granular event selection UI
+- ❌ **Delivery Monitoring**: Real-time status tracking with detailed logs UI
+- ❌ **Testing Tools**: One-click webhook testing
+- ❌ **Manual Processing**: Force queue processing from UI
 
-### 5.1 Referral Modal Display Logic Enhancement
-- ✅ **Universal Modal Display**: Modal now shows for ALL new Google OAuth users
-- ✅ **Enhanced User Experience**: Users can manually enter referral codes even without URL invitation
-- ✅ **URL Parameter Preservation**: Referral codes from URLs still pre-filled automatically
-- ✅ **localStorage Integration**: Referral codes persist through OAuth redirect flow
+### 6.4 Integration
+- ✅ **n8n Compatible**: Standard webhook format for automation platforms
+- ✅ **Signature Verification**: Outbound signatures supported
+- ✅ **Event Documentation**: Payload specs captured in docs/03-webhooks.md
+- ❌ **Admin Navigation**: Not present in this repo (Admin Panel to host)
 
-### 5.2 Referral Sharing System Enhancement
-- ✅ **Dual Sharing Options**: Both direct code and full URL sharing implemented
-- ✅ **Direct Code Sharing**: Copy referral code only (e.g., "8D604377") for manual entry
-- ✅ **URL Sharing**: Copy full referral URLs for automatic pre-filling
-- ✅ **Enhanced UI**: Clear labeling and separate sections for each sharing method
-- ✅ **Social Integration**: Maintained WhatsApp and Email sharing functionality
-- ✅ **Improved Feedback**: Clear toast notifications for all sharing actions
 
-### 5.3 Referral Tracking System Analysis & Verification
-- ✅ **Database Schema Verification**: Confirmed proper referrals table structure
-- ✅ **RLS Policy Validation**: Verified service-level insertion permissions
-- ✅ **Constraint Analysis**: Unique constraint ensures single referral per user
-- ✅ **Function Logic Review**: Validated applyReferralCode implementation
-- ✅ **Error Handling**: Robust error handling throughout referral flow
-
-### 5.4 Code Quality & Maintenance
-- ✅ **Production Ready**: Removed debug code and console logs
-- ✅ **Type Safety**: Updated TypeScript interfaces for new functionality
-- ✅ **Build Verification**: Confirmed successful builds with no errors
-- ✅ **Documentation**: Comprehensive implementation documentation
 
 ---
 
-## 📊 **Latest Development Summary (Phase 6)**
+## 🚀 **Phase 7: Payment Integration** 🟡 IN PROGRESS
 
-### 🎯 **Key Achievements**
-- **Mobile UX Enhancement**: Community cards now optimized for 60% screen width with complete information display
-- **Navigation System Overhaul**: Fixed Material UI navigation issues and implemented proper authentication-based routing
-- **Layout Optimization**: Resolved footer overlay issues and improved responsive design
-- **Development Environment**: Cleaned up console warnings and optimized build performance
-- **Code Quality**: Enhanced TypeScript compliance and added comprehensive error handling
-
-### 🔧 **Technical Improvements**
-- **11 Files Modified**: Comprehensive updates across layout, components, and styling
-- **963 Lines Added**: Significant feature enhancements and optimizations
-- **213 Lines Removed**: Code cleanup and optimization
-- **Future-Proofed**: Added React Router v7 compatibility flags
-- **Performance Optimized**: Enhanced SVG animations and layout calculations
-
-### 🚀 **User Experience Impact**
-- **Better Mobile Navigation**: Cleaner interface for non-authenticated users
-- **Enhanced Community Discovery**: Improved card design with better information hierarchy
-- **Seamless Interactions**: Full card clickability with proper touch feedback
-- **Responsive Design**: Consistent experience across all device sizes
-- **Accessibility**: Improved contrast, touch targets, and semantic structure
-
-### 📈 **Development Status**
-- **Commit**: `ee95165` - Successfully pushed to `lovable-development` branch
-- **Build Status**: ✅ All builds passing
-- **Console Status**: ✅ Clean development environment
-- **Type Safety**: ✅ Full TypeScript compliance
-- **Production Ready**: ✅ All features tested and optimized
+- 🟡 Payment Gateway: Edge Functions `create-payment`, `payment-callback`, `verify-payment` implemented; signature verification in callback is placeholder; production secrets required
+- ✅ Event Pricing: Price and currency fields added to events table
+- ✅ Payment Sessions: `payment_sessions` table with RLS and indexes
+- ✅ Payment Tracking: `payment_logs` table + logging from functions
+- ❌ Refund System: Automated refund processing for cancellations (not implemented)
 
 ---
+
+## 🚀 **Phase 8: Enhanced Admin Panel** ❌ PENDING
+
+- ❌ Advanced Analytics: User engagement metrics, retention analysis
+- 🟡 Content Moderation: Flagging pipeline exists (frontend + DB), admin review UI pending
+- ❌ User Badge System: Achievement tracking and gamification
+- ❌ Notification System: Email/SMS notifications for important events
+- ❌ Export Tools: Data export capabilities for reporting
+- ❌ System Settings: Global configuration management
+- 🟡 API/Webhook Documentation: Events listed in docs/03-webhooks.md; admin UI docs pending
