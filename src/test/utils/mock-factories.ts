@@ -78,13 +78,6 @@ export const createMockUserFactory = () => {
       ...overrides,
     }),
 
-    adminUser: (overrides = {}) => ({
-      ...baseUser,
-      id: 'admin-user-id',
-      email: 'admin@example.com',
-      user_metadata: { role: 'admin' },
-      ...overrides,
-    }),
 
     bannedUser: (overrides = {}) => ({
       ...baseUser,

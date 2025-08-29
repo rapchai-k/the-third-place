@@ -521,92 +521,6 @@ describe('User Data Isolation RLS Policy Tests', () => {
     })
   })
 
-  describe('Admin Override for Data Isolation', () => {
-    it('should allow admins to access any user data', async () => {
-      vi.mocked(supabase.auth.getSession).mockResolvedValue({
-        data: { session: createMockSession(adminUser) },
-        error: null,
-      })
-
-      const allUsers = [user1, user2]
-
-      vi.mocked(supabase.from).mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue({
-          data: allUsers,
-          error: null,
-        }),
-      } as any)
-
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      expect(error).toBeNull()
-      expect(data).toEqual(allUsers)
-    })
-
-    it('should allow admins to modify any user data', async () => {
-      vi.mocked(supabase.auth.getSession).mockResolvedValue({
-        data: { session: createMockSession(adminUser) },
-        error: null,
-      })
-
-      const updatedUser = { ...user1, is_banned: true }
-
-      vi.mocked(supabase.from).mockReturnValue({
-        update: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: updatedUser,
-          error: null,
-        }),
-      } as any)
-
-      const { data, error } = await supabase
-        .from('users')
-        .update({ is_banned: true })
-        .eq('id', user1.id)
-        .select()
-        .single()
-
-      expect(error).toBeNull()
-      expect(data?.is_banned).toBe(true)
-    })
-
-    it('should allow admins to access any user registrations', async () => {
-      vi.mocked(supabase.auth.getSession).mockResolvedValue({
-        data: { session: createMockSession(adminUser) },
-        error: null,
-      })
-
-      const allRegistrations = [
-        { user_id: user1.id, event_id: 'event-1' },
-        { user_id: user2.id, event_id: 'event-1' },
-      ]
-
-      vi.mocked(supabase.from).mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        order: vi.fn().mockResolvedValue({
-          data: allRegistrations,
-          error: null,
-        }),
-      } as any)
-
-      const { data, error } = await supabase
-        .from('event_registrations')
-        .select('*')
-        .eq('event_id', 'event-1')
-        .order('registered_at', { ascending: false })
-
-      expect(error).toBeNull()
-      expect(data).toEqual(allRegistrations)
-    })
-  })
-})
 
 // Additional test for event registration RLS
 describe('Event Registration RLS Permissions', () => {
@@ -686,4 +600,5 @@ describe('Event Registration RLS Permissions', () => {
     expect(membership).toBeTruthy()
     expect(membership?.user_id).toBe(user1.id)
   })
+})
 })

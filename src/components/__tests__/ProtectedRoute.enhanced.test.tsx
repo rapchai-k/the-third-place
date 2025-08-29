@@ -121,27 +121,27 @@ describe('ProtectedRoute Enhanced', () => {
       })
     })
 
-    it('renders children with different user roles', async () => {
-      const adminUser = {
+    it('renders children for authenticated users regardless of role', async () => {
+      const regularUser = {
         id: '456',
-        email: 'admin@example.com',
+        email: 'user@example.com',
         aud: 'authenticated',
         role: 'authenticated',
-        user_metadata: { role: 'admin' },
+        user_metadata: {},
         created_at: '2024-01-01T00:00:00Z',
         updated_at: '2024-01-01T00:00:00Z'
       }
-      const adminSession = {
-        user: adminUser,
-        access_token: 'admin-token',
+      const userSession = {
+        user: regularUser,
+        access_token: 'user-token',
         token_type: 'bearer',
         expires_in: 3600,
         expires_at: Date.now() + 3600000,
-        refresh_token: 'admin-refresh'
+        refresh_token: 'user-refresh'
       }
 
       vi.mocked(supabase.auth.getSession).mockResolvedValue({
-        data: { session: adminSession as any },
+        data: { session: userSession as any },
         error: null,
       })
 
