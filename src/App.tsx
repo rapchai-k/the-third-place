@@ -21,7 +21,6 @@ import ProfilePage from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import AuthCallback from "./pages/AuthCallback";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
-import Analytics from "./pages/Analytics";
 import ReferralCenter from "./pages/ReferralCenter";
 
 
@@ -69,11 +68,6 @@ const App = () => (
                   </ProtectedRoute>
                 } />
                 <Route path="payment-success" element={<PaymentSuccess />} />
-                <Route path="analytics" element={
-                  <ProtectedRoute>
-                    <Analytics />
-                  </ProtectedRoute>
-                } />
                 <Route path="referrals" element={
                   <ProtectedRoute>
                     <ReferralCenter />

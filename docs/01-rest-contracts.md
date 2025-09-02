@@ -1,189 +1,101 @@
 
 # API Reference: The Third Place
 
-This document outlines the REST API endpoints for both user and admin access. All endpoints return consistent responses in the following format:
+This document reflects the current Supabase Edge Functions and planned endpoints. For Edge Functions, call via:
+POST {SUPABASE_URL}/functions/v1/{function-name}
+Include Authorization: Bearer {service role key for server-to-server} or user JWT if required.
 
-```
-Success:
-{
-  "status": "success",
-  "data": { ... }
-}
-
-Error:
-{
-  "status": "error",
-  "message": "Something went wrong",
-  "code": "ERR_CODE",
-  "details": { ... } // optional
-}
-```
-
-## Auth
-
-### `POST /auth/signup`
-Creates a new user (triggered by Supabase auth).
-- Body: `{ email, password, name }`
-- Returns: `200 OK`
-
-### `POST /auth/login`
-Logs in an existing user.
-- Body: `{ email, password }`
-- Returns: `{ token }`
-
-## Users
-
-### `GET /user/profile`
-Returns logged-in user profile.
-
-### `PATCH /user/profile`
-Update basic user profile.
-- Body: `{ name, photo_url, preferences }`
-
-### `GET /user/communities`
-Returns list of joined communities.
-
-### `GET /user/events`
-Returns events user has registered for.
-
-### `GET /user/discussions`
-Returns all discussion threads in communities the user has joined.
-
-### `GET /user/badge-status`
-Returns active badges for the user.
-
-### `GET /user/activity`
-Returns high-intent user actions (tracked).
+Standard error envelope: see docs/02-error-envelope.md
 
 ---
 
-## Communities
+## Implemented Edge Functions (Public API surface)
 
-### `GET /communities`
-Returns all communities (with city filter)
+### Auth & Users
+- Supabase Auth (Google OAuth) handles signup/login; profile routes are handled via Supabase client + RLS, not custom REST.
 
-### `GET /communities/:id`
-Returns full details for a specific community.
+### Payments (Cashfree)
+- POST /functions/v1/create-payment
+  - Auth: User JWT required
+  - Body: { eventId: string }
+  - Returns: { success, payment_session_id, payment_url, order_id }
+  - Notes: Creates payment_sessions, calls Cashfree Orders API; prevents duplicate registrations
 
-### `GET /communities/:id/events`
-Returns upcoming/past events.
+- POST /functions/v1/payment-callback
+  - Auth: None (Cashfree webhook)
+  - Body: raw Cashfree webhook payload
+  - Behavior: Verifies signature (placeholder today), logs in payment_logs, updates payment_sessions, may create event_registrations on success
+  - Returns: 200 OK
 
-### `GET /communities/:id/discussions?active=true|false`
-Fetch all or active/expired threads.
+- POST /functions/v1/verify-payment
+  - Auth: User JWT required
+  - Body: { paymentSessionId: string }
+  - Returns: { success, payment_status, order_status, payment_session }
 
-### `POST /admin/community`
-Create a new community (admin only).
+### Activity Logging
+- POST /functions/v1/log-activity
+  - Auth: Optional (user JWT if available; can log anonymous with metadata.anonymous)
+  - Body: { action_type, target_type, target_id?, metadata? }
+  - Returns: { success, activity_id }
 
-### `PATCH /admin/community/:id`
-Update community (admin only)
+### Email System
+- POST /functions/v1/welcome-email-trigger
+  - Auth: Service role
+  - Body: { userId, userEmail, userName }
+  - Behavior: Renders template, delegates to send-email, updates users.welcome_email_sent_at, enqueues webhook event (best-effort)
+  - Returns: { success, messageId }
 
-### `DELETE /admin/community/:id`
-Delete a community
+- POST /functions/v1/send-email
+  - Auth: Service role
+  - Body: { to, subject, html, from?, replyTo?, tags? }
+  - Behavior: Sends via Resend, logs to email_logs
+  - Returns: { success, messageId }
 
----
+- POST /functions/v1/get-email-template
+  - Auth: Service role
+  - Query/Body: optional filters (templateId/templateName)
+  - Behavior: Retrieves stored templates for preview/testing
 
-## Events
+- POST /functions/v1/test-email-template
+  - Auth: Service role
+  - Body: { templateId?, templateName?, eventType?, testEmail, sampleVariables, sendEmail? }
+  - Behavior: Renders templates, optionally sends test message
 
-### `GET /events`
-Returns list of all upcoming events (tag/city filters).
-
-### `GET /events/:id`
-Returns full event detail.
-
-### `POST /events/:id/register`
-Triggers payment and registration flow (user).
-- Body: `{ payment_mode, coupon_code? }`
-
-### `GET /events/:id/participants`
-Backend toggle: list of users in an event (admin view).
-
-### `PATCH /admin/event/:id`
-Edit all fields including capacity, host, visibility.
-
-### `DELETE /admin/event/:id`
-Cancel/delete event.
-
----
-
-## Event Registration
-
-### `POST /payments/callback`
-Handle Cashfree callback
-- Body: `{ payment_id, status, metadata }`
-
-### `POST /events/:id/cancel-registration`
-For user or admin to cancel registration
-
----
-
-## Discussions
-
-### `POST /admin/discussion`
-Start a new thread (admin only)
-- Body: `{ community_id, title, prompt, expires_at }`
-
-### `PATCH /admin/discussion/:id/override`
-Keep thread open after expiry
-
-### `DELETE /admin/discussion/:id`
-Remove thread manually
-
-### `POST /discussions/:id/comment`
-User comment in open discussion
-
-### `GET /discussions/:id/comments`
-Return all comments for a thread
+### Webhook System
+- POST /functions/v1/webhook-dispatcher
+  - Auth: Service role
+  - Behavior: Processes pending webhook_deliveries in batches, with HMAC signature and retries
+  - Returns: { processed, failed, total }
 
 ---
 
-## Flags
+## Planned or Admin-Panel Endpoints (Not implemented here)
 
-### `POST /flags`
-Flags a comment or user
-- Body: `{ type: "comment" | "user", id: "uuid", reason }`
+### Admin Panel (separate app)
+- Webhook configuration UI (create, edit, delete, subscribe events)
+- Webhook delivery monitoring and testing tools
+- Analytics dashboards for communities/events/users
+- Moderation UI for flags and discussion content
 
-### `GET /admin/flags`
-Returns all flagged content
-
-### `PATCH /admin/flags/:id/resolve`
-Admin override or approve action
-
----
-
-## Admin Analytics
-
-### `GET /admin/users/:id/activity`
-Returns all actions for that user
-
-### `GET /admin/events/:id/analytics`
-Returns engagement, payment success, etc.
+### Future Backend Enhancements
+- Payment refunds endpoint(s)
+- Additional activity event wiring (automatic enqueue of more events)
 
 ---
 
-## Internal APIs
-
-### `GET /internal/comms/preferences`
-Notification toggle for the user
-
-### `POST /internal/comms/track`
-Tracks user actions with type
-- Body: `{ type: "joined_community", user_id, object_id }`
-
----
-
-## Referrals
-
-### `GET /referral/:code`
-Check referral code
-
-### `POST /referral/apply`
-Apply referral
+## Legacy routes (from early draft, not implemented as REST in this repo)
+- /auth/signup, /auth/login (handled by Supabase Auth)
+- /user/* (profiles via Supabase client, not custom REST)
+- /communities/* and /events/* fetches are via Supabase client queries
+- /events/:id/register is now handled by create-payment + verify-payment flow
+- /payments/callback is implemented as /functions/v1/payment-callback
+- /discussions/* and /flags/* handled via Supabase tables + RLS and frontend logic
 
 ---
 
 ## Notes
-
-- All endpoints are RESTful
-- Follow Supabase RLS for authorization
-- Responses are cached (where relevant)
-- All mutating routes validate auth token via Supabase JWT
+- Authorization: User JWT for user actions; Service role for server-to-server and system functions
+- RLS: All table access governed by Supabase RLS; Edge Functions use service role where needed
+- Error handling: Follow docs/02-error-envelope.md for consistent error envelopes on frontend
+- Webhooks: See docs/03-webhooks.md for event list and payload shape
+- Testing: See docs/02-testing-plan for coverage expectations

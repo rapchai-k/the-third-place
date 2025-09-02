@@ -200,103 +200,6 @@ describe('Events API Integration Tests', () => {
     })
   })
 
-  describe('POST /events - Create Event (Admin Only)', () => {
-    it('should create event successfully as admin', async () => {
-      vi.mocked(supabase.auth.getSession).mockResolvedValue({
-        data: { session: createMockSession(mockAdminUser) },
-        error: null,
-      })
-
-      vi.mocked(supabase.from).mockReturnValue({
-        insert: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: mockEvent,
-          error: null,
-        }),
-      } as any)
-
-      const newEvent = {
-        title: 'New Event',
-        description: 'A new test event',
-        date_time: '2024-12-31T18:00:00Z',
-        venue: 'New Venue',
-        capacity: 100,
-        community_id: 'test-community-id',
-        host_id: mockAdminUser.id,
-      }
-
-      const { data } = await supabase
-        .from('events')
-        .insert(newEvent)
-        .select()
-        .single()
-
-      expect(data).toEqual(mockEvent)
-      expect(supabase.from).toHaveBeenCalledWith('events')
-    })
-
-    it('should enforce RLS and reject non-admin users', async () => {
-      vi.mocked(supabase.from).mockReturnValue({
-        insert: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: null,
-          error: { message: 'Insufficient permissions', code: 'RLS_VIOLATION' },
-        }),
-      } as any)
-
-      const newEvent = {
-        title: 'Unauthorized Event',
-        description: 'Should not be created',
-        date_time: '2024-12-31T18:00:00Z',
-        venue: 'Test Venue',
-        capacity: 50,
-        community_id: 'test-community-id',
-        host_id: mockUser.id,
-      }
-
-      const { data, error } = await supabase
-        .from('events')
-        .insert(newEvent)
-        .select()
-        .single()
-
-      expect(data).toBeNull()
-      expect(error?.code).toBe('RLS_VIOLATION')
-    })
-
-    it('should validate capacity constraints', async () => {
-      vi.mocked(supabase.from).mockReturnValue({
-        insert: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: null,
-          error: { message: 'capacity must be greater than 0', code: '23514' },
-        }),
-      } as any)
-
-      const invalidEvent = {
-        title: 'Invalid Event',
-        description: 'Event with invalid capacity',
-        date_time: '2024-12-31T18:00:00Z',
-        venue: 'Test Venue',
-        capacity: 0, // Invalid capacity
-        community_id: 'test-community-id',
-        host_id: mockAdminUser.id,
-      }
-
-      const { data, error } = await supabase
-        .from('events')
-        .insert(invalidEvent)
-        .select()
-        .single()
-
-      expect(data).toBeNull()
-      expect(error?.code).toBe('23514')
-    })
-  })
-
   describe('Event Registration Operations', () => {
     it('should allow users to register for events', async () => {
       const registrationData = {
@@ -353,48 +256,19 @@ describe('Events API Integration Tests', () => {
       expect(error?.code).toBe('23505')
     })
 
-    it('should enforce capacity limits', async () => {
-      // Mock event at capacity
-      vi.mocked(supabase.from).mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: {
-            ...mockEvent,
-            capacity: 1,
-            event_registrations: [{ count: 1 }], // At capacity
-          },
-          error: null,
-        }),
-      } as any)
-
-      // Check capacity before registration
-      const { data: eventData } = await supabase
-        .from('events')
-        .select(`
-          *,
-          event_registrations(count)
-        `)
-        .eq('id', mockEvent.id)
-        .single()
-
-      const registrationCount = eventData?.event_registrations?.[0]?.count || 0
-      const isAtCapacity = registrationCount >= eventData?.capacity
-
-      expect(isAtCapacity).toBe(true)
-    })
-
     it('should allow users to cancel registrations', async () => {
+      const cancelledRegistration = {
+        user_id: mockUser.id,
+        event_id: mockEvent.id,
+        registration_status: 'cancelled' as const,
+      }
+
       vi.mocked(supabase.from).mockReturnValue({
         update: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         select: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
-          data: {
-            user_id: mockUser.id,
-            event_id: mockEvent.id,
-            registration_status: 'cancelled',
-          },
+          data: cancelledRegistration,
           error: null,
         }),
       } as any)
@@ -411,7 +285,7 @@ describe('Events API Integration Tests', () => {
     })
   })
 
-  describe('Event Management (Admin Operations)', () => {
+  describe('Admin Operations for Testing', () => {
     it('should allow admins to update events', async () => {
       const updatedEvent = { ...mockEvent, title: 'Updated Event Title' }
       

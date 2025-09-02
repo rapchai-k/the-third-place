@@ -38,7 +38,7 @@ export const CommunityCarousel: React.FC<CommunityCarouselProps> = ({
   return (
     <div className={`relative ${className} mobile-safe`}>
       {/* Navigation Buttons - Hidden on mobile */}
-      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 -left-6 z-10">
+      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 -left-12 z-10">
         <Button
           variant="outline"
           size="icon"
@@ -49,7 +49,7 @@ export const CommunityCarousel: React.FC<CommunityCarouselProps> = ({
         </Button>
       </div>
       
-      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 -right-6 z-10">
+      <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 -right-12 z-10">
         <Button
           variant="outline"
           size="icon"

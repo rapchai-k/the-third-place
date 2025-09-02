@@ -2,23 +2,25 @@
 
 ## Current Status: Backend Features Phase
 
+Last updated: 2025-08-25
+
 ### Phase 1: Payment Integration ⏳
 **Cashfree Payment Integration**
 
 #### 1.1 Payment Edge Functions
-- [ ] `supabase/functions/create-payment/index.ts` - Initialize payment session
-- [ ] `supabase/functions/payment-callback/index.ts` - Handle Cashfree webhooks
-- [ ] `supabase/functions/verify-payment/index.ts` - Verify payment status
+- [x] `supabase/functions/create-payment/index.ts` - Initialize payment session
+- [x] `supabase/functions/payment-callback/index.ts` - Handle Cashfree webhooks (signature verification placeholder; implement HMAC-SHA256)
+- [x] `supabase/functions/verify-payment/index.ts` - Verify payment status
 
 #### 1.2 Database Updates
-- [ ] Add payment tables (payment_sessions, payment_logs)
-- [ ] Update event_registrations with payment flow
-- [ ] Add price field to events table
+- [x] Add payment tables (payment_sessions, payment_logs)
+- [x] Update event_registrations with payment flow (payment_session_id)
+- [x] Add price and currency fields to events table
 
 #### 1.3 Frontend Integration
-- [ ] Payment component for event registration
-- [ ] Payment status tracking
-- [ ] Payment history page
+- [x] Payment component for event registration (PaymentButton)
+- [x] Payment status tracking (PaymentSuccess + verify-payment)
+- [x] Payment history page (PaymentHistory)
 
 **Required Secrets:**
 - `CASHFREE_APP_ID`
@@ -30,8 +32,8 @@
 **User Activity Logging and Analytics Tracking**
 
 #### 2.1 Activity Logging System
-- [ ] `supabase/functions/log-activity/index.ts` - Log user actions
-- [ ] Activity logging hooks and utilities
+- [x] `supabase/functions/log-activity/index.ts` - Log user actions
+- [🟡] Activity logging hooks and utilities (useActivityLogger; certain passive logs temporarily disabled)
 - [ ] Real-time activity triggers
 
 #### 2.2 Analytics Dashboard
@@ -62,36 +64,36 @@
 - Maintenance guide: docs/EMAIL_SYSTEM_MAINTENANCE.md
 
 #### 3.1 Webhook Infrastructure
-- [ ] `supabase/functions/webhook-dispatcher/index.ts` - Central webhook handler
-- [ ] Webhook registration system
-- [ ] Event-driven webhook triggers
+- [x] `supabase/functions/webhook-dispatcher/index.ts` - Dispatcher for queued deliveries (batch + retries)
+- [x] Webhook registration system (`webhook_configurations` table with RLS)
+- [x] Event-driven webhook triggers (DB function to enqueue deliveries)
 
 #### 3.2 Webhook Events
-- [ ] User registration webhooks
-- [ ] Community join/leave webhooks
-- [ ] Event registration webhooks
-- [ ] Discussion activity webhooks
-- [ ] Payment status webhooks
+- [🟡] User registration webhooks (partially emitted; see welcome email flow)
+- [🟡] Community join/leave webhooks (wiring pending)
+- [🟡] Event registration webhooks (payment flows emit events/logs; enqueue integration pending)
+- [🟡] Discussion activity webhooks (wiring pending)
+- [🟡] Payment status webhooks (callback in place; enqueue integration pending)
 
-#### 3.3 Webhook Management
+#### 3.3 Webhook Management (Admin Panel)
 - [ ] Webhook configuration UI (admin)
 - [ ] Webhook testing tools
 - [ ] Webhook delivery status tracking
 
 ---
 
-### Phase 4: Referral System ⏳
-**Complete Referral System Implementation**
+### Phase 4: Referral System ✅ (Core flow complete)
+**Referral code copy behavior, signup rules, and dashboard implemented**
 
 #### 4.1 Backend Logic
-- [ ] `supabase/functions/process-referral/index.ts` - Handle referral application
-- [ ] Referral code validation system
-- [ ] Referral rewards logic
+- [ ] `supabase/functions/process-referral/index.ts` - Not required (handled via app logic + DB)
+- [x] Referral code validation system (alphanumeric code handling; no URL input)
+- [ ] Referral rewards logic (pending)
 
 #### 4.2 Frontend Components
-- [ ] Referral code entry during signup
-- [ ] Referral dashboard for users
-- [ ] Referral analytics and tracking
+- [x] Referral code entry during signup (shown in sign-up, hidden in sign-in; OAuth modal)
+- [x] Referral dashboard for users
+- [🟡] Referral analytics and tracking (basic tracking present; advanced analytics pending in Admin Panel)
 
 #### 4.3 Database Enhancements
 - [ ] Referral rewards table

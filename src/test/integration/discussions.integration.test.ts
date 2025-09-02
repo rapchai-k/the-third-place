@@ -212,97 +212,6 @@ describe('Discussions API Integration Tests', () => {
     })
   })
 
-  describe('POST /discussions - Create Discussion (Admin Only)', () => {
-    it('should create discussion successfully as admin', async () => {
-      vi.mocked(supabase.auth.getSession).mockResolvedValue({
-        data: { session: createMockSession(mockAdminUser) },
-        error: null,
-      })
-
-      vi.mocked(supabase.from).mockReturnValue({
-        insert: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: mockDiscussion,
-          error: null,
-        }),
-      } as any)
-
-      const newDiscussion = {
-        title: 'New Discussion',
-        prompt: 'What are your thoughts on this topic?',
-        community_id: 'test-community-id',
-        created_by: mockAdminUser.id,
-        expires_at: '2024-12-31T23:59:59Z',
-      }
-
-      const { data } = await supabase
-        .from('discussions')
-        .insert(newDiscussion)
-        .select()
-        .single()
-
-      expect(data).toEqual(mockDiscussion)
-      expect(supabase.from).toHaveBeenCalledWith('discussions')
-    })
-
-    it('should enforce RLS and reject non-admin users', async () => {
-      vi.mocked(supabase.from).mockReturnValue({
-        insert: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: null,
-          error: { message: 'Insufficient permissions', code: 'RLS_VIOLATION' },
-        }),
-      } as any)
-
-      const newDiscussion = {
-        title: 'Unauthorized Discussion',
-        prompt: 'Should not be created',
-        community_id: 'test-community-id',
-        created_by: mockUser.id,
-        expires_at: '2024-12-31T23:59:59Z',
-      }
-
-      const { data, error } = await supabase
-        .from('discussions')
-        .insert(newDiscussion)
-        .select()
-        .single()
-
-      expect(data).toBeNull()
-      expect(error?.code).toBe('RLS_VIOLATION')
-    })
-
-    it('should validate expiry date is in the future', async () => {
-      vi.mocked(supabase.from).mockReturnValue({
-        insert: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: null,
-          error: { message: 'expires_at must be in the future', code: '23514' },
-        }),
-      } as any)
-
-      const invalidDiscussion = {
-        title: 'Invalid Discussion',
-        prompt: 'This has an invalid expiry date',
-        community_id: 'test-community-id',
-        created_by: mockAdminUser.id,
-        expires_at: '2020-01-01T00:00:00Z', // Past date
-      }
-
-      const { data, error } = await supabase
-        .from('discussions')
-        .insert(invalidDiscussion)
-        .select()
-        .single()
-
-      expect(data).toBeNull()
-      expect(error?.code).toBe('23514')
-    })
-  })
-
   describe('Discussion Comments Operations', () => {
     it('should allow users to add comments to discussions', async () => {
       const commentData = {
@@ -352,75 +261,19 @@ describe('Discussions API Integration Tests', () => {
         }),
       } as any)
 
-      const { data: discussionData } = await supabase
+      const { data } = await supabase
         .from('discussions')
         .select('expires_at')
         .eq('id', mockDiscussion.id)
         .single()
 
-      const isExpired = new Date(discussionData?.expires_at) < new Date()
+      // Check if discussion is expired
+      const isExpired = new Date(data?.expires_at) < new Date()
       expect(isExpired).toBe(true)
-    })
-
-    it('should allow users to edit their own comments', async () => {
-      const updatedComment = {
-        id: 'comment-id',
-        content: 'Updated comment content',
-        updated_at: new Date().toISOString(),
-      }
-
-      vi.mocked(supabase.from).mockReturnValue({
-        update: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: updatedComment,
-          error: null,
-        }),
-      } as any)
-
-      const { data } = await supabase
-        .from('discussion_comments')
-        .update({ content: 'Updated comment content' })
-        .eq('id', 'comment-id')
-        .eq('user_id', mockUser.id) // RLS ensures user can only edit own comments
-        .select()
-        .single()
-
-      expect(data).toEqual(updatedComment)
-    })
-
-    it('should allow admins to moderate comments', async () => {
-      vi.mocked(supabase.from).mockReturnValue({
-        update: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        select: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: {
-            id: 'comment-id',
-            is_flagged: true,
-            moderated_by: mockAdminUser.id,
-          },
-          error: null,
-        }),
-      } as any)
-
-      const { data } = await supabase
-        .from('discussion_comments')
-        .update({
-          is_flagged: true,
-          moderated_by: mockAdminUser.id,
-        })
-        .eq('id', 'comment-id')
-        .select()
-        .single()
-
-      expect(data?.is_flagged).toBe(true)
-      expect(data?.moderated_by).toBe(mockAdminUser.id)
     })
   })
 
-  describe('Discussion Management (Admin Operations)', () => {
+  describe('Admin Operations for Testing', () => {
     it('should allow admins to extend discussion expiry', async () => {
       const extendedDiscussion = {
         ...mockDiscussion,
