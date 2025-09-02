@@ -1,8 +1,5 @@
-Let me analyze the current state of the project and create a comprehensive status document. I'll examine the codebase to understand what's been implemented and what remains to be done.
 
-Based on my analysis of the codebase, here's a comprehensive status document mapping the phases and tasks completed so far:
-
-# MyThirdPlace User App Development Status Report
+# My Third Place - User App Development Status Report
 
 ## 🏗️ **Architecture Overview**
 - **Current Focus**: User App (Mobile-First Community Platform)
@@ -12,13 +9,15 @@ Based on my analysis of the codebase, here's a comprehensive status document map
 
 ---
 
-## 📌 Status update (2025-08-25)
+## 📌 Status update (2025-09-02)
 
 - Email system: Implemented end-to-end with Supabase Edge Functions (welcome-email-trigger, send-email) and database tracking (email_logs, users.welcome_email_sent_at)
 - Webhook system: Infrastructure and dispatcher implemented; Admin UI for configuration/monitoring will live in the separate Admin Panel app (not in this repo yet)
-- Payment integration: In progress. DB tables and migrations (payment_sessions, payment_logs, event price), Edge Functions (create-payment, payment-callback, verify-payment) and frontend components (PaymentButton, PaymentHistory, PaymentSuccess) exist; signature verification in payment-callback is placeholder; refunds not implemented; production secrets required
-- Activity logging: In progress. Edge function (log-activity) and user_activity_log table exist; useActivityLogger hook wired for key actions, while some passive view logs are temporarily disabled to reduce noise; analytics UI to be built in Admin Panel
+- Payment integration: In progress. DB tables and migrations (payment_sessions, payment_logs, event price), Edge Functions (create-payment, payment-callback, verify-payment) and frontend components (PaymentButton, PaymentHistory, PaymentSuccess) exist; payment-callback creates event_registrations on success; signature verification is placeholder; refunds not implemented; production secrets required
+- Activity logging: In progress. Edge function (log-activity) and user_activity_log table exist; useActivityLogger hook wired for key actions (payments, registrations, flags); some passive view logs (page/community/discussion/profile/event views) are temporarily disabled to reduce noise; analytics UI to be built in Admin Panel
 - Referral: Completed per spec (code-only copy behavior, sign-up flow rules)
+- Branding & icons: Completed. Transparent favicon and multi-size favicon.ico, Apple Touch icon, and PWA icons (192x192, 512x512) generated from logo-transparent.png; site.webmanifest added; index.html wired. Socials (OG/Twitter) intentionally use logo.png with white background.
+
 
 
 ## 📋 **Phase 1: Architecture Segregation** ✅ **COMPLETED**

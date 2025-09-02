@@ -2,14 +2,14 @@
 
 ## Current Status: Backend Features Phase
 
-Last updated: 2025-08-25
+Last updated: 2025-09-02
 
 ### Phase 1: Payment Integration ⏳
 **Cashfree Payment Integration**
 
 #### 1.1 Payment Edge Functions
 - [x] `supabase/functions/create-payment/index.ts` - Initialize payment session
-- [x] `supabase/functions/payment-callback/index.ts` - Handle Cashfree webhooks (signature verification placeholder; implement HMAC-SHA256)
+- [x] `supabase/functions/payment-callback/index.ts` - Handle Cashfree webhooks (creates event_registrations on success; signature verification placeholder; implement HMAC-SHA256)
 - [x] `supabase/functions/verify-payment/index.ts` - Verify payment status
 
 #### 1.2 Database Updates
@@ -28,6 +28,9 @@ Last updated: 2025-08-25
 
 ---
 
+
+> Scope note: This document tracks User App features only. Admin analytics dashboards, admin webhook UIs, and other Admin Panel items are out-of-scope here and tracked in the separate Admin Panel repo.
+
 ### Phase 2: Analytics & Activity Logging ⏳
 **User Activity Logging and Analytics Tracking**
 
@@ -35,17 +38,6 @@ Last updated: 2025-08-25
 - [x] `supabase/functions/log-activity/index.ts` - Log user actions
 - [🟡] Activity logging hooks and utilities (useActivityLogger; certain passive logs temporarily disabled)
 - [ ] Real-time activity triggers
-
-#### 2.2 Analytics Dashboard
-- [ ] Admin analytics page
-- [ ] User engagement metrics
-- [ ] Event performance tracking
-- [ ] Community growth analytics
-
-#### 2.3 Event Tracking
-- [ ] User journey tracking
-- [ ] Conversion funnel analysis
-- [ ] Retention metrics
 
 ---
 
@@ -108,7 +100,7 @@ Last updated: 2025-08-25
 1. **Payment Integration** - Core revenue functionality
 2. **Activity Logging** - Essential for analytics and user tracking
 
-### Medium Priority (Week 3-4)  
+### Medium Priority (Week 3-4)
 3. **Webhook System** - Automation and integration capabilities
 4. **Referral System** - Growth and user acquisition
 
@@ -118,6 +110,7 @@ Last updated: 2025-08-25
 
 ### External Services
 - **Cashfree**: Payment processing
+- **Resend**: Transactional emails (welcome/onboarding)
 - **n8n**: Workflow automation (webhook consumer)
 
 ### Database Migrations Needed

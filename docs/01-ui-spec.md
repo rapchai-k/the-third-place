@@ -1,5 +1,5 @@
 
-# UI Specification – The Third Place
+# UI Specification – My Third Place
 
 ## Global Design Language
 

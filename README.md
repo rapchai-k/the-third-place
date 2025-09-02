@@ -1,4 +1,4 @@
-# The Third Place
+# My Third Place
 
 A community-driven platform for discovering and connecting with local third places - those essential social spaces beyond home and work where communities thrive.
 

@@ -1,6 +1,6 @@
 # Product Overview
 
-Name: The Third Place
+Name: My Third Place
 Goal: Help people in metro cities discover communities and join events, reducing urban loneliness.
 
 ## What the product does today

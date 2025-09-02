@@ -74,7 +74,7 @@ serve(async (req) => {
         // Prepare headers
         const headers: Record<string, string> = {
           "Content-Type": "application/json",
-          "User-Agent": "MyThirdPlace-Webhook/1.0"
+          "User-Agent": "My Third Place Webhook/1.0"
         };
 
         // Add signature if secret key is provided

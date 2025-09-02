@@ -1,5 +1,5 @@
 /**
- * Email templates for The Third Place platform
+ * Email templates for My Third Place platform
  * Configurable template system with dynamic variable substitution
  */
 
@@ -329,21 +329,21 @@ export function generateWelcomeEmailTemplate(data: EmailTemplateData): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to The Third Place</title>
+    <title>Welcome to My Third Place</title>
     <style>${baseStyles}</style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">The Third Place</div>
+            <div class="logo">My Third Place</div>
             <p class="tagline">Where Communities Come Together</p>
         </div>
         
         <div class="content">
-            <h1 class="welcome-text">Welcome to The Third Place, ${userName}! 🎉</h1>
+            <h1 class="welcome-text">Welcome to My Third Place, ${userName}! 🎉</h1>
             
             <p class="description">
-                We're absolutely thrilled to have you join our vibrant community platform! The Third Place is your gateway to discovering amazing local events, engaging in meaningful discussions, and connecting with like-minded people in your area.
+                We're absolutely thrilled to have you join our vibrant community platform! My Third Place is your gateway to discovering amazing local events, engaging in meaningful discussions, and connecting with like-minded people in your area.
             </p>
             
             <div class="features">

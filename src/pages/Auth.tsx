@@ -159,7 +159,7 @@ export const AuthPage = () => {
       <div className="w-full max-w-2xl">
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-primary">Welcome to MyThirdPlace</CardTitle>
+            <CardTitle className="text-2xl font-bold text-primary">Welcome to My Third Place</CardTitle>
             <CardDescription>
               Connect with your local community and discover events
             </CardDescription>

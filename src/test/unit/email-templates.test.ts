@@ -10,17 +10,17 @@ const generateWelcomeEmailTemplate = (data: { userName: string; userEmail?: stri
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to The Third Place</title>
+    <title>Welcome to My Third Place</title>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">The Third Place</div>
+            <div class="logo">My Third Place</div>
             <p class="tagline">Where Communities Come Together</p>
         </div>
         
         <div class="content">
-            <h1 class="welcome-text">Welcome to The Third Place, ${userName}! 🎉</h1>
+            <h1 class="welcome-text">Welcome to My Third Place, ${userName}! 🎉</h1>
             
             <p class="description">
                 We're absolutely thrilled to have you join our vibrant community platform!
@@ -90,9 +90,9 @@ describe('Email Templates', () => {
         userEmail: 'test@example.com'
       });
 
-      expect(template).toContain('The Third Place');
+      expect(template).toContain('My Third Place');
       expect(template).toContain('Where Communities Come Together');
-      expect(template).toContain('© 2025 The Third Place');
+      expect(template).toContain('© 2025 My Third Place');
     });
 
     it('should include all key features', () => {
@@ -239,7 +239,7 @@ describe('Email Templates', () => {
         });
 
         expect(template).toContain('<!DOCTYPE html>');
-        expect(template).toContain('Welcome to The Third Place');
+        expect(template).toContain('Welcome to My Third Place');
       });
     });
   });

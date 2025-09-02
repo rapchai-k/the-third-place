@@ -1,6 +1,6 @@
 # Webhook System
 
-Last updated: 2025-08-25
+Last updated: 2025-09-02
 
 Status: Infrastructure implemented (DB + dispatcher); Admin UI pending in Admin Panel. Events below should be enqueued via DB function and dispatched by supabase/functions/webhook-dispatcher.
 
@@ -32,11 +32,3 @@ Status: Infrastructure implemented (DB + dispatcher); Admin UI pending in Admin 
 ### Current Gaps
 - Admin UI for configuration, testing, monitoring is not in this repo (to be implemented in Admin Panel)
 - Ensure all key events are wired to enqueue (some pending)
-
-{
-  "event": "user.registered_event",
-  "timestamp": "ISO-8601",
-  "actor_user_id": "uuid",
-  "data": { "event_id": "uuid", "registration_id": "uuid", "payment_id": "string", "status": "success|failed|pending" },
-  "request_id": "uuid"
-}

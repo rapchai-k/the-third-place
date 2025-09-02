@@ -5,6 +5,21 @@ Set in Supabase/Lovable env, not in repo:
 - RESEND_API_KEY (for automated email notifications)
 - EMAIL/WA/SMS provider keys (when enabled)
 
+
+## Branding & Icons Setup
+
+- Transparent favicon and PWA icons are generated from logo-transparent.png using ImageMagick
+- Files in public/: favicon.ico, favicon-16.png, favicon-32.png, favicon-48.png, apple-touch-icon.png, icon-192.png, icon-512.png, site.webmanifest, logo.png, logo-transparent.png
+- index.html head includes:
+  - <link rel="manifest" href="/site.webmanifest" />
+  - <link rel="icon" href="/favicon.ico" sizes="any" />
+  - <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+  - <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+- Social cards intentionally use /logo.png (white background):
+  - <meta property="og:image" content="/logo.png" />
+  - <meta name="twitter:image" content="/logo.png" />
+
+
 ## Email Service Configuration
 
 ### Resend API Setup
@@ -36,7 +51,7 @@ Resend requires sending from a verified domain to avoid errors. Use a verified a
 ### Testing Email Delivery
 Option A: End-to-end via signup
 1. Create a user (Google OAuth or email/password)
-2. Check email_logs for a row with subject “Welcome to The Third Place - Your Community Awaits!”
+2. Check email_logs for a row with subject “Welcome to My Third Place - Your Community Awaits!”
 3. Verify inbox delivery; cross-check Resend Activity
 
 Option B: Direct Function call

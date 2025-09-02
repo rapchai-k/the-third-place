@@ -1,5 +1,5 @@
 
-# API Reference: The Third Place
+# API Reference: My Third Place
 
 This document reflects the current Supabase Edge Functions and planned endpoints. For Edge Functions, call via:
 POST {SUPABASE_URL}/functions/v1/{function-name}

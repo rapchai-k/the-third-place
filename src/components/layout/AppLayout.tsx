@@ -83,9 +83,7 @@ export const AppLayout = () => {
           <div className="flex items-center justify-center h-16 px-4 relative">
             {/* Brand Logo */}
             <div className="absolute left-4">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                MyThirdPlace
-              </h1>
+              <img src="/logo.png" alt="My Third Place" className="h-8 w-auto md:h-10" loading="eager" decoding="async" />
             </div>
 
             {/* Desktop Navigation Tabs - Center aligned */}

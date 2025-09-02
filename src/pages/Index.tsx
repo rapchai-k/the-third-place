@@ -215,7 +215,7 @@ const Index = () => {
       <div className="min-h-screen mobile-safe overflow-x-hidden">
         {/* Logo */}
         <div className="text-center pt-8 md:pt-12 pb-4 md:pb-6 px-6 md:px-8">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-pulse">My Third Place</h1>
+          <img src="/logo.png" alt="My Third Place" className="h-10 sm:h-12 md:h-16 lg:h-20 w-auto mx-auto" loading="eager" decoding="async" />
         </div>
 
         {/* Tagline */}
@@ -270,7 +270,7 @@ const Index = () => {
         <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
           <div className="text-center mb-12 md:mb-16">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground mb-4 md:mb-6">
-              Why The Third Place?
+              Why My Third Place?
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
               Beyond home and work, discover the spaces where communities thrive and connections flourish
