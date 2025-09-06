@@ -9,7 +9,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useWelcomeEmail } from "@/hooks/useWelcomeEmail";
 import Index from "./pages/Index";
-import AuthPage from "./pages/Auth";
+import { AuthPage } from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import CommunitiesPage from "./pages/Communities";
 import CommunityDetail from "./pages/CommunityDetail";
