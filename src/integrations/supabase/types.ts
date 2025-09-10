@@ -832,6 +832,57 @@ export type Database = {
           },
         ]
       }
+      user_requests: {
+        Row: {
+          additional_details: Json | null
+          admin_notes: string | null
+          contact_email: string
+          contact_phone: string | null
+          created_at: string
+          description: string
+          id: string
+          request_type: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          additional_details?: Json | null
+          admin_notes?: string | null
+          contact_email: string
+          contact_phone?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          request_type: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          additional_details?: Json | null
+          admin_notes?: string | null
+          contact_email?: string
+          contact_phone?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          request_type?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           expires_at: string | null

@@ -1,10 +1,11 @@
 import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
-import { Home, Users, Calendar, MessageSquare, User, Sun, Moon } from "lucide-react";
+import { Home, Users, Calendar, MessageSquare, User, Sun, Moon, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Footer from "@/components/layout/Footer";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ const navigation = [
 
 const userNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: User },
+  { name: "Make Request", href: "/request", icon: Plus },
 ];
 
 export const AppLayout = () => {
@@ -177,6 +179,9 @@ export const AppLayout = () => {
         <main className={`flex-1 overflow-auto ${user ? 'pb-16 md:pb-0' : ''}`}>
           <Outlet />
         </main>
+
+        {/* Footer */}
+        <Footer />
 
         {/* Mobile Bottom Navigation - Only for authenticated users */}
         {user && (
