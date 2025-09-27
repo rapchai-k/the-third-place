@@ -80,11 +80,13 @@ export const AppLayout = () => {
       <div className="min-h-screen flex flex-col w-full">
         {/* Unified Material UI Top Navigation */}
         <div className="bg-background">
-          <div className="flex items-center justify-center h-16 px-4 relative">
+          <div className={`flex items-center justify-center ${location.pathname !== '/' ? 'h-28 md:h-[9rem]' : 'h-16'} px-4 relative`}>
             {/* Brand Logo */}
-            <div className="absolute left-4">
-              <img src="/logo.png" alt="My Third Place" className="h-8 w-auto md:h-10" loading="eager" decoding="async" />
-            </div>
+            {location.pathname !== '/' && (
+              <div className="absolute left-4">
+                <img src="/logo.png" alt="My Third Place" className="h-24 w-auto md:h-[7.5rem]" loading="eager" decoding="async" />
+              </div>
+            )}
 
             {/* Desktop Navigation Tabs - Center aligned */}
             {user && (

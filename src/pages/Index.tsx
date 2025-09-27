@@ -1,14 +1,13 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CalendarDays, Users, MapPin, Star, Heart, Search, MessageCircle } from "lucide-react";
+import { Heart, Search, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { useEffect, useState, useCallback } from "react";
-import { SilkBackground, TiltedCard, SpotlightCard, Masonry, InfiniteScroll, CommunityCarousel } from "@/components/reactbits";
+import { SilkBackground, SpotlightCard, Masonry, CommunityCarousel } from "@/components/reactbits";
 const Index = () => {
   const {
     user
@@ -19,8 +18,25 @@ const Index = () => {
   const [communitiesPage, setCommunitiesPage] = useState(0);
   const [allCommunities, setAllCommunities] = useState<any[]>([]);
   const [hasMoreCommunities, setHasMoreCommunities] = useState(true);
+
+	  // Intersection Observer sentinel for infinite scroll (no extra components)
+	  const sentinelRef = (node: HTMLDivElement | null) => {
+	    if (!node) return;
+	    const observer = new IntersectionObserver((entries) => {
+	      const entry = entries[0];
+	      if (entry.isIntersecting && hasMoreCommunities && !loadingCommunities) {
+	        loadMoreCommunities();
+	      }
+	    }, { rootMargin: '200px 0px 0px 0px' });
+	    observer.observe(node);
+	  };
+
   const [loadingCommunities, setLoadingCommunities] = useState(false);
   const [masonryColumns, setMasonryColumns] = useState(3);
+
+	  // Page size for communities pagination
+	  const PAGE_SIZE = 6;
+
   useEffect(() => {
     logPageView('home');
   }, [logPageView]);
@@ -156,72 +172,89 @@ const Index = () => {
     }
   });
 
-  // Fetch featured communities with member counts (initial load)
-  const {
-    data: featuredCommunities = []
-  } = useQuery({
+  // Fetch communities (initial page)
+  const { data: featuredCommunities = [] } = useQuery({
     queryKey: ['featured-communities'],
     queryFn: async () => {
-      const {
-        data: communities,
-        error
-      } = await supabase.from('communities').select(`
+      const { data: communities, error } = await supabase
+        .from('communities')
+        .select(`
           *,
           community_members(count)
-        `).order('created_at', {
-        ascending: false
-      }).limit(4);
+        `)
+        .order('created_at', { ascending: false })
+        .range(0, PAGE_SIZE - 1);
       if (error) throw error;
-      const mappedCommunities = communities?.map(community => ({
-        ...community,
-        members: community.community_members?.[0]?.count || 0
-      })) || [];
-      setAllCommunities(mappedCommunities);
+      const mappedCommunities =
+        communities?.map((community) => ({
+          ...community,
+          members: community.community_members?.[0]?.count || 0,
+        })) || [];
       return mappedCommunities;
-    }
+    },
   });
+
+	  // Seed UI with initial page on first load
+	  useEffect(() => {
+	    if (featuredCommunities && featuredCommunities.length > 0) {
+	      setAllCommunities(featuredCommunities);
+	      setCommunitiesPage(1); // first page loaded
+	      setHasMoreCommunities(featuredCommunities.length === PAGE_SIZE);
+	    }
+	  }, [featuredCommunities]);
+
 
   // Load more communities function for infinite scroll
   const loadMoreCommunities = useCallback(async () => {
-    if (loadingCommunities) return;
+    if (loadingCommunities || !hasMoreCommunities) return;
     setLoadingCommunities(true);
     try {
-      const {
-        data: communities,
-        error
-      } = await supabase.from('communities').select(`
+      const { data: communities, error } = await supabase
+        .from('communities')
+        .select(`
           *,
           community_members(count)
-        `).order('created_at', {
-        ascending: false
-      }).range(communitiesPage * 4, (communitiesPage + 1) * 4 - 1);
+        `)
+        .order('created_at', { ascending: false })
+        .range(communitiesPage * PAGE_SIZE, (communitiesPage + 1) * PAGE_SIZE - 1);
+
       if (error) throw error;
-      const mappedCommunities = communities?.map(community => ({
-        ...community,
-        members: community.community_members?.[0]?.count || 0
-      })) || [];
-      if (mappedCommunities.length < 4) {
-        setHasMoreCommunities(false);
-      }
-      setAllCommunities(prev => [...prev, ...mappedCommunities]);
-      setCommunitiesPage(prev => prev + 1);
+
+      const mappedCommunities =
+        communities?.map((community) => ({
+          ...community,
+          members: community.community_members?.[0]?.count || 0,
+        })) || [];
+
+      // Deduplicate by id in case overlapping ranges or earlier bug
+      setAllCommunities((prev) => {
+        const existingIds = new Set(prev.map((c: any) => c.id));
+        const newOnes = mappedCommunities.filter((c: any) => !existingIds.has(c.id));
+        // Update hasMore based on whether we received a full page and any truly new items
+        if (mappedCommunities.length < PAGE_SIZE || newOnes.length === 0) {
+          setHasMoreCommunities(false);
+        }
+        return [...prev, ...newOnes];
+      });
+
+      setCommunitiesPage((prev) => prev + 1);
     } catch (error) {
       console.error('Error loading more communities:', error);
     } finally {
       setLoadingCommunities(false);
     }
-  }, [communitiesPage, loadingCommunities]);
+  }, [communitiesPage, hasMoreCommunities, loadingCommunities]);
   return <SilkBackground>
       <div className="min-h-screen mobile-safe overflow-x-hidden">
         {/* Logo */}
         <div className="text-center pt-8 md:pt-12 pb-4 md:pb-6 px-6 md:px-8">
-          <img src="/logo.png" alt="My Third Place" className="h-10 sm:h-12 md:h-16 lg:h-20 w-auto mx-auto" loading="eager" decoding="async" />
+          <img src="/logo.png" alt="My Third Place" className="h-[12.5rem] sm:h-[15rem] md:h-[20rem] lg:h-[25rem] w-auto mx-auto" loading="eager" decoding="async" />
         </div>
 
         {/* Tagline */}
         <div className="text-center px-6 md:px-8 pb-4 md:pb-6">
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-primary">
-            Where Communities Come Alive
+            Where communities come alive
           </h2>
         </div>
 
@@ -245,7 +278,7 @@ const Index = () => {
         <div className="container mx-auto px-6 md:px-8 lg:px-12 pt-12 md:pt-16 pb-6 md:pb-8">
           <div className="text-center">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground mb-4 md:mb-6">
-              Active Communities
+              Our Communities
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
               Discover vibrant communities in your area and connect with like-minded people
@@ -263,6 +296,12 @@ const Index = () => {
               <Button variant="outline" onClick={loadMoreCommunities} disabled={loadingCommunities} className="text-base sm:text-lg px-6 sm:px-8 py-2 w-full sm:w-auto min-w-[200px]">
                 {loadingCommunities ? "Loading..." : "Load More Communities"}
               </Button>
+
+	          {/* Invisible sentinel for auto-loading more when in view */}
+	          {hasMoreCommunities && (
+	            <div className="h-1" ref={sentinelRef} />
+	          )}
+
             </div>}
         </div>
 
@@ -273,7 +312,7 @@ const Index = () => {
               Why My Third Place?
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-              Beyond home and work, discover the spaces where communities thrive and connections flourish
+              A place for you to Recharge, Adapt and Prosper
             </p>
           </div>
 
@@ -302,7 +341,7 @@ const Index = () => {
         <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
           <div className="text-center space-y-6 md:space-y-8 bg-card/50 backdrop-blur-sm rounded-2xl md:rounded-3xl p-8 sm:p-10 md:p-16 border border-border/50 shadow-glow">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground">
-              Ready to Find Your Third Place?
+              Ready to find your Third Place?
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Join thousands of people who have discovered meaningful connections and exciting opportunities in their local communities.

@@ -355,7 +355,11 @@ export default function CommunityDetail() {
                 </Button>
               </div>
             ) : (
-              <Button variant="outline" disabled className="w-full md:w-auto">
+              <Button
+                variant="gradient"
+                className="w-full md:w-auto"
+                onClick={() => navigate('/auth')}
+              >
                 Sign in to join community
               </Button>
             )}
