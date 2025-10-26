@@ -1,0 +1,4 @@
+- Install shadcn/ui and Tailwind.
+- Import `ui/01-theme.css` globally; use class-based dark mode.
+- Components: Card, Button, Tabs, Badge, Dialog, Table, Drawer, Input, Textarea, Select, Dropdown, Chart lib as needed.
+- Apply `rounded-[var(--radius-lg)]` and use spacing consistent with tokens.
