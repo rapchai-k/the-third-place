@@ -1,0 +1,148 @@
+@startuml
+!theme plain
+
+entity "Supabase Auth (auth.users)" as AUTH {
+    *id : UUID <<PK>>
+    email : text
+    provider : text
+    created_at : timestamp
+}
+
+entity "public.users" as USERS {
+    *id : UUID <<PK, FK(auth.users.id)>>
+    name : text
+    photo_url : text
+    role : enum(user, admin)
+    is_banned : bool
+    referral_code : text
+    referred_by : UUID <<FK>>
+    created_at : timestamp
+}
+
+entity "notification_preferences" as PREF {
+    *user_id : UUID <<FK>>
+    email : bool
+    whatsapp : bool
+    sms : bool
+}
+
+entity "user_badges" as BADGES {
+    *user_id : UUID <<FK>>
+    badge : text
+    granted_at : timestamp
+}
+
+entity "communities" as COMM {
+    *id : UUID <<PK>>
+    name : text
+    description : text
+    city : text
+    image_url : text
+    created_at : timestamp
+}
+
+entity "community_members" as CMEM {
+    *user_id : UUID <<FK>>
+    *community_id : UUID <<FK>>
+    joined_at : timestamp
+}
+
+entity "tags" as TAGS {
+    *id : UUID <<PK>>
+    name : text
+}
+
+entity "event_tags" as ETAG {
+    *event_id : UUID <<FK>>
+    *tag_id : UUID <<FK>>
+}
+
+entity "events" as EVENT {
+    *id : UUID <<PK>>
+    community_id : UUID <<FK>>
+    title : text
+    description : text
+    date_time : timestamp
+    venue : text
+    capacity : int
+    tag_list : text[]
+    host_id : UUID <<FK>>
+    is_cancelled : bool
+    created_at : timestamp
+}
+
+entity "event_registrations" as REG {
+    *id : UUID <<PK>>
+    user_id : UUID <<FK>>
+    event_id : UUID <<FK>>
+    status : enum(pending, success, failed, cancelled)
+    payment_id : text
+    created_at : timestamp
+}
+
+entity "discussions" as DISC {
+    *id : UUID <<PK>>
+    community_id : UUID <<FK>>
+    title : text
+    prompt : text
+    created_by : UUID <<FK>>
+    expires_at : timestamp
+    is_visible : bool
+    extended : bool
+}
+
+entity "discussion_comments" as DCOM {
+    *id : UUID <<PK>>
+    discussion_id : UUID <<FK>>
+    user_id : UUID <<FK>>
+    text : text
+    created_at : timestamp
+    flagged_count : int
+}
+
+entity "flags" as FLAG {
+    *id : UUID <<PK>>
+    flagged_user_id : UUID <<FK>>
+    flagged_by_id : UUID <<FK>>
+    comment_id : UUID <<FK, optional>>
+    reason : text
+    created_at : timestamp
+}
+
+entity "referrals" as REF {
+    *id : UUID <<PK>>
+    referrer_id : UUID <<FK>>
+    referred_user_id : UUID <<FK>>
+    joined_at : timestamp
+}
+
+entity "user_activity_log" as ACT {
+    *id : UUID <<PK>>
+    user_id : UUID <<FK>>
+    action_type : text
+    target_type : text
+    target_id : UUID <<FK>>
+    timestamp : timestamp
+}
+
+AUTH ||--|| USERS : identity -> profile
+USERS ||--o{ PREF : has
+USERS ||--o{ BADGES : has
+USERS ||--o{ CMEM : joins
+COMM ||--o{ CMEM : has members
+COMM ||--o{ EVENT : hosts
+USERS ||--o{ EVENT : is host
+EVENT ||--o{ REG : registrations
+EVENT ||--o{ ETAG : tagged
+TAGS ||--o{ ETAG : has
+COMM ||--o{ DISC : hosts
+DISC ||--o{ DCOM : has comments
+USERS ||--o{ DCOM : writes
+USERS ||--o{ FLAG : flags
+DCOM ||--o{ FLAG : may be flagged
+USERS ||--o{ REF : refers
+USERS ||--o{ ACT : activity
+REG ||--o{ ACT : logs
+CMEM ||--o{ ACT : logs
+DCOM ||--o{ ACT : logs
+@enduml

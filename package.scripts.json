@@ -1,0 +1,10 @@
+{
+  "test": "vitest",
+  "test:ui": "vitest --ui",
+  "test:run": "vitest run",
+  "test:coverage": "vitest run --coverage",
+  "test:all": "node src/test/run-tests.js",
+  "type-check": "tsc --noEmit",
+  "lint": "eslint . --ext .ts,.tsx",
+  "lint:fix": "eslint . --ext .ts,.tsx --fix"
+}
