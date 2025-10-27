@@ -81,7 +81,11 @@ export const useWelcomeEmail = () => {
     },
     onSuccess: (data) => {
       if (data.alreadySent) {
+<<<<<<< HEAD
         // Welcome email was already sent - logging removed for security
+=======
+        console.log('Welcome email was already sent');
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       } else if (data.success) {
         toast({
           title: "Welcome email sent!",
@@ -90,7 +94,11 @@ export const useWelcomeEmail = () => {
       }
     },
     onError: (error) => {
+<<<<<<< HEAD
       // Failed to trigger welcome email - logging removed for security
+=======
+      console.error('Failed to trigger welcome email:', error);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       toast({
         title: "Email delivery issue",
         description: "We couldn't send your welcome email right now. Please try again later.",
@@ -118,7 +126,15 @@ export const useWelcomeEmail = () => {
                       user.email?.split('@')[0] || 
                       'User';
 
+<<<<<<< HEAD
       // Auto-triggering welcome email for new user - logging removed for security
+=======
+      console.log('Auto-triggering welcome email for new user:', {
+        userId: user.id,
+        email: user.email,
+        name: userName
+      });
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
       triggerWelcomeEmailMutation.mutate({
         userId: user.id,

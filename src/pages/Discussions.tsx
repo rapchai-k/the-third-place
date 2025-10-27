@@ -6,12 +6,18 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageCircle, Clock, Users, Filter } from 'lucide-react';
+<<<<<<< HEAD
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
+<<<<<<< HEAD
 import { useStructuredData, createCollectionSchema, createBreadcrumbSchema } from '@/utils/schema';
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
 export default function Discussions() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,6 +25,7 @@ export default function Discussions() {
   const communityFilter = searchParams.get('community');
   const statusFilter = searchParams.get('status') || 'all';
 
+<<<<<<< HEAD
   // Add structured data for SEO
   useStructuredData([
     createBreadcrumbSchema([
@@ -27,6 +34,8 @@ export default function Discussions() {
     ])
   ]);
 
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
   // Fetch discussions with filters
   const { data: discussions, isLoading } = useQuery({
     queryKey: ['discussions', communityFilter, statusFilter, searchTerm],
@@ -206,7 +215,10 @@ export default function Discussions() {
 
               return (
                 <Link 
+<<<<<<< HEAD
                   key={discussion.id}
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
                   to={`/discussions/${discussion.id}`}
                   className="block"
                 >
@@ -215,6 +227,7 @@ export default function Discussions() {
                       <div className="space-y-3">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 min-w-0">
+<<<<<<< HEAD
                             <div className="flex items-start justify-between gap-4 mb-2">
                               <TooltipProvider>
                                 <Tooltip>
@@ -228,13 +241,23 @@ export default function Discussions() {
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
+=======
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="text-lg font-semibold hover:text-primary transition-colors truncate">
+                                {discussion.title}
+                              </h3>
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
                               <Badge variant={isExpired ? "secondary" : "default"} className="shrink-0">
                                 {isExpired ? "Expired" : "Active"}
                               </Badge>
                             </div>
                             
                             {discussion.prompt && (
+<<<<<<< HEAD
                               <p className="text-muted-foreground text-sm mb-2" style={{ height: '48px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+=======
+                              <p className="text-muted-foreground line-clamp-1 text-sm mb-2">
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
                                 {discussion.prompt}
                               </p>
                             )}

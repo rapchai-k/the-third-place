@@ -1,6 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+<<<<<<< HEAD
 import { corsHeaders, getSecureHeaders } from "../shared/security-headers.ts";
+=======
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
 interface CreateTemplateRequest {
   name: string;
@@ -50,7 +58,11 @@ serve(async (req) => {
   }
 
   try {
+<<<<<<< HEAD
     // Function started - logging removed for security
+=======
+    console.log("[manage-email-template] Function started");
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -206,7 +218,11 @@ serve(async (req) => {
     });
 
   } catch (error: any) {
+<<<<<<< HEAD
     // Error - logging removed for security
+=======
+    console.error("[manage-email-template] Error:", error);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
     return new Response(JSON.stringify({
       success: false,

@@ -25,4 +25,8 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+<<<<<<< HEAD
+=======
+
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 .env

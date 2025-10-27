@@ -69,7 +69,11 @@ export const AuthCallback = () => {
         cleanURLAndRedirect();
         
       } catch (err: any) {
+<<<<<<< HEAD
         // Auth callback error - logging removed for security
+=======
+        console.error('Auth callback error:', err);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
         setError(err.message || 'An unexpected error occurred during authentication.');
         setStatus('error');
       }
@@ -93,7 +97,18 @@ export const AuthCallback = () => {
     };
 
     // Self-check: log current configuration for debugging
+<<<<<<< HEAD
     // Debug info removed for security
+=======
+    console.log('Auth Callback Debug Info:', {
+      currentOrigin: window.location.origin,
+      fullURL: window.location.href,
+      hash: window.location.hash,
+      search: window.location.search,
+      pathname: window.location.pathname,
+      supabaseURL: import.meta.env.VITE_SUPABASE_URL || 'Not configured',
+    });
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
     handleAuthCallback();
   }, [navigate, location.state]);

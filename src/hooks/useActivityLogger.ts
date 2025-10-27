@@ -25,12 +25,20 @@ export const useActivityLogger = () => {
       });
 
       if (error) {
+<<<<<<< HEAD
         // Failed to log activity - logging removed for security
+=======
+        console.warn('Failed to log activity:', error);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       }
 
       return data;
     } catch (error) {
+<<<<<<< HEAD
       // Activity logging error - logging removed for security
+=======
+      console.warn('Activity logging error:', error);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
     }
   }, [user]);
 

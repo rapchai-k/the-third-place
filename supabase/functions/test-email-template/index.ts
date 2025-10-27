@@ -1,7 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { TemplateProcessor, TemplateRenderContext } from "../shared/email-templates.ts";
+<<<<<<< HEAD
 import { corsHeaders, getSecureHeaders } from "../shared/security-headers.ts";
+=======
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
 interface TestTemplateRequest {
   templateId?: string;
@@ -19,7 +27,11 @@ serve(async (req) => {
   }
 
   try {
+<<<<<<< HEAD
     // Function started - logging removed for security
+=======
+    console.log("[test-email-template] Function started");
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -96,7 +108,16 @@ serve(async (req) => {
 
     const rendered = await templateProcessor.processTemplate(templateContext);
 
+<<<<<<< HEAD
     // Template rendered successfully - logging removed for security
+=======
+    console.log("[test-email-template] Template rendered successfully", {
+      templateId: template.id,
+      templateName: template.name,
+      hasSubject: !!rendered.subject,
+      hasHtml: !!rendered.html
+    });
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
     // If sendEmail is true, actually send the test email
     if (body.sendEmail) {
@@ -172,7 +193,11 @@ serve(async (req) => {
     });
 
   } catch (error: any) {
+<<<<<<< HEAD
     // Error - logging removed for security
+=======
+    console.error("[test-email-template] Error:", error);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
     return new Response(JSON.stringify({
       success: false,

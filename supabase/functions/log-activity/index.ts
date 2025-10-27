@@ -1,10 +1,22 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+<<<<<<< HEAD
 import { corsHeaders, getSecureHeaders } from "../shared/security-headers.ts";
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   // Logging removed for security
+=======
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  console.log(`[LOG-ACTIVITY] ${step}${detailsStr}`);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 };
 
 serve(async (req) => {

@@ -7,15 +7,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+<<<<<<< HEAD
 import { Search, Calendar, MapPin, Users, Clock, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { useStructuredData, createCollectionSchema, createBreadcrumbSchema } from "@/utils/schema";
+=======
+import { Search, Calendar, MapPin, Users, Clock } from "lucide-react";
+import { format } from "date-fns";
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
 export default function Events() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
 
+<<<<<<< HEAD
   // Add structured data for SEO
   useStructuredData([
     createBreadcrumbSchema([
@@ -24,6 +30,8 @@ export default function Events() {
     ])
   ]);
 
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
   const { data: events, isLoading } = useQuery({
     queryKey: ["events", searchTerm, selectedTag, selectedCity],
     queryFn: async () => {
@@ -132,6 +140,7 @@ export default function Events() {
               className="pl-10"
             />
           </div>
+<<<<<<< HEAD
           <div className="relative">
             <select
               value={selectedTag}
@@ -162,11 +171,38 @@ export default function Events() {
             </select>
             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           </div>
+=======
+          <select
+            value={selectedTag}
+            onChange={(e) => setSelectedTag(e.target.value)}
+            className="px-3 py-2 border rounded-md bg-background"
+          >
+            <option value="">All Tags</option>
+            {tags?.map((tag) => (
+              <option key={tag} value={tag}>
+                {tag}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+            className="px-3 py-2 border rounded-md bg-background"
+          >
+            <option value="">All Cities</option>
+            {cities?.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events?.map((event) => (
             <Link key={event.id} to={`/events/${event.id}`}>
+<<<<<<< HEAD
               <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg line-clamp-2 mb-3">{event.title || "TBD"}</CardTitle>
@@ -189,6 +225,27 @@ export default function Events() {
                 <CardContent className="flex-1 flex flex-col space-y-4">
                   <CardDescription className="line-clamp-3 flex-grow" style={{ height: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {event.description || "TBD"}
+=======
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <div className="space-y-2">
+                    <CardTitle className="text-lg line-clamp-2">{event.title}</CardTitle>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      {format(new Date(event.date_time), "MMM d, yyyy")}
+                      <Clock className="h-4 w-4 ml-3 mr-1" />
+                      {format(new Date(event.date_time), "h:mm a")}
+                    </div>
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      {event.venue}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <CardDescription className="line-clamp-3">
+                    {event.description}
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
                   </CardDescription>
                   
                   <div className="flex flex-wrap gap-2">
@@ -199,6 +256,7 @@ export default function Events() {
                     ))}
                   </div>
                   
+<<<<<<< HEAD
                   <div className="space-y-2 pt-2 border-t">
                     <Badge variant="secondary" className="flex items-center gap-1 w-fit">
                       <Users className="h-3 w-3" />
@@ -207,6 +265,18 @@ export default function Events() {
                     <p className="text-xs text-muted-foreground">
                       by {event.communities?.name || "TBD"}
                     </p>
+=======
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+                        <Users className="h-3 w-3" />
+                        {event.event_registrations?.[0]?.count || 0}/{event.capacity}
+                      </Badge>
+                      <p className="text-xs text-muted-foreground">
+                        by {event.communities?.name}
+                      </p>
+                    </div>
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
                   </div>
                 </CardContent>
               </Card>
