@@ -13,6 +13,10 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { useEffect } from "react";
+<<<<<<< HEAD
+import { useStructuredData, createEventSchema, createBreadcrumbSchema } from "@/utils/schema";
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
 export default function EventDetail() {
   const { id } = useParams<{ id: string }>();
@@ -57,6 +61,34 @@ export default function EventDetail() {
     enabled: !!user && !!id,
   });
 
+<<<<<<< HEAD
+  // Add structured data for SEO after event data is available
+  useStructuredData(event ? [
+    createBreadcrumbSchema([
+      { name: "Home", url: window.location.origin },
+      { name: "Events", url: `${window.location.origin}/events` },
+      { name: event.title, url: window.location.href }
+    ]),
+    createEventSchema({
+      name: event.title,
+      description: event.description || '',
+      startDate: event.date_time,
+      endDate: event.end_time,
+      url: window.location.href,
+      location: {
+        name: event.location,
+        address: event.communities?.city
+      },
+      image: event.image_url,
+      organizer: event.communities?.name,
+      price: event.price || 0,
+      currency: "INR",
+      eventStatus: event.is_cancelled ? 'EventCancelled' : 'EventScheduled'
+    })
+  ] : []);
+
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
   const registrationCount = event?.event_registrations?.[0]?.count || 0;
 
   useEffect(() => {
@@ -199,6 +231,21 @@ export default function EventDetail() {
                     </Badge>
                   ))}
                 </div>
+<<<<<<< HEAD
+                <CardTitle className="text-3xl">{event.title || "TBD"}</CardTitle>
+                <div className="space-y-2 text-muted-foreground">
+                  <div className="flex items-center">
+                    <CalendarDays className="h-4 w-4 mr-2" />
+                    {event.date_time ? format(eventDate, "EEEE, MMMM d, yyyy") : "TBD"}
+                  </div>
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 mr-2" />
+                    {event.date_time ? format(eventDate, "h:mm a") : "TBD"}
+                  </div>
+                  <div className="flex items-center">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    {event.venue || "TBD"}
+=======
                 <CardTitle className="text-3xl">{event.title}</CardTitle>
                 <div className="space-y-2 text-muted-foreground">
                   <div className="flex items-center">
@@ -212,13 +259,18 @@ export default function EventDetail() {
                   <div className="flex items-center">
                     <MapPin className="h-4 w-4 mr-2" />
                     {event.venue}
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="prose max-w-none">
                   <p className="text-muted-foreground leading-relaxed">
+<<<<<<< HEAD
+                    {event.description || "TBD"}
+=======
                     {event.description}
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
                   </p>
                 </div>
               </CardContent>
@@ -272,7 +324,11 @@ export default function EventDetail() {
                     to={`/communities/${event.communities?.id}`}
                     className="text-primary hover:underline"
                   >
+<<<<<<< HEAD
+                    {event.communities?.name || "TBD"}
+=======
                     {event.communities?.name}
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
                   </Link>
                 </div>
 

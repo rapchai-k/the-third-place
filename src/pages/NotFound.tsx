@@ -5,10 +5,14 @@ const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
+<<<<<<< HEAD
+    // 404 Error - logging removed for security
+=======
     console.error(
       "404 Error: User attempted to access non-existent route:",
       location.pathname
     );
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
   }, [location.pathname]);
 
   return (

@@ -12,6 +12,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { format } from "date-fns";
+<<<<<<< HEAD
+import { useStructuredData, createCommunitySchema, createBreadcrumbSchema } from "@/utils/schema";
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
 export default function CommunityDetail() {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +42,26 @@ export default function CommunityDetail() {
     enabled: !!id,
   });
 
+<<<<<<< HEAD
+  // Add structured data for SEO after community data is available
+  useStructuredData(community ? [
+    createBreadcrumbSchema([
+      { name: "Home", url: window.location.origin },
+      { name: "Communities", url: `${window.location.origin}/communities` },
+      { name: community.name, url: window.location.href }
+    ]),
+    createCommunitySchema({
+      name: community.name,
+      description: community.description || '',
+      url: window.location.href,
+      memberCount: community.community_members?.[0]?.count || 0,
+      dateCreated: community.created_at,
+      category: community.category
+    })
+  ] : []);
+
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
   const { data: upcomingEvents } = useQuery({
     queryKey: ["communityEvents", id],
     queryFn: async () => {
@@ -100,7 +124,11 @@ export default function CommunityDetail() {
         .maybeSingle();
       
       if (error) {
+<<<<<<< HEAD
+        // Error checking membership - logging removed for security
+=======
         console.error('Error checking membership:', error);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
         return false;
       }
       

@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+import { serve} from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { corsHeaders, getSecureHeaders } from "../shared/security-headers.ts";
+
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  // Logging removed for security
+=======
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -9,6 +18,7 @@ const corsHeaders = {
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[PAYMENT-CALLBACK] ${step}${detailsStr}`);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 };
 
 // Helper function to verify Cashfree signature
@@ -27,7 +37,12 @@ serve(async (req) => {
   try {
     logStep("Webhook received");
 
+<<<<<<< HEAD
+    const cashfreeSecretKey = (typeof process !== "undefined" && process.env?.CASHFREE_SECRET_KEY)
+      || (typeof Deno !== "undefined" && Deno.env.get("CASHFREE_SECRET_KEY"));
+=======
     const cashfreeSecretKey = Deno.env.get("CASHFREE_SECRET_KEY");
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
     if (!cashfreeSecretKey) {
       throw new Error("Cashfree secret key not configured");
     }

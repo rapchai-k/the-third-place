@@ -1,5 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+<<<<<<< HEAD
+import { corsHeaders, getSecureHeaders } from "../shared/security-headers.ts";
+
+const logStep = (step: string, details?: any) => {
+  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
+  // Logging removed for security
+=======
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,6 +16,7 @@ const corsHeaders = {
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[WEBHOOK-DISPATCHER] ${step}${detailsStr}`);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 };
 
 serve(async (req) => {
@@ -50,7 +58,11 @@ serve(async (req) => {
     if (!pendingDeliveries || pendingDeliveries.length === 0) {
       logStep("No pending deliveries found");
       return new Response(JSON.stringify({ processed: 0 }), {
+<<<<<<< HEAD
+        headers: getSecureHeaders({ "Content-Type": "application/json" }),
+=======
         headers: { ...corsHeaders, "Content-Type": "application/json" },
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
         status: 200,
       });
     }
@@ -145,7 +157,11 @@ serve(async (req) => {
       failed,
       total: pendingDeliveries.length 
     }), {
+<<<<<<< HEAD
+      headers: getSecureHeaders({ "Content-Type": "application/json" }),
+=======
       headers: { ...corsHeaders, "Content-Type": "application/json" },
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       status: 200,
     });
 
@@ -153,7 +169,11 @@ serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in webhook-dispatcher", { message: errorMessage });
     return new Response(JSON.stringify({ error: errorMessage }), {
+<<<<<<< HEAD
+      headers: getSecureHeaders({ "Content-Type": "application/json" }),
+=======
       headers: { ...corsHeaders, "Content-Type": "application/json" },
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       status: 500,
     });
   }

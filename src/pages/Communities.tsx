@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+import { useState, useEffect } from "react";
+=======
 import { useState } from "react";
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,14 +11,26 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+<<<<<<< HEAD
+import { Search, MapPin, Users, Plus, ChevronDown } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { useActivityLogger } from "@/hooks/useActivityLogger";
+import { useStructuredData, createCollectionSchema, createBreadcrumbSchema } from "@/utils/schema";
+=======
 import { Search, MapPin, Users, Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
 export default function Communities() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+<<<<<<< HEAD
+  const [loadingCommunityId, setLoadingCommunityId] = useState<string | null>(null);
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -44,6 +60,23 @@ export default function Communities() {
     },
   });
 
+<<<<<<< HEAD
+  // Add structured data for SEO after communities data is available
+  useStructuredData([
+    createBreadcrumbSchema([
+      { name: "Home", url: window.location.origin },
+      { name: "Communities", url: window.location.href }
+    ]),
+    createCollectionSchema({
+      name: "All Communities",
+      description: "Browse and join communities on My Third Place",
+      url: window.location.href,
+      numberOfItems: communities?.length || 0
+    })
+  ]);
+
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
   const { data: cities } = useQuery({
     queryKey: ["cities"],
     queryFn: async () => {
@@ -81,6 +114,10 @@ export default function Communities() {
       if (error) throw error;
     },
     onMutate: async (communityId: string) => {
+<<<<<<< HEAD
+      setLoadingCommunityId(communityId);
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: ["userMemberships", user?.id] });
 
@@ -123,6 +160,10 @@ export default function Communities() {
       });
     },
     onSettled: () => {
+<<<<<<< HEAD
+      setLoadingCommunityId(null);
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       // Always refetch after error or success
       queryClient.invalidateQueries({ queryKey: ["userMemberships", user?.id] });
     },
@@ -141,6 +182,10 @@ export default function Communities() {
       if (error) throw error;
     },
     onMutate: async (communityId: string) => {
+<<<<<<< HEAD
+      setLoadingCommunityId(communityId);
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: ["userMemberships", user?.id] });
 
@@ -183,6 +228,10 @@ export default function Communities() {
       });
     },
     onSettled: () => {
+<<<<<<< HEAD
+      setLoadingCommunityId(null);
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       // Always refetch after error or success
       queryClient.invalidateQueries({ queryKey: ["userMemberships", user?.id] });
     },
@@ -248,6 +297,23 @@ export default function Communities() {
               className="pl-10"
             />
           </div>
+<<<<<<< HEAD
+          <div className="relative">
+            <select
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+              className="px-4 py-2 pr-10 border rounded-md bg-background appearance-none cursor-pointer w-full"
+            >
+              <option value="">All Cities</option>
+              {cities?.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          </div>
+=======
           <select
             value={selectedCity}
             onChange={(e) => setSelectedCity(e.target.value)}
@@ -260,6 +326,7 @@ export default function Communities() {
               </option>
             ))}
           </select>
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -285,7 +352,11 @@ export default function Communities() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
+<<<<<<< HEAD
+                  <CardDescription className="line-clamp-3" style={{ height: '60px', overflow: 'hidden' }}>
+=======
                   <CardDescription className="line-clamp-3">
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
                     {community.description}
                   </CardDescription>
                   
@@ -309,9 +380,15 @@ export default function Communities() {
                             ? handleLeaveCommunity(community.id)
                             : handleJoinCommunity(community.id);
                         }}
+<<<<<<< HEAD
+                        disabled={loadingCommunityId === community.id}
+                      >
+                        {loadingCommunityId === community.id
+=======
                         disabled={joinCommunityMutation.isPending || leaveCommunityMutation.isPending}
                       >
                         {(joinCommunityMutation.isPending || leaveCommunityMutation.isPending)
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
                           ? (user && isUserMember(community.id) ? "Leaving..." : "Joining...")
                           : (user && isUserMember(community.id) ? "Leave" : "Join")
                         }

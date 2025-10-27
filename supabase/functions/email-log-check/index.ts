@@ -1,5 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+<<<<<<< HEAD
+import { corsHeaders, getSecureHeaders } from "../shared/security-headers.ts";
+
+function log(step: string, data?: unknown) {
+  // Logging removed for security
+=======
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -8,6 +14,7 @@ const corsHeaders = {
 
 function log(step: string, data?: unknown) {
   console.log(`[email-log-check] ${step}`, data ? JSON.stringify(data) : "");
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 }
 
 serve(async (req) => {

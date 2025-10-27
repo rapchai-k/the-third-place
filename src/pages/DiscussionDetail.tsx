@@ -15,6 +15,10 @@ import { useActivityLogger } from '@/hooks/useActivityLogger';
 import { CommentForm } from "@/components/CommentForm";
 import { FlagCommentDialog } from '@/components/FlagCommentDialog';
 import { format, isAfter } from "date-fns";
+<<<<<<< HEAD
+import { useStructuredData, createDiscussionSchema, createBreadcrumbSchema } from '@/utils/schema';
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
 export default function DiscussionDetail() {
   const { id } = useParams<{ id: string }>();
@@ -64,6 +68,30 @@ export default function DiscussionDetail() {
     },
   });
 
+<<<<<<< HEAD
+  // Add structured data for SEO after discussion and comments data is available
+  useStructuredData(discussion ? [
+    createBreadcrumbSchema([
+      { name: "Home", url: window.location.origin },
+      { name: "Discussions", url: `${window.location.origin}/discussions` },
+      { name: discussion.title, url: window.location.href }
+    ]),
+    createDiscussionSchema({
+      headline: discussion.title,
+      text: discussion.content,
+      url: window.location.href,
+      datePublished: discussion.created_at,
+      dateModified: discussion.updated_at || discussion.created_at,
+      author: {
+        name: discussion.users?.name || 'Anonymous',
+        url: `${window.location.origin}/profile/${discussion.user_id}`
+      },
+      commentCount: comments?.length || 0
+    })
+  ] : []);
+
+=======
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
   // Check if user is community member
   const { data: isMember } = useQuery({
     queryKey: ['community-membership', discussion?.community_id, user?.id],
@@ -140,7 +168,11 @@ export default function DiscussionDetail() {
     },
     onError: (error) => {
       toast.error('Failed to add comment');
+<<<<<<< HEAD
+      // Error adding comment - logging removed for security
+=======
       console.error('Error adding comment:', error);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
     },
   });
 
@@ -174,7 +206,11 @@ export default function DiscussionDetail() {
     },
     onError: (error) => {
       toast.error('Failed to flag comment');
+<<<<<<< HEAD
+      // Error flagging comment - logging removed for security
+=======
       console.error('Error flagging comment:', error);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
     },
   });
 

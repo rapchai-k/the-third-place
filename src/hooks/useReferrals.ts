@@ -162,13 +162,21 @@ export const useReferrals = (userId?: string) => {
         });
 
       if (webhookError) {
+<<<<<<< HEAD
+        // Webhook dispatch failed - logging removed for security
+=======
         console.error('Webhook dispatch failed:', webhookError);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
         // Don't throw here as the referral is still valid
       }
 
       return true;
     } catch (error) {
+<<<<<<< HEAD
+      // Error applying referral code - logging removed for security
+=======
       console.error('Error applying referral code:', error);
+>>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       return false;
     }
   };
