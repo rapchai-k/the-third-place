@@ -1,14 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-<<<<<<< HEAD
 import { corsHeaders, getSecureHeaders } from "../shared/security-headers.ts";
-=======
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
 interface EmailRequest {
   to: string;
@@ -27,11 +19,7 @@ interface EmailResponse {
 
 // Logging utility
 function logStep(step: string, data?: any) {
-<<<<<<< HEAD
   // Logging removed for security
-=======
-  console.log(`[send-email] ${step}`, data ? JSON.stringify(data, null, 2) : '');
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 }
 
 serve(async (req) => {
@@ -93,11 +81,7 @@ serve(async (req) => {
 
     // Prepare email payload for Resend API
     const emailPayload: Record<string, unknown> = {
-<<<<<<< HEAD
       from: emailRequest.from || "My Third Place <noreply@thethirdplace.community>",
-=======
-      from: emailRequest.from || "The Third Place <noreply@thethirdplace.community>",
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       to: [emailRequest.to],
       subject: emailRequest.subject,
       html: emailRequest.html,

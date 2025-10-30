@@ -58,21 +58,13 @@ export class TemplateProcessor {
         .single();
 
       if (error || !data) {
-<<<<<<< HEAD
         // Template not found - logging removed for security
-=======
-        console.warn(`[TemplateProcessor] Template not found: ${templateName}/${eventType}`, error);
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
         return null;
       }
 
       return data as EmailTemplate;
     } catch (error) {
-<<<<<<< HEAD
       // Error fetching template - logging removed for security
-=======
-      console.error(`[TemplateProcessor] Error fetching template: ${templateName}/${eventType}`, error);
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       return null;
     }
   }
@@ -86,11 +78,7 @@ export class TemplateProcessor {
     const missingVars = requiredVars.filter(varName => !(varName in variables));
     
     if (missingVars.length > 0) {
-<<<<<<< HEAD
       // Missing variables - logging removed for security
-=======
-      console.warn(`[TemplateProcessor] Missing variables: ${missingVars.join(', ')} for template ${template.name}`);
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
     }
 
     // Add system variables
@@ -99,11 +87,7 @@ export class TemplateProcessor {
       dashboardUrl: variables.dashboardUrl || "https://thethirdplace.community/dashboard",
       unsubscribeUrl: variables.unsubscribeUrl || "https://thethirdplace.community/unsubscribe",
       supportEmail: variables.supportEmail || "support@thethirdplace.community",
-<<<<<<< HEAD
       platformName: variables.platformName || "My Third Place",
-=======
-      platformName: variables.platformName || "The Third Place",
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       timestamp: new Date().toISOString(),
       correlationId: this.correlationId
     };
@@ -122,11 +106,7 @@ export class TemplateProcessor {
     return template.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
       const value = variables[varName];
       if (value === undefined || value === null) {
-<<<<<<< HEAD
         // Variable not provided - logging removed for security
-=======
-        console.warn(`[TemplateProcessor] Variable ${varName} not provided, keeping placeholder`);
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
         return match; // Keep original placeholder if variable not found
       }
       return String(value);
@@ -142,11 +122,7 @@ export class TemplateProcessor {
       const template = await this.getTemplate(context.templateName, context.eventType);
       
       if (template) {
-<<<<<<< HEAD
         // Using dynamic template - logging removed for security
-=======
-        console.log(`[TemplateProcessor] Using dynamic template: ${template.name} (ID: ${template.id})`);
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
         const rendered = this.renderTemplate(template, context.variables);
         return {
           ...rendered,
@@ -155,19 +131,11 @@ export class TemplateProcessor {
       }
 
       // Fallback to legacy hardcoded templates
-<<<<<<< HEAD
       // Falling back to legacy template - logging removed for security
       return this.getLegacyTemplate(context);
 
     } catch (error) {
       // Error processing template - logging removed for security
-=======
-      console.log(`[TemplateProcessor] Falling back to legacy template: ${context.templateName}`);
-      return this.getLegacyTemplate(context);
-
-    } catch (error) {
-      console.error(`[TemplateProcessor] Error processing template ${context.templateName}:`, error);
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       // Final fallback to legacy templates
       return this.getLegacyTemplate(context);
     }
@@ -177,20 +145,12 @@ export class TemplateProcessor {
    * Fallback to legacy hardcoded templates
    */
   private getLegacyTemplate(context: TemplateRenderContext): { subject: string; html: string } {
-<<<<<<< HEAD
     // Using legacy template fallback - logging removed for security
-=======
-    console.log(`[TemplateProcessor] Using legacy template fallback for: ${context.templateName}`);
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
-    
+
     switch (context.templateName) {
       case 'welcome_email':
         return {
-<<<<<<< HEAD
           subject: `Welcome to My Third Place, ${context.variables.userName || 'User'}! 🎉`,
-=======
-          subject: `Welcome to The Third Place, ${context.variables.userName || 'User'}! 🎉`,
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
           html: generateWelcomeEmailTemplate(context.variables)
         };
       
@@ -432,13 +392,8 @@ export function generateWelcomeEmailTemplate(data: EmailTemplateData): string {
             </div>
             
             <p style="margin-top: 20px; font-size: 12px; color: #94a3b8;">
-<<<<<<< HEAD
                 &copy; 2025 My Third Place. All rights reserved.<br>
                 You're receiving this email because you signed up for My Third Place.
-=======
-                &copy; 2025 The Third Place. All rights reserved.<br>
-                You're receiving this email because you signed up for The Third Place.
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
             </p>
         </div>
     </div>
@@ -469,11 +424,7 @@ export function generateEventReminderTemplate(data: EmailTemplateData & {
 <body>
     <div class="container">
         <div class="header">
-<<<<<<< HEAD
             <div class="logo">My Third Place</div>
-=======
-            <div class="logo">The Third Place</div>
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
             <p class="tagline">Event Reminder</p>
         </div>
         
