@@ -8,10 +8,7 @@ import { format } from "date-fns";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { useEffect, useState, useCallback } from "react";
 import { SilkBackground, SpotlightCard, Masonry, CommunityCarousel } from "@/components/reactbits";
-<<<<<<< HEAD
 import { useStructuredData, websiteSchema, organizationSchema, createCollectionSchema } from "@/utils/schema";
-=======
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 const Index = () => {
   const {
     user
@@ -45,7 +42,6 @@ const Index = () => {
     logPageView('home');
   }, [logPageView]);
 
-<<<<<<< HEAD
   // Add structured data for SEO
   useStructuredData([
     websiteSchema,
@@ -58,8 +54,6 @@ const Index = () => {
     })
   ]);
 
-=======
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
   // Handle responsive masonry columns
   useEffect(() => {
     const handleResize = () => {
@@ -145,11 +139,7 @@ const Index = () => {
           limit: 20
         });
         if (error) {
-<<<<<<< HEAD
           // Error fetching gallery images - logging removed for security
-=======
-          console.error('Error fetching gallery images:', error);
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
           return;
         }
         if (files && files.length > 0) {
@@ -162,11 +152,7 @@ const Index = () => {
           setGalleryImages(bucketImages);
         }
       } catch (error) {
-<<<<<<< HEAD
         // Error loading gallery images - logging removed for security
-=======
-        console.error('Error loading gallery images:', error);
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
       }
     };
     fetchGalleryImages();
@@ -266,11 +252,7 @@ const Index = () => {
 
       setCommunitiesPage((prev) => prev + 1);
     } catch (error) {
-<<<<<<< HEAD
       // Error loading more communities - logging removed for security
-=======
-      console.error('Error loading more communities:', error);
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
     } finally {
       setLoadingCommunities(false);
     }

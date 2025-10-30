@@ -293,7 +293,6 @@ const Dashboard = () => {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {userCommunities.map((community) => (
-<<<<<<< HEAD
               <Card key={community.id} className="hover:shadow-lg transition-shadow h-full flex flex-col">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg line-clamp-2 mb-3" style={{ height: '48px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
@@ -304,14 +303,6 @@ const Dashboard = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col justify-end">
-=======
-              <Card key={community.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-lg">{community.name}</CardTitle>
-                  <CardDescription>{community.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Users className="w-4 h-4" />

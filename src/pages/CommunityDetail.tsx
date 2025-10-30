@@ -12,10 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { format } from "date-fns";
-<<<<<<< HEAD
 import { useStructuredData, createCommunitySchema, createBreadcrumbSchema } from "@/utils/schema";
-=======
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
 
 export default function CommunityDetail() {
   const { id } = useParams<{ id: string }>();
@@ -42,7 +39,6 @@ export default function CommunityDetail() {
     enabled: !!id,
   });
 
-<<<<<<< HEAD
   // Add structured data for SEO after community data is available
   useStructuredData(community ? [
     createBreadcrumbSchema([
@@ -56,12 +52,10 @@ export default function CommunityDetail() {
       url: window.location.href,
       memberCount: community.community_members?.[0]?.count || 0,
       dateCreated: community.created_at,
-      category: community.category
+      category: community.city // Using city as category since category column doesn't exist
     })
   ] : []);
 
-=======
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
   const { data: upcomingEvents } = useQuery({
     queryKey: ["communityEvents", id],
     queryFn: async () => {
@@ -122,13 +116,9 @@ export default function CommunityDetail() {
         .eq("community_id", id)
         .eq("user_id", user.id)
         .maybeSingle();
-      
+
       if (error) {
-<<<<<<< HEAD
         // Error checking membership - logging removed for security
-=======
-        console.error('Error checking membership:', error);
->>>>>>> 193db8a94be7a7b5ace78e2adf90eaea66f0146c
         return false;
       }
       
