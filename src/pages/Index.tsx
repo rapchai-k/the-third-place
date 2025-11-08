@@ -172,11 +172,16 @@ const Index = () => {
           communities(name),
           event_tags(tags(name)),
           event_registrations(id)
-        `).eq('is_cancelled', false).gte('date_time', new Date().toISOString()).order('date_time', {
-        ascending: true
+        `).eq('is_cancelled', false).order('date_time', {
+        ascending: true,
+        nullsFirst: false
       }).limit(4);
       if (error) throw error;
-      return events?.map(event => ({
+      // Filter to include events with null dates or future dates
+      const filteredEvents = events?.filter(event =>
+        !event.date_time || new Date(event.date_time) >= new Date()
+      ) || [];
+      return filteredEvents.map(event => ({
         ...event,
         community_name: event.communities?.name,
         tags: event.event_tags?.map(et => et.tags?.name).filter(Boolean) || [],

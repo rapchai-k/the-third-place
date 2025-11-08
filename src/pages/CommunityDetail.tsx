@@ -67,14 +67,38 @@ export default function CommunityDetail() {
         `)
         .eq("community_id", id)
         .eq("is_cancelled", false)
-        .gte("date_time", new Date().toISOString())
-        .order("date_time")
+        .order("date_time", { ascending: true, nullsFirst: false })
         .limit(3);
       if (error) throw error;
-      return data;
+      // Filter to include events with null dates or future dates
+      const filteredData = data?.filter(event =>
+        !event.date_time || new Date(event.date_time) >= new Date()
+      ) || [];
+      return filteredData;
     },
     enabled: !!id,
   });
+
+  // Fetch user's event registrations
+  const { data: userRegistrations = [] } = useQuery({
+    queryKey: ['user-registrations', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from('event_registrations')
+        .select('event_id, status')
+        .eq('user_id', user.id)
+        .eq('status', 'success');
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user
+  });
+
+  // Create a Set of registered event IDs for quick lookup
+  const registeredEventIds = new Set(userRegistrations.map(reg => reg.event_id));
 
   const { data: discussions } = useQuery({
     queryKey: ["communityDiscussions", id],
@@ -396,22 +420,41 @@ export default function CommunityDetail() {
               {upcomingEvents?.length === 0 ? (
                 <p className="text-muted-foreground">No upcoming events</p>
               ) : (
-                upcomingEvents?.map((event) => (
-                  <div key={event.id} className="border-l-4 border-primary pl-4">
-                    <Link
-                      to={`/events/${event.id}`}
-                      className="font-medium hover:underline"
-                    >
-                      {event.title}
-                    </Link>
-                    <div className="text-sm text-muted-foreground">
-                      {format(new Date(event.date_time), "MMM d, yyyy 'at' h:mm a")}
+                upcomingEvents?.map((event) => {
+                  const isRegistered = registeredEventIds.has(event.id);
+
+                  return (
+                    <div key={event.id} className="border-l-4 border-primary pl-4 relative">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <Link
+                            to={`/events/${event.id}`}
+                            className="font-medium hover:underline"
+                          >
+                            {event.title}
+                          </Link>
+                          <div className="text-sm text-muted-foreground">
+                            {event.date_time ? format(new Date(event.date_time), "MMM d, yyyy 'at' h:mm a") : "TBD"}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {event.event_registrations?.[0]?.count || 0}/{event.capacity} registered
+                          </div>
+                        </div>
+                        {user && (
+                          <Badge
+                            className={
+                              isRegistered
+                                ? "bg-green-600 hover:bg-green-700 text-white text-xs"
+                                : "bg-yellow-500 hover:bg-yellow-600 text-gray-900 text-xs"
+                            }
+                          >
+                            {isRegistered ? "Registered" : "Unregistered"}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      {event.event_registrations?.[0]?.count || 0}/{event.capacity} registered
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
               <Button variant="outline" asChild className="w-full">
                 <Link to={`/events?community=${community.id}`}>

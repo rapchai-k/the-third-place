@@ -10,8 +10,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Calendar, MapPin, Users, Clock, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { useStructuredData, createCollectionSchema, createBreadcrumbSchema } from "@/utils/schema";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Events() {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
@@ -38,8 +40,7 @@ export default function Events() {
           )
         `)
         .eq("is_cancelled", false)
-        .gte("date_time", new Date().toISOString())
-        .order("date_time");
+        .order("date_time", { ascending: true, nullsFirst: false });
 
       if (searchTerm) {
         query = query.ilike("title", `%${searchTerm}%`);
@@ -50,15 +51,20 @@ export default function Events() {
 
       // Filter by tag and city client-side for now
       let filteredData = data || [];
-      
+
+      // Include events with null dates or future dates
+      filteredData = filteredData.filter(event =>
+        !event.date_time || new Date(event.date_time) >= new Date()
+      );
+
       if (selectedTag) {
-        filteredData = filteredData.filter(event => 
+        filteredData = filteredData.filter(event =>
           event.event_tags?.some(et => et.tags?.name === selectedTag)
         );
       }
-      
+
       if (selectedCity) {
-        filteredData = filteredData.filter(event => 
+        filteredData = filteredData.filter(event =>
           event.communities?.city === selectedCity
         );
       }
@@ -85,12 +91,36 @@ export default function Events() {
       const { data, error } = await supabase
         .from("events")
         .select("communities(city)")
-        .eq("is_cancelled", false)
-        .gte("date_time", new Date().toISOString());
+        .eq("is_cancelled", false);
       if (error) throw error;
-      return [...new Set(data.map(e => e.communities?.city).filter(Boolean))];
+      // Include events with null dates or future dates
+      const filteredData = data.filter(e =>
+        !e.date_time || new Date(e.date_time) >= new Date()
+      );
+      return [...new Set(filteredData.map(e => e.communities?.city).filter(Boolean))];
     },
   });
+
+  // Fetch user's event registrations
+  const { data: userRegistrations = [] } = useQuery({
+    queryKey: ['user-registrations', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from('event_registrations')
+        .select('event_id, status')
+        .eq('user_id', user.id)
+        .eq('status', 'success');
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user
+  });
+
+  // Create a Set of registered event IDs for quick lookup
+  const registeredEventIds = new Set(userRegistrations.map(reg => reg.event_id));
 
   if (isLoading) {
     return (
@@ -165,53 +195,72 @@ export default function Events() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events?.map((event) => (
-            <Link key={event.id} to={`/events/${event.id}`}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg line-clamp-2 mb-3">{event.title || "TBD"}</CardTitle>
+          {events?.map((event) => {
+            const isRegistered = registeredEventIds.has(event.id);
 
-                  <div className="space-y-2">
-                    <div className="flex items-center text-sm text-muted-foreground gap-2">
-                      <Calendar className="h-4 w-4 flex-shrink-0" />
-                      <span>{event.date_time ? format(new Date(event.date_time), "MMM d, yyyy") : "TBD"}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-muted-foreground gap-2">
-                      <Clock className="h-4 w-4 flex-shrink-0" />
-                      <span>{event.date_time ? format(new Date(event.date_time), "h:mm a") : "TBD"}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-muted-foreground gap-2">
-                      <MapPin className="h-4 w-4 flex-shrink-0" />
-                      <span className="line-clamp-1">{event.venue || "TBD"}</span>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1 flex flex-col space-y-4">
-                  <CardDescription className="line-clamp-3 flex-grow" style={{ height: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {event.description || "TBD"}
-                  </CardDescription>
-
-                  <div className="flex flex-wrap gap-2">
-                    {event.event_tags?.map((et, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {et.tags?.name}
+            return (
+              <Link key={event.id} to={`/events/${event.id}`}>
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col relative">
+                  {/* Registration Status Badge - Top Right */}
+                  {user && (
+                    <div className="absolute top-3 right-3 z-10">
+                      <Badge
+                        className={
+                          isRegistered
+                            ? "bg-green-600 hover:bg-green-700 text-white"
+                            : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
+                        }
+                      >
+                        {isRegistered ? "Registered" : "Unregistered"}
                       </Badge>
-                    ))}
-                  </div>
+                    </div>
+                  )}
 
-                  <div className="space-y-2 pt-2 border-t">
-                    <Badge variant="secondary" className="flex items-center gap-1 w-fit">
-                      <Users className="h-3 w-3" />
-                      {event.event_registrations?.[0]?.count || 0}/{event.capacity}
-                    </Badge>
-                    <p className="text-xs text-muted-foreground">
-                      by {event.communities?.name || "TBD"}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg line-clamp-2 mb-3 pr-24">{event.title || "TBD"}</CardTitle>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center text-sm text-muted-foreground gap-2">
+                        <Calendar className="h-4 w-4 flex-shrink-0" />
+                        <span>{event.date_time ? format(new Date(event.date_time), "MMM d, yyyy") : "TBD"}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-muted-foreground gap-2">
+                        <Clock className="h-4 w-4 flex-shrink-0" />
+                        <span>{event.date_time ? format(new Date(event.date_time), "h:mm a") : "TBD"}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-muted-foreground gap-2">
+                        <MapPin className="h-4 w-4 flex-shrink-0" />
+                        <span className="line-clamp-1">{event.venue || "TBD"}</span>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col space-y-4">
+                    <CardDescription className="line-clamp-3 flex-grow" style={{ height: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {event.description || "TBD"}
+                    </CardDescription>
+
+                    <div className="flex flex-wrap gap-2">
+                      {event.event_tags?.map((et, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {et.tags?.name}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    <div className="space-y-2 pt-2 border-t">
+                      <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+                        <Users className="h-3 w-3" />
+                        {event.event_registrations?.[0]?.count || 0}/{event.capacity}
+                      </Badge>
+                      <p className="text-xs text-muted-foreground">
+                        by {event.communities?.name || "TBD"}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
 
         {events?.length === 0 && (

@@ -200,8 +200,8 @@ export default function EventDetail() {
     );
   }
 
-  const eventDate = new Date(event.date_time);
-  const isPastEvent = eventDate < new Date();
+  const eventDate = event.date_time ? new Date(event.date_time) : null;
+  const isPastEvent = eventDate ? eventDate < new Date() : false;
   const isFull = registrationCount >= event.capacity;
 
   return (
@@ -309,17 +309,25 @@ export default function EventDetail() {
                   </Badge>
                 </div>
 
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Price</span>
+                  <span className="font-medium">
+                    {event.price && event.price > 0 ? `₹${event.price}` : "Free"}
+                  </span>
+                </div>
+
                 {userRegistration && (
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">Your Status</span>
-                    <Badge 
+                    <Badge
                       variant={
                         userRegistration.status === "success" ? "default" :
-                        userRegistration.status === "pending" ? "secondary" : 
+                        userRegistration.status === "pending" ? "secondary" :
                         "destructive"
                       }
+                      className={userRegistration.status === "success" ? "bg-green-600 hover:bg-green-700" : ""}
                     >
-                      {userRegistration.status}
+                      {userRegistration.status === "success" ? "Confirmed" : userRegistration.status}
                     </Badge>
                   </div>
                 )}
