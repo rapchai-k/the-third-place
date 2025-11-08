@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEventRegistration } from "@/hooks/useEventRegistration";
-import { PaymentButton } from "@/components/PaymentButton";
+import { WhatsAppCollectionModal } from "@/components/WhatsAppCollectionModal";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Users, UserCheck } from "lucide-react";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
+import { useState } from "react";
 
 interface EventRegistrationButtonProps {
   eventId: string;
@@ -18,26 +19,27 @@ interface EventRegistrationButtonProps {
   className?: string;
 }
 
-export const EventRegistrationButton = ({ 
-  eventId, 
-  eventDate, 
-  capacity, 
+export const EventRegistrationButton = ({
+  eventId,
+  eventDate,
+  capacity,
   currentAttendees,
   eventTitle,
   price = 0,
   currency = 'INR',
-  className 
+  className
 }: EventRegistrationButtonProps) => {
   const { user } = useAuth();
   const { register, cancel, isRegistering, isCancelling } = useEventRegistration(eventId);
   const { logEventRegistration } = useActivityLogger();
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
 
   // Check if user is registered
   const { data: userRegistration, isLoading } = useQuery({
     queryKey: ['user-registration', eventId],
     queryFn: async () => {
       if (!user) return null;
-      
+
       const { data, error } = await supabase
         .from('event_registrations')
         .select('*')
@@ -51,7 +53,27 @@ export const EventRegistrationButton = ({
     enabled: !!user
   });
 
-  const isPastEvent = new Date(eventDate) < new Date();
+  // Check if user has WhatsApp number
+  const { data: userProfile } = useQuery({
+    queryKey: ['user-profile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+
+      const { data, error } = await supabase
+        .from('users')
+        .select('whatsapp_number')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id
+  });
+
+  // Treat null dates as upcoming events (not past events)
+  const eventDateObj = eventDate ? new Date(eventDate) : null;
+  const isPastEvent = eventDateObj ? eventDateObj < new Date() : false;
   const isFullyBooked = currentAttendees >= capacity;
   const isRegistered = !!userRegistration;
 
@@ -116,50 +138,68 @@ export const EventRegistrationButton = ({
     );
   }
 
-  // If event has a price, show payment button instead
-  if (price > 0) {
-    return (
-      <PaymentButton
-        eventId={eventId}
-        eventTitle={eventTitle}
-        price={price}
-        currency={currency}
-        className={className}
-        onPaymentSuccess={() => window.location.reload()} // Refresh to update registration status
-      />
-    );
-  }
+  // Handle registration for all events (both free and paid)
+  // Since payment flow is not active, all events follow the same registration flow
+  const handleRegistration = () => {
+    // If user already has WhatsApp number, proceed directly to registration
+    if (userProfile?.whatsapp_number) {
+      logEventRegistration(eventId, {
+        event_type: price > 0 ? 'paid' : 'free',
+        event_title: eventTitle,
+        event_date: eventDate,
+        price: price,
+        currency: currency,
+        registration_type: price > 0 ? 'interest' : 'free'
+      });
+      register();
+    } else {
+      // Show WhatsApp collection modal
+      setShowWhatsAppModal(true);
+    }
+  };
 
-  // Free event - use original registration flow
-  const handleFreeRegistration = () => {
+  const handleWhatsAppSuccess = () => {
+    // After WhatsApp number is saved, proceed with registration
     logEventRegistration(eventId, {
-      event_type: 'free',
+      event_type: price > 0 ? 'paid' : 'free',
       event_title: eventTitle,
       event_date: eventDate,
-      price: 0,
+      price: price,
       currency: currency,
-      registration_type: 'free'
+      registration_type: price > 0 ? 'interest' : 'free'
     });
     register();
   };
 
   return (
-    <Button 
-      onClick={handleFreeRegistration}
-      disabled={isRegistering}
-      className={className}
-    >
-      {isRegistering ? (
-        <>
-          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          Registering...
-        </>
-      ) : (
-        <>
-          <Users className="w-4 h-4 mr-2" />
-          Register for Free
-        </>
+    <>
+      <Button
+        onClick={handleRegistration}
+        disabled={isRegistering}
+        className={className}
+      >
+        {isRegistering ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Registering...
+          </>
+        ) : (
+          <>
+            <Users className="w-4 h-4 mr-2" />
+            I'm interested
+          </>
+        )}
+      </Button>
+
+      {user && (
+        <WhatsAppCollectionModal
+          isOpen={showWhatsAppModal}
+          onClose={() => setShowWhatsAppModal(false)}
+          onSuccess={handleWhatsAppSuccess}
+          userId={user.id}
+          eventType={price > 0 ? "paid" : "free"}
+        />
       )}
-    </Button>
+    </>
   );
 };

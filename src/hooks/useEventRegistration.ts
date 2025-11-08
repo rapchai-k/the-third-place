@@ -12,32 +12,39 @@ export const useEventRegistration = (eventId: string) => {
   const registerMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('User not authenticated');
-      
+
+      // For free events, registration is immediately successful
+      // For paid events, status is managed by payment webhooks
       const { error } = await supabase
         .from('event_registrations')
         .insert({
           event_id: eventId,
           user_id: user.id,
-          status: 'pending'
+          status: 'success'
         });
 
       if (error) throw error;
     },
     onMutate: async () => {
-      // Cancel outgoing refetches
+      // Cancel outgoing refetches for all registration-related queries
       await queryClient.cancelQueries({ queryKey: ['user-registration', eventId] });
+      await queryClient.cancelQueries({ queryKey: ['userRegistration', eventId, user?.id] });
       await queryClient.cancelQueries({ queryKey: ['event', eventId] });
 
       // Snapshot previous values
       const previousRegistration = queryClient.getQueryData(['user-registration', eventId]);
+      const previousRegistrationAlt = queryClient.getQueryData(['userRegistration', eventId, user?.id]);
       const previousEvent = queryClient.getQueryData(['event', eventId]);
 
-      // Optimistically update registration status
-      queryClient.setQueryData(['user-registration', eventId], {
+      // Optimistically update registration status for both query keys
+      const optimisticData = {
         user_id: user?.id,
         event_id: eventId,
-        status: 'pending'
-      });
+        status: 'success'
+      };
+
+      queryClient.setQueryData(['user-registration', eventId], optimisticData);
+      queryClient.setQueryData(['userRegistration', eventId, user?.id], optimisticData);
 
       // Update event attendee count optimistically
       if (previousEvent) {
@@ -55,17 +62,20 @@ export const useEventRegistration = (eventId: string) => {
         description: "You're now registered for this event.",
       });
 
-      return { previousRegistration, previousEvent };
+      return { previousRegistration, previousRegistrationAlt, previousEvent };
     },
     onError: (err, variables, context) => {
-      // Rollback on error
+      // Rollback on error for both query keys
       if (context?.previousRegistration !== undefined) {
         queryClient.setQueryData(['user-registration', eventId], context.previousRegistration);
+      }
+      if (context?.previousRegistrationAlt !== undefined) {
+        queryClient.setQueryData(['userRegistration', eventId, user?.id], context.previousRegistrationAlt);
       }
       if (context?.previousEvent !== undefined) {
         queryClient.setQueryData(['event', eventId], context.previousEvent);
       }
-      
+
       toast({
         title: "Registration failed",
         description: "Please try again",
@@ -73,8 +83,9 @@ export const useEventRegistration = (eventId: string) => {
       });
     },
     onSettled: () => {
-      // Always refetch after error or success
+      // Always refetch after error or success for all registration-related queries
       queryClient.invalidateQueries({ queryKey: ['user-registration', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['userRegistration', eventId, user?.id] });
       queryClient.invalidateQueries({ queryKey: ['event', eventId] });
     }
   });
@@ -92,16 +103,19 @@ export const useEventRegistration = (eventId: string) => {
       if (error) throw error;
     },
     onMutate: async () => {
-      // Cancel outgoing refetches
+      // Cancel outgoing refetches for all registration-related queries
       await queryClient.cancelQueries({ queryKey: ['user-registration', eventId] });
+      await queryClient.cancelQueries({ queryKey: ['userRegistration', eventId, user?.id] });
       await queryClient.cancelQueries({ queryKey: ['event', eventId] });
 
       // Snapshot previous values
       const previousRegistration = queryClient.getQueryData(['user-registration', eventId]);
+      const previousRegistrationAlt = queryClient.getQueryData(['userRegistration', eventId, user?.id]);
       const previousEvent = queryClient.getQueryData(['event', eventId]);
 
-      // Optimistically remove registration
+      // Optimistically remove registration for both query keys
       queryClient.setQueryData(['user-registration', eventId], null);
+      queryClient.setQueryData(['userRegistration', eventId, user?.id], null);
 
       // Update event attendee count optimistically
       if (previousEvent) {
@@ -125,17 +139,20 @@ export const useEventRegistration = (eventId: string) => {
         description: "You're no longer registered for this event.",
       });
 
-      return { previousRegistration, previousEvent };
+      return { previousRegistration, previousRegistrationAlt, previousEvent };
     },
     onError: (err, variables, context) => {
-      // Rollback on error
+      // Rollback on error for both query keys
       if (context?.previousRegistration !== undefined) {
         queryClient.setQueryData(['user-registration', eventId], context.previousRegistration);
+      }
+      if (context?.previousRegistrationAlt !== undefined) {
+        queryClient.setQueryData(['userRegistration', eventId, user?.id], context.previousRegistrationAlt);
       }
       if (context?.previousEvent !== undefined) {
         queryClient.setQueryData(['event', eventId], context.previousEvent);
       }
-      
+
       toast({
         title: "Cancellation failed",
         description: "Please try again",
@@ -143,8 +160,9 @@ export const useEventRegistration = (eventId: string) => {
       });
     },
     onSettled: () => {
-      // Always refetch after error or success
+      // Always refetch after error or success for all registration-related queries
       queryClient.invalidateQueries({ queryKey: ['user-registration', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['userRegistration', eventId, user?.id] });
       queryClient.invalidateQueries({ queryKey: ['event', eventId] });
     }
   });

@@ -130,7 +130,7 @@ serve(async (req) => {
           user_id: paymentSession.user_id,
           event_id: paymentSession.event_id,
           payment_session_id: paymentSession.id,
-          status: "confirmed"
+          status: "success"
         });
 
       if (registrationError) {
