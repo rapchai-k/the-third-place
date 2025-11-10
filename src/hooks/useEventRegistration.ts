@@ -19,7 +19,7 @@ export const useEventRegistration = ({ eventId, price = 0, currency = 'INR' }: U
     mutationFn: async () => {
       if (!user) throw new Error('User not authenticated');
 
-      console.log('🔍 Registration Debug:', { eventId, price, currency, userId: user.id });
+      // console.log('🔍 Registration Debug:', { eventId, price, currency, userId: user.id });
 
       // Step 1: Create registration with 'registered' status for all events
       const { error: registrationError } = await supabase
@@ -31,11 +31,11 @@ export const useEventRegistration = ({ eventId, price = 0, currency = 'INR' }: U
         });
 
       if (registrationError) throw registrationError;
-      console.log('✅ Registration created successfully');
+      // console.log('✅ Registration created successfully');
 
       // Step 2: For paid events, create payment session with 'yet_to_pay' status
       if (price > 0) {
-        console.log('💰 Creating payment session for paid event...');
+        // console.log('💰 Creating payment session for paid event...');
         const { error: paymentError } = await supabase
           .from('payment_sessions')
           .insert({
@@ -49,12 +49,12 @@ export const useEventRegistration = ({ eventId, price = 0, currency = 'INR' }: U
           });
 
         if (paymentError) {
-          console.error('❌ Payment session creation failed:', paymentError);
+          // console.error('❌ Payment session creation failed:', paymentError);
           throw paymentError;
         }
-        console.log('✅ Payment session created successfully');
+        // console.log('✅ Payment session created successfully');
       } else {
-        console.log('ℹ️ Free event - no payment session needed');
+        // console.log('ℹ️ Free event - no payment session needed');
       }
     },
     onMutate: async () => {
