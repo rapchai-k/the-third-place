@@ -233,10 +233,10 @@ const Dashboard = () => {
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-lg">{event.title}</CardTitle>
                     <Badge
-                      variant={event.registration_status === 'success' ? 'default' : 'secondary'}
-                      className={event.registration_status === 'success' ? "bg-green-600 hover:bg-green-700" : ""}
+                      variant={event.registration_status === 'registered' ? 'default' : 'secondary'}
+                      className={event.registration_status === 'registered' ? "bg-green-600 hover:bg-green-700" : ""}
                     >
-                      {event.registration_status === 'success' ? 'Confirmed' : event.registration_status}
+                      {event.registration_status === 'registered' ? 'Confirmed' : event.registration_status}
                     </Badge>
                   </div>
                   <CardDescription>{event.description}</CardDescription>

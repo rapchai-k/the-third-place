@@ -200,7 +200,7 @@ describe('User Data Isolation RLS Policy Tests', () => {
           id: 'reg-1',
           user_id: user1.id,
           event_id: 'event-1',
-          registration_status: 'confirmed',
+          status: 'registered',
         }
       ]
 
@@ -257,7 +257,7 @@ describe('User Data Isolation RLS Policy Tests', () => {
       const registration = {
         user_id: user1.id,
         event_id: 'event-1',
-        registration_status: 'pending',
+        status: 'registered',
       }
 
       vi.mocked(supabase.from).mockReturnValue({
@@ -274,7 +274,7 @@ describe('User Data Isolation RLS Policy Tests', () => {
         .insert({
           user_id: user1.id,
           event_id: 'event-1',
-          registration_status: 'pending',
+          status: 'registered',
         })
         .select()
         .single()
@@ -303,7 +303,7 @@ describe('User Data Isolation RLS Policy Tests', () => {
         .insert({
           user_id: user2.id, // Trying to register as another user
           event_id: 'event-1',
-          registration_status: 'pending',
+          status: 'registered',
         })
         .select()
         .single()
@@ -321,7 +321,7 @@ describe('User Data Isolation RLS Policy Tests', () => {
       const cancelledRegistration = {
         user_id: user1.id,
         event_id: 'event-1',
-        registration_status: 'cancelled',
+        status: 'unregistered',
       }
 
       vi.mocked(supabase.from).mockReturnValue({
@@ -336,14 +336,14 @@ describe('User Data Isolation RLS Policy Tests', () => {
 
       const { data, error } = await supabase
         .from('event_registrations')
-        .update({ registration_status: 'cancelled' })
+        .update({ status: 'unregistered' })
         .eq('user_id', user1.id)
         .eq('event_id', 'event-1')
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect(data?.registration_status).toBe('cancelled')
+      expect(data?.status).toBe('unregistered')
     })
 
     it('should prevent users from cancelling other users registrations', async () => {
@@ -364,7 +364,7 @@ describe('User Data Isolation RLS Policy Tests', () => {
 
       const { data, error } = await supabase
         .from('event_registrations')
-        .update({ registration_status: 'cancelled' })
+        .update({ status: 'unregistered' })
         .eq('user_id', user2.id) // Trying to cancel another user's registration
         .eq('event_id', 'event-1')
         .select()

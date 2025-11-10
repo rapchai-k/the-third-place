@@ -78,7 +78,7 @@ export const PaymentButton = ({
       return data;
     },
     onSuccess: (data) => {
-      if (data.payment_status === 'completed') {
+      if (data.payment_status === 'paid') {
         // Log successful payment
         logPaymentCompleted(eventId, price, currency, data.payment_id);
 
@@ -96,15 +96,9 @@ export const PaymentButton = ({
           description: "You are now registered for the event.",
         });
         onPaymentSuccess?.();
-      } else if (data.payment_status === 'failed') {
-        // Log payment failure
-        logPaymentFailed(eventId, price, currency, data.failure_reason || 'Payment failed');
-
-        toast({
-          title: "Payment failed",
-          description: "Please try again or contact support.",
-          variant: "destructive",
-        });
+      } else if (data.payment_status === 'yet_to_pay') {
+        // Payment still pending - continue polling
+        // No action needed here, polling will continue
       }
       setIsProcessing(false);
     },

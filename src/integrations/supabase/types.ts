@@ -625,6 +625,7 @@ export type Database = {
           event_id: string
           expires_at: string
           id: string
+          payment_status: Database["public"]["Enums"]["payment_status"]
           payment_url: string | null
           status: string
           updated_at: string
@@ -639,6 +640,7 @@ export type Database = {
           event_id: string
           expires_at?: string
           id?: string
+          payment_status?: Database["public"]["Enums"]["payment_status"]
           payment_url?: string | null
           status?: string
           updated_at?: string
@@ -653,6 +655,7 @@ export type Database = {
           event_id?: string
           expires_at?: string
           id?: string
+          payment_status?: Database["public"]["Enums"]["payment_status"]
           payment_url?: string | null
           status?: string
           updated_at?: string
@@ -1074,7 +1077,8 @@ export type Database = {
         | "event_organizer"
         | "user"
       flag_status: "open" | "resolved" | "urgent"
-      registration_status: "pending" | "success" | "failed" | "cancelled"
+      payment_status: "yet_to_pay" | "paid"
+      registration_status: "unregistered" | "registered"
       user_role: "user" | "admin"
     }
     CompositeTypes: {
@@ -1211,7 +1215,8 @@ export const Constants = {
         "user",
       ],
       flag_status: ["open", "resolved", "urgent"],
-      registration_status: ["pending", "success", "failed", "cancelled"],
+      payment_status: ["yet_to_pay", "paid"],
+      registration_status: ["unregistered", "registered"],
       user_role: ["user", "admin"],
     },
   },

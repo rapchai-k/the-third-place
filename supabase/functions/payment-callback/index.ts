@@ -87,28 +87,33 @@ serve(async (req) => {
 
     // Handle different webhook events
     let newStatus = paymentSession.status;
-    let shouldCreateRegistration = false;
+    let newPaymentStatus = paymentSession.payment_status || 'yet_to_pay';
 
     switch (webhookData.type) {
       case "PAYMENT_SUCCESS_WEBHOOK":
         newStatus = "completed";
-        shouldCreateRegistration = true;
+        newPaymentStatus = "paid";
         logStep("Payment successful", { paymentId: paymentData?.cf_payment_id });
         break;
       case "PAYMENT_FAILED_WEBHOOK":
         newStatus = "failed";
+        // Payment status remains 'yet_to_pay' for failed payments
         logStep("Payment failed", { reason: paymentData?.payment_message });
         break;
       case "PAYMENT_USER_DROPPED_WEBHOOK":
         newStatus = "cancelled";
+        // Payment status remains 'yet_to_pay' for cancelled payments
         logStep("Payment cancelled by user");
         break;
       default:
         logStep("Unknown webhook type", { type: webhookData.type });
     }
 
-    // Update payment session
-    const updateData: any = { status: newStatus };
+    // Update payment session with new status and payment_status
+    const updateData: any = {
+      status: newStatus,
+      payment_status: newPaymentStatus
+    };
     if (paymentData?.cf_payment_id) {
       updateData.cashfree_payment_id = paymentData.cf_payment_id;
     }
@@ -120,26 +125,15 @@ serve(async (req) => {
 
     if (updateError) {
       logStep("Failed to update payment session", { error: updateError.message });
+    } else {
+      logStep("Payment session updated successfully", {
+        status: newStatus,
+        payment_status: newPaymentStatus
+      });
     }
 
-    // Create event registration if payment was successful
-    if (shouldCreateRegistration) {
-      const { error: registrationError } = await supabaseClient
-        .from("event_registrations")
-        .insert({
-          user_id: paymentSession.user_id,
-          event_id: paymentSession.event_id,
-          payment_session_id: paymentSession.id,
-          status: "success"
-        });
-
-      if (registrationError) {
-        logStep("Failed to create registration", { error: registrationError.message });
-        // Could implement retry logic or alert system here
-      } else {
-        logStep("Registration created successfully");
-      }
-    }
+    // Note: Registration should already exist (created when user clicked "I'm interested")
+    // We no longer create registration here - only update payment status
 
     return new Response("OK", { 
       headers: corsHeaders,

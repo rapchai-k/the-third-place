@@ -13,14 +13,14 @@ export const useEventRegistration = (eventId: string) => {
     mutationFn: async () => {
       if (!user) throw new Error('User not authenticated');
 
-      // For free events, registration is immediately successful
-      // For paid events, status is managed by payment webhooks
+      // All events (free and paid) create registration with 'registered' status
+      // For paid events, payment tracking is separate via payment_sessions table
       const { error } = await supabase
         .from('event_registrations')
         .insert({
           event_id: eventId,
           user_id: user.id,
-          status: 'success'
+          status: 'registered'
         });
 
       if (error) throw error;
@@ -40,7 +40,7 @@ export const useEventRegistration = (eventId: string) => {
       const optimisticData = {
         user_id: user?.id,
         event_id: eventId,
-        status: 'success'
+        status: 'registered'
       };
 
       queryClient.setQueryData(['user-registration', eventId], optimisticData);

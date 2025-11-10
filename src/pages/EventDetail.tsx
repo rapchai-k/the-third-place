@@ -114,10 +114,10 @@ export default function EventDetail() {
     try {
       const { error } = await supabase
         .from("event_registrations")
-        .insert({ 
-          event_id: id!, 
+        .insert({
+          event_id: id!,
           user_id: user.id,
-          status: "pending"
+          status: "registered"
         });
 
       if (error) throw error;
@@ -321,13 +321,12 @@ export default function EventDetail() {
                     <span className="text-muted-foreground">Your Status</span>
                     <Badge
                       variant={
-                        userRegistration.status === "success" ? "default" :
-                        userRegistration.status === "pending" ? "secondary" :
+                        userRegistration.status === "registered" ? "default" :
                         "destructive"
                       }
-                      className={userRegistration.status === "success" ? "bg-green-600 hover:bg-green-700" : ""}
+                      className={userRegistration.status === "registered" ? "bg-green-600 hover:bg-green-700" : ""}
                     >
-                      {userRegistration.status === "success" ? "Confirmed" : userRegistration.status}
+                      {userRegistration.status === "registered" ? "Confirmed" : userRegistration.status}
                     </Badge>
                   </div>
                 )}

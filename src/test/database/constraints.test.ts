@@ -167,7 +167,7 @@ describe('Database Constraints and Data Integrity Tests', () => {
         .insert({
           user_id: 'non-existent-user-id',
           event_id: 'non-existent-event-id',
-          registration_status: 'pending',
+          status: 'registered',
         })
         .select()
         .single()
@@ -222,7 +222,7 @@ describe('Database Constraints and Data Integrity Tests', () => {
         .insert({
           user_id: mockUser.id,
           event_id: mockEvent.id,
-          registration_status: 'pending',
+          status: 'registered',
         })
         .select()
         .single()

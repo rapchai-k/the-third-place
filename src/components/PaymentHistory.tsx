@@ -12,6 +12,7 @@ interface PaymentSession {
   amount: number;
   currency: string;
   status: string;
+  payment_status: string;
   created_at: string;
   events: {
     title: string;
@@ -35,6 +36,7 @@ export const PaymentHistory = () => {
           amount,
           currency,
           status,
+          payment_status,
           created_at,
           events (
             title,
@@ -54,32 +56,25 @@ export const PaymentHistory = () => {
     enabled: !!user
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
+  const getStatusColor = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case 'paid':
         return 'bg-success text-success-foreground';
-      case 'pending':
+      case 'yet_to_pay':
         return 'bg-warning text-warning-foreground';
-      case 'failed':
-      case 'cancelled':
-        return 'bg-destructive text-destructive-foreground';
       default:
         return 'bg-secondary text-secondary-foreground';
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'completed':
+  const getStatusText = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case 'paid':
         return 'Paid';
-      case 'pending':
-        return 'Pending';
-      case 'failed':
-        return 'Failed';
-      case 'cancelled':
-        return 'Cancelled';
+      case 'yet_to_pay':
+        return 'Yet to Pay';
       default:
-        return status;
+        return paymentStatus;
     }
   };
 
@@ -125,8 +120,8 @@ export const PaymentHistory = () => {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">{payment.events?.title || 'Event'}</CardTitle>
-                  <Badge className={getStatusColor(payment.status)}>
-                    {getStatusText(payment.status)}
+                  <Badge className={getStatusColor(payment.payment_status)}>
+                    {getStatusText(payment.payment_status)}
                   </Badge>
                 </div>
               </CardHeader>

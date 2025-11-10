@@ -88,69 +88,58 @@ serve(async (req) => {
 
     // Update payment session based on Cashfree status
     let newStatus = paymentSession.status;
-    let shouldCreateRegistration = false;
+    let newPaymentStatus = paymentSession.payment_status || 'yet_to_pay';
 
     switch (orderStatus.order_status) {
       case "PAID":
         newStatus = "completed";
-        shouldCreateRegistration = true;
+        newPaymentStatus = "paid";
         break;
       case "EXPIRED":
       case "TERMINATED":
         newStatus = "failed";
+        // Payment status remains 'yet_to_pay' for failed payments
         break;
       case "ACTIVE":
         newStatus = "pending";
+        // Payment status remains 'yet_to_pay' for pending payments
         break;
     }
 
-    // Update payment session if status changed
-    if (newStatus !== paymentSession.status) {
+    // Update payment session if status or payment_status changed
+    if (newStatus !== paymentSession.status || newPaymentStatus !== paymentSession.payment_status) {
       const { error: updateError } = await supabaseClient
         .from("payment_sessions")
-        .update({ status: newStatus })
+        .update({
+          status: newStatus,
+          payment_status: newPaymentStatus
+        })
         .eq("id", paymentSession.id);
 
       if (updateError) {
         logStep("Failed to update payment session", { error: updateError.message });
+      } else {
+        logStep("Payment session updated successfully", {
+          status: newStatus,
+          payment_status: newPaymentStatus
+        });
       }
     }
 
-    // Create registration if payment was successful
-    if (shouldCreateRegistration && newStatus === "completed") {
-      const { data: existingRegistration } = await supabaseClient
-        .from("event_registrations")
-        .select("id")
-        .eq("payment_session_id", paymentSession.id)
-        .single();
-
-      if (!existingRegistration) {
-        const { error: registrationError } = await supabaseClient
-          .from("event_registrations")
-          .insert({
-            user_id: paymentSession.user_id,
-            event_id: paymentSession.event_id,
-            payment_session_id: paymentSession.id,
-            status: "success"
-          });
-
-        if (registrationError) {
-          logStep("Failed to create registration", { error: registrationError.message });
-        } else {
-          logStep("Registration created successfully");
-        }
-      }
-    }
+    // Note: Registration should already exist (created when user clicked "I'm interested")
+    // We no longer create registration here - only update payment status
 
     return new Response(JSON.stringify({
       success: true,
-      payment_status: newStatus,
+      payment_status: newPaymentStatus,
       order_status: orderStatus.order_status,
       payment_session: {
         id: paymentSession.id,
         status: newStatus,
+        payment_status: newPaymentStatus,
         amount: paymentSession.amount,
-        currency: paymentSession.currency
+        currency: paymentSession.currency,
+        event_id: paymentSession.event_id
       }
     }), {
       headers: getSecureHeaders({ "Content-Type": "application/json" }),

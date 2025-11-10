@@ -71,7 +71,7 @@ serve(async (req) => {
       throw new Error("User is already registered for this event");
     }
 
-    // Create payment session in database
+    // Create payment session in database with payment_status='yet_to_pay'
     const { data: paymentSession, error: sessionError } = await supabaseClient
       .from("payment_sessions")
       .insert({
@@ -79,7 +79,8 @@ serve(async (req) => {
         event_id: eventId,
         amount: event.price,
         currency: event.currency,
-        status: "pending"
+        status: "pending",
+        payment_status: "yet_to_pay"
       })
       .select()
       .single();

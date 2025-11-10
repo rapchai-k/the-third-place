@@ -27,9 +27,9 @@ export const PaymentSuccess = () => {
     enabled: !!sessionId
   });
 
-  // Auto-refetch for pending payments
+  // Auto-refetch for yet_to_pay payments
   useEffect(() => {
-    if (paymentData?.payment_status === 'pending' && verificationAttempts < 20) {
+    if (paymentData?.payment_status === 'yet_to_pay' && verificationAttempts < 20) {
       const timer = setTimeout(() => {
         refetch();
       }, 3000);
@@ -56,7 +56,7 @@ export const PaymentSuccess = () => {
   });
 
   useEffect(() => {
-    if (paymentData && paymentData.payment_status === 'pending') {
+    if (paymentData && paymentData.payment_status === 'yet_to_pay') {
       setVerificationAttempts(prev => prev + 1);
     }
   }, [paymentData]);
@@ -99,10 +99,10 @@ export const PaymentSuccess = () => {
 
   const renderStatusIcon = () => {
     switch (paymentData.payment_status) {
-      case 'completed':
+      case 'paid':
         return <CheckCircle className="w-16 h-16 mx-auto mb-4 text-success" />;
-      case 'failed':
-        return <XCircle className="w-16 h-16 mx-auto mb-4 text-destructive" />;
+      case 'yet_to_pay':
+        return <Clock className="w-16 h-16 mx-auto mb-4 text-warning animate-pulse" />;
       default:
         return <Clock className="w-16 h-16 mx-auto mb-4 text-warning animate-pulse" />;
     }
@@ -110,15 +110,15 @@ export const PaymentSuccess = () => {
 
   const getStatusMessage = () => {
     switch (paymentData.payment_status) {
-      case 'completed':
+      case 'paid':
         return {
           title: "Payment Successful!",
           description: "Your registration has been confirmed. You will receive a confirmation email shortly."
         };
-      case 'failed':
+      case 'yet_to_pay':
         return {
-          title: "Payment Failed",
-          description: "Your payment could not be processed. Please try registering again."
+          title: "Processing Payment...",
+          description: "We're verifying your payment. This may take a few moments."
         };
       default:
         return {
@@ -181,15 +181,15 @@ export const PaymentSuccess = () => {
           )}
 
           <div className="flex gap-3 justify-center">
-            {paymentData.payment_status === 'pending' && (
+            {paymentData.payment_status === 'yet_to_pay' && (
               <Button variant="outline" onClick={() => refetch()}>
                 Check Status
               </Button>
             )}
-            
+
             <Button asChild>
-              <Link to={paymentData.payment_status === 'completed' ? '/profile' : '/events'}>
-                {paymentData.payment_status === 'completed' ? 'View My Events' : 'Browse Events'}
+              <Link to={paymentData.payment_status === 'paid' ? '/profile' : '/events'}>
+                {paymentData.payment_status === 'paid' ? 'View My Events' : 'Browse Events'}
               </Link>
             </Button>
           </div>

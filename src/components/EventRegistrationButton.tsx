@@ -139,7 +139,8 @@ export const EventRegistrationButton = ({
   }
 
   // Handle registration for all events (both free and paid)
-  // Since payment flow is not active, all events follow the same registration flow
+  // All events create registration with 'registered' status
+  // For paid events, payment tracking is separate via payment_sessions table
   const handleRegistration = () => {
     // If user already has WhatsApp number, proceed directly to registration
     if (userProfile?.whatsapp_number) {

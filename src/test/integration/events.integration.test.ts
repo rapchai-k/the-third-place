@@ -205,7 +205,7 @@ describe('Events API Integration Tests', () => {
       const registrationData = {
         user_id: mockUser.id,
         event_id: mockEvent.id,
-        registration_status: 'pending' as const,
+        status: 'registered' as const,
         registered_at: new Date().toISOString(),
       }
 
@@ -223,7 +223,7 @@ describe('Events API Integration Tests', () => {
         .insert({
           user_id: mockUser.id,
           event_id: mockEvent.id,
-          registration_status: 'pending',
+          status: 'registered',
         })
         .select()
         .single()
@@ -247,7 +247,7 @@ describe('Events API Integration Tests', () => {
         .insert({
           user_id: mockUser.id,
           event_id: mockEvent.id,
-          registration_status: 'pending',
+          status: 'registered',
         })
         .select()
         .single()
@@ -260,7 +260,7 @@ describe('Events API Integration Tests', () => {
       const cancelledRegistration = {
         user_id: mockUser.id,
         event_id: mockEvent.id,
-        registration_status: 'cancelled' as const,
+        status: 'unregistered' as const,
       }
 
       vi.mocked(supabase.from).mockReturnValue({
@@ -275,13 +275,13 @@ describe('Events API Integration Tests', () => {
 
       const { data } = await supabase
         .from('event_registrations')
-        .update({ registration_status: 'cancelled' })
+        .update({ status: 'unregistered' })
         .eq('user_id', mockUser.id)
         .eq('event_id', mockEvent.id)
         .select()
         .single()
 
-      expect(data?.registration_status).toBe('cancelled')
+      expect(data?.status).toBe('unregistered')
     })
   })
 
