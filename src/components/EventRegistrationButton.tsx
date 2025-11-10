@@ -30,7 +30,11 @@ export const EventRegistrationButton = ({
   className
 }: EventRegistrationButtonProps) => {
   const { user } = useAuth();
-  const { register, cancel, isRegistering, isCancelling } = useEventRegistration(eventId);
+  const { register, cancel, isRegistering, isCancelling } = useEventRegistration({
+    eventId,
+    price,
+    currency
+  });
   const { logEventRegistration } = useActivityLogger();
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
 

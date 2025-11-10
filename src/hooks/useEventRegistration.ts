@@ -4,7 +4,13 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useActivityLogger } from '@/hooks/useActivityLogger';
 
-export const useEventRegistration = (eventId: string) => {
+interface UseEventRegistrationParams {
+  eventId: string;
+  price?: number;
+  currency?: string;
+}
+
+export const useEventRegistration = ({ eventId, price = 0, currency = 'INR' }: UseEventRegistrationParams) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { logEventRegistrationCancel } = useActivityLogger();
@@ -13,9 +19,8 @@ export const useEventRegistration = (eventId: string) => {
     mutationFn: async () => {
       if (!user) throw new Error('User not authenticated');
 
-      // All events (free and paid) create registration with 'registered' status
-      // For paid events, payment tracking is separate via payment_sessions table
-      const { error } = await supabase
+      // Step 1: Create registration with 'registered' status for all events
+      const { error: registrationError } = await supabase
         .from('event_registrations')
         .insert({
           event_id: eventId,
@@ -23,7 +28,24 @@ export const useEventRegistration = (eventId: string) => {
           status: 'registered'
         });
 
-      if (error) throw error;
+      if (registrationError) throw registrationError;
+
+      // Step 2: For paid events, create payment session with 'yet_to_pay' status
+      if (price > 0) {
+        const { error: paymentError } = await supabase
+          .from('payment_sessions')
+          .insert({
+            user_id: user.id,
+            event_id: eventId,
+            amount: price,
+            currency: currency,
+            status: 'pending', // Keep old field for backward compatibility
+            payment_status: 'yet_to_pay',
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
+          });
+
+        if (paymentError) throw paymentError;
+      }
     },
     onMutate: async () => {
       // Cancel outgoing refetches for all registration-related queries
@@ -93,14 +115,30 @@ export const useEventRegistration = (eventId: string) => {
   const cancelMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('User not authenticated');
-      
-      const { error } = await supabase
+
+      // Delete registration
+      const { error: registrationError } = await supabase
         .from('event_registrations')
         .delete()
         .eq('event_id', eventId)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (registrationError) throw registrationError;
+
+      // For paid events, also delete any unpaid payment sessions
+      if (price > 0) {
+        const { error: paymentError } = await supabase
+          .from('payment_sessions')
+          .delete()
+          .eq('event_id', eventId)
+          .eq('user_id', user.id)
+          .eq('payment_status', 'yet_to_pay');
+
+        // Don't throw error if payment session doesn't exist or is already paid
+        if (paymentError && paymentError.code !== 'PGRST116') {
+          console.warn('Failed to delete payment session:', paymentError);
+        }
+      }
     },
     onMutate: async () => {
       // Cancel outgoing refetches for all registration-related queries
