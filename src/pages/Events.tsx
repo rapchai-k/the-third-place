@@ -111,7 +111,7 @@ export default function Events() {
         .from('event_registrations')
         .select('event_id, status')
         .eq('user_id', user.id)
-        .eq('status', 'success');
+        .eq('status', 'registered');
 
       if (error) throw error;
       return data || [];
