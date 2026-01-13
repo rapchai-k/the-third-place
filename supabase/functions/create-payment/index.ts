@@ -60,12 +60,17 @@ serve(async (req) => {
     logStep("Event found", { eventId: event.id, price: event.price, currency: event.currency });
 
     // Check if user is already registered
-    const { data: existingRegistration } = await supabaseClient
+    const { data: existingRegistration, error: registrationError } = await supabaseClient
       .from("event_registrations")
       .select("id")
       .eq("event_id", eventId)
       .eq("user_id", user.id)
       .single();
+
+    // PGRST116 means no rows found, which is expected when user is not registered
+    if (registrationError && registrationError.code !== 'PGRST116') {
+      throw new Error(`Error checking registration: ${registrationError.message}`);
+    }
 
     if (existingRegistration) {
       throw new Error("User is already registered for this event");

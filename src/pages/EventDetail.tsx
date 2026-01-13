@@ -53,7 +53,9 @@ export default function EventDetail() {
         .eq("event_id", id)
         .eq("user_id", user.id)
         .single();
-      return error ? null : data;
+      // PGRST116 means no rows found, which is expected when user is not registered
+      if (error && error.code !== 'PGRST116') throw error;
+      return data;
     },
     enabled: !!user && !!id,
   });
@@ -338,6 +340,8 @@ export default function EventDetail() {
                     capacity={event.capacity}
                     currentAttendees={registrationCount}
                     eventTitle={event.title}
+                    communityId={event.community_id}
+                    communityName={event.communities?.name}
                     price={event.price}
                     currency={event.currency}
                     className="w-full"
