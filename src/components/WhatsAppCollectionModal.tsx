@@ -31,21 +31,13 @@ export const WhatsAppCollectionModal = ({
 
   // Validate Indian phone number format
   const validatePhoneNumber = (phone: string): boolean => {
-    // Accept +91XXXXXXXXXX, 91XXXXXXXXXX, or XXXXXXXXXX (10 digits)
-    const regex = /^(\+91|91)?[6-9]\d{9}$/;
+    const regex = /^[6-9]\d{9}$/;
     return regex.test(phone.replace(/\s/g, ""));
   };
 
   // Normalize phone number to store without +91 prefix
   const normalizePhoneNumber = (phone: string): string => {
-    const cleaned = phone.replace(/\s/g, "");
-    if (cleaned.startsWith("+91")) {
-      return cleaned.slice(3);
-    }
-    if (cleaned.startsWith("91")) {
-      return cleaned.slice(2);
-    }
-    return cleaned;
+    return phone.replace(/\s/g, "");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,7 +110,7 @@ export const WhatsAppCollectionModal = ({
             <Input
               id="whatsapp"
               type="tel"
-              placeholder="+91 XXXXX XXXXX"
+              placeholder="XXXXX XXXXX"
               value={phoneNumber}
               onChange={(e) => {
                 setPhoneNumber(e.target.value);

@@ -3,25 +3,80 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useActivityLogger } from '@/hooks/useActivityLogger';
+import { useState } from 'react';
 
 interface UseEventRegistrationParams {
   eventId: string;
+  communityId?: string;
   price?: number;
   currency?: string;
+  communityName?: string;
 }
 
-export const useEventRegistration = ({ eventId, price = 0, currency = 'INR' }: UseEventRegistrationParams) => {
+// Registration step for UI feedback
+export type RegistrationStep = 'idle' | 'joining-community' | 'registering';
+
+export const useEventRegistration = ({
+  eventId,
+  communityId,
+  price = 0,
+  currency = 'INR',
+  communityName
+}: UseEventRegistrationParams) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { logEventRegistrationCancel } = useActivityLogger();
+  const { logEventRegistrationCancel, logCommunityJoin } = useActivityLogger();
+  const [registrationStep, setRegistrationStep] = useState<RegistrationStep>('idle');
 
   const registerMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('User not authenticated');
 
-      // console.log('🔍 Registration Debug:', { eventId, price, currency, userId: user.id });
+      // Step 1: Check if user is a member of the event's community
+      if (communityId) {
+        setRegistrationStep('joining-community');
 
-      // Step 1: Create registration with 'registered' status for all events
+        const { data: membershipData, error: membershipError } = await supabase
+          .from('community_members')
+          .select('user_id')
+          .eq('community_id', communityId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (membershipError) {
+          throw new Error('Failed to check community membership');
+        }
+
+        // If not a member, auto-join the community
+        if (!membershipData) {
+          const { error: joinError } = await supabase
+            .from('community_members')
+            .insert({
+              community_id: communityId,
+              user_id: user.id
+            });
+
+          if (joinError) {
+            throw new Error('Failed to join community. Please try again.');
+          }
+
+          // Log community join activity
+          logCommunityJoin(communityId, {
+            community_name: communityName || 'Unknown',
+            auto_join: true,
+            source: 'event_registration'
+          });
+
+          // Invalidate community membership queries
+          queryClient.invalidateQueries({ queryKey: ['isMember', communityId, user.id] });
+          queryClient.invalidateQueries({ queryKey: ['userMemberships', user.id] });
+          queryClient.invalidateQueries({ queryKey: ['community', communityId] });
+        }
+      }
+
+      // Step 2: Create registration with 'registered' status for all events
+      setRegistrationStep('registering');
+
       const { error: registrationError } = await supabase
         .from('event_registrations')
         .insert({
@@ -31,11 +86,9 @@ export const useEventRegistration = ({ eventId, price = 0, currency = 'INR' }: U
         });
 
       if (registrationError) throw registrationError;
-      // console.log('✅ Registration created successfully');
 
-      // Step 2: For paid events, create payment session with 'yet_to_pay' status
+      // Step 3: For paid events, create payment session with 'yet_to_pay' status
       if (price > 0) {
-        // console.log('💰 Creating payment session for paid event...');
         const { error: paymentError } = await supabase
           .from('payment_sessions')
           .insert({
@@ -49,12 +102,8 @@ export const useEventRegistration = ({ eventId, price = 0, currency = 'INR' }: U
           });
 
         if (paymentError) {
-          // console.error('❌ Payment session creation failed:', paymentError);
           throw paymentError;
         }
-        // console.log('✅ Payment session created successfully');
-      } else {
-        // console.log('ℹ️ Free event - no payment session needed');
       }
     },
     onMutate: async () => {
@@ -108,13 +157,17 @@ export const useEventRegistration = ({ eventId, price = 0, currency = 'INR' }: U
         queryClient.setQueryData(['event', eventId], context.previousEvent);
       }
 
+      const errorMessage = err instanceof Error ? err.message : 'Please try again';
       toast({
         title: "Registration failed",
-        description: "Please try again",
+        description: errorMessage,
         variant: "destructive",
       });
+      setRegistrationStep('idle');
     },
     onSettled: () => {
+      // Reset registration step
+      setRegistrationStep('idle');
       // Always refetch after error or success for all registration-related queries
       queryClient.invalidateQueries({ queryKey: ['user-registration', eventId] });
       queryClient.invalidateQueries({ queryKey: ['userRegistration', eventId, user?.id] });
@@ -220,5 +273,6 @@ export const useEventRegistration = ({ eventId, price = 0, currency = 'INR' }: U
     cancel: cancelMutation.mutate,
     isRegistering: registerMutation.isPending,
     isCancelling: cancelMutation.isPending,
+    registrationStep,
   };
 };

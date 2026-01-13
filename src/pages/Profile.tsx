@@ -71,15 +71,16 @@ export const ProfilePage = () => {
     queryKey: ['notification-preferences', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
-      
+
       const { data, error } = await supabase
         .from('notification_preferences')
         .select('*')
         .eq('user_id', user.id)
         .single();
 
-      if (error) throw error;
-      return data as NotificationPreferences;
+      // PGRST116 means no rows found, which is expected when preferences haven't been created yet
+      if (error && error.code !== 'PGRST116') throw error;
+      return data as NotificationPreferences | null;
     },
     enabled: !!user?.id
   });

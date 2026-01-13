@@ -14,6 +14,8 @@ interface EventRegistrationButtonProps {
   capacity: number;
   currentAttendees: number;
   eventTitle: string;
+  communityId?: string;
+  communityName?: string;
   price?: number;
   currency?: string;
   className?: string;
@@ -25,13 +27,17 @@ export const EventRegistrationButton = ({
   capacity,
   currentAttendees,
   eventTitle,
+  communityId,
+  communityName,
   price = 0,
   currency = 'INR',
   className
 }: EventRegistrationButtonProps) => {
   const { user } = useAuth();
-  const { register, cancel, isRegistering, isCancelling } = useEventRegistration({
+  const { register, cancel, isRegistering, isCancelling, registrationStep } = useEventRegistration({
     eventId,
+    communityId,
+    communityName,
     price,
     currency
   });
@@ -176,6 +182,18 @@ export const EventRegistrationButton = ({
     register();
   };
 
+  // Get the appropriate loading text based on registration step
+  const getLoadingText = () => {
+    switch (registrationStep) {
+      case 'joining-community':
+        return 'Joining community...';
+      case 'registering':
+        return 'Registering...';
+      default:
+        return 'Registering...';
+    }
+  };
+
   return (
     <>
       <Button
@@ -186,7 +204,7 @@ export const EventRegistrationButton = ({
         {isRegistering ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Registering...
+            {getLoadingText()}
           </>
         ) : (
           <>
