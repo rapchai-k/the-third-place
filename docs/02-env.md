@@ -1,9 +1,47 @@
 Set in Supabase/Lovable env, not in repo:
 - SUPABASE_URL, SUPABASE_ANON_KEY, SERVICE_ROLE_KEY
 - GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET (Supabase Auth → Google provider)
-- CASHFREE_APP_ID, CASHFREE_SECRET_KEY (sandbox/prod)
+- RZP_KEY_ID, RZP_KEY_SECRET, RZP_WEBHOOK_SECRET (production/test)
+- RZP_BASE_URL (https://api.razorpay.com for production, default if not set)
+- CASHFREE_APP_ID, CASHFREE_SECRET_KEY (LEGACY - kept for grace period on existing payments)
 - RESEND_API_KEY (for automated email notifications)
 - EMAIL/WA/SMS provider keys (when enabled)
+
+
+## Payment Gateway Setup (Razorpay)
+
+### Razorpay Account Setup
+1. Create a Razorpay account: https://razorpay.com
+2. Get credentials from Dashboard → Settings → API Keys:
+   - Test Mode: Key ID starts with `rzp_test_`
+   - Live Mode: Key ID starts with `rzp_live_`
+3. Set up webhook in Razorpay Dashboard → Settings → Webhooks:
+   - Endpoint URL: `{SUPABASE_URL}/functions/v1/payment-callback`
+   - Events to enable: `payment_link.paid`, `payment.captured`, `payment.failed`, `payment_link.cancelled`, `payment_link.expired`
+   - Copy the Webhook Secret for signature verification
+
+### Supabase Edge Function Secrets
+Add these secrets in Supabase Dashboard → Settings → Functions → Secrets:
+
+**For Test Mode:**
+- `RZP_TEST_KEY_ID` - Your Razorpay Test Key ID (starts with `rzp_test_`)
+- `RZP_TEST_KEY_SECRET` - Your Razorpay Test Key Secret
+
+**For Production Mode:**
+- `RZP_KEY_ID` - Your Razorpay Live Key ID (starts with `rzp_live_`)
+- `RZP_KEY_SECRET` - Your Razorpay Live Key Secret
+
+**Common (required for both):**
+- `RZP_WEBHOOK_SECRET` - Your Razorpay Webhook Secret
+- `RZP_BASE_URL` (optional) - Defaults to https://api.razorpay.com
+
+> Note: Production keys take precedence. If both are set, `RZP_KEY_*` will be used.
+
+### Testing Payments
+1. Use Razorpay test mode credentials
+2. Test card numbers: https://razorpay.com/docs/payments/payments/test-card-details/
+3. Check payment_sessions table for gateway='razorpay' entries
+4. Verify webhooks in Razorpay Dashboard → Settings → Webhooks → Logs
 
 
 ## Branding & Icons Setup
