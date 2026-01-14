@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CalendarDays, MapPin, Users, Clock, ArrowLeft, User } from "lucide-react";
+import { CalendarDays, MapPin, Users, Clock, ArrowLeft, User, ExternalLink } from "lucide-react";
 import { EventRegistrationButton } from "@/components/EventRegistrationButton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -19,7 +19,7 @@ export default function EventDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { logEventView, logEventRegistration } = useActivityLogger();
+  const { logEventView, logEventRegistration, logExternalBookingClick } = useActivityLogger();
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["event", id],
@@ -333,7 +333,32 @@ export default function EventDetail() {
                   </div>
                 )}
 
-                <div className="pt-4 border-t">
+                <div className="pt-4 border-t space-y-3">
+                  {/* External booking button - shown when user is confirmed and event has external link */}
+                  {userRegistration?.status === "registered" && event.external_link && (
+                    <Button
+                      asChild
+                      className="w-full bg-primary hover:bg-primary/90"
+                      onClick={() => {
+                        logExternalBookingClick(event.id, event.external_link!, {
+                          event_title: event.title,
+                          event_date: event.date_time,
+                          community_id: event.community_id,
+                          community_name: event.communities?.name
+                        });
+                      }}
+                    >
+                      <a
+                        href={event.external_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Book Your Seat
+                      </a>
+                    </Button>
+                  )}
+
                   <EventRegistrationButton
                     eventId={event.id}
                     eventDate={event.date_time}

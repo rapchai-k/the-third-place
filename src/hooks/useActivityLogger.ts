@@ -208,6 +208,16 @@ export const useActivityLogger = () => {
     });
   }, [logActivity]);
 
+  // External booking link click logging
+  const logExternalBookingClick = useCallback((eventId: string, externalUrl: string, metadata?: Record<string, any>) => {
+    return logActivity({
+      action_type: 'external_booking_click',
+      target_type: 'event',
+      target_id: eventId,
+      metadata: { external_url: externalUrl, ...metadata }
+    });
+  }, [logActivity]);
+
   return {
     logActivity,
     logPageView,
@@ -236,6 +246,7 @@ export const useActivityLogger = () => {
     logCommentCreate,
     logCommentFlag,
     logProfileView,
-    logProfileEdit
+    logProfileEdit,
+    logExternalBookingClick
   };
 };
