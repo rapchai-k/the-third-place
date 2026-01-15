@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMutation } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, CreditCard } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
+import { invokeWithTimeoutRace, TIMEOUT_VALUES } from "@/utils/supabaseWithTimeout";
 
 interface PaymentButtonProps {
   eventId: string;
@@ -33,6 +33,8 @@ export const PaymentButton = ({
   const pollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const paymentSessionIdRef = useRef<string | null>(null);
   const isPollingRef = useRef(false);
+  const pollCountRef = useRef<number>(0);
+  const MAX_POLL_ATTEMPTS = 60; // Max 60 attempts (5 minutes at 5-second intervals)
 
   // Cleanup function to stop all polling
   const stopPolling = useCallback(() => {
@@ -70,13 +72,15 @@ export const PaymentButton = ({
 
   const verifyPayment = async (paymentSessionId: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('verify-payment', {
-        body: { paymentSessionId }
-      });
+      const { data, error } = await invokeWithTimeoutRace<{ payment_status: string; payment_id?: string }>(
+        'verify-payment',
+        { body: { paymentSessionId } },
+        TIMEOUT_VALUES.PAYMENT
+      );
 
       if (error) throw error;
 
-      if (data.payment_status === 'paid') {
+      if (data?.payment_status === 'paid') {
         // Stop polling immediately
         stopPolling();
         setIsProcessing(false);
@@ -101,8 +105,7 @@ export const PaymentButton = ({
       }
       // If still 'yet_to_pay', polling will continue automatically
     } catch (error) {
-      // Log payment verification error but don't stop polling
-      console.error('Payment verification error:', error);
+      // Payment verification error - continue polling
     }
   };
 
@@ -110,9 +113,11 @@ export const PaymentButton = ({
     mutationFn: async () => {
       if (!user) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase.functions.invoke('create-payment', {
-        body: { eventId }
-      });
+      const { data, error } = await invokeWithTimeoutRace<{ payment_url: string; payment_session_id: string }>(
+        'create-payment',
+        { body: { eventId } },
+        TIMEOUT_VALUES.PAYMENT
+      );
 
       if (error) throw error;
       if (!data?.payment_url) throw new Error('Payment URL not received');
@@ -153,15 +158,30 @@ export const PaymentButton = ({
     setIsProcessing(true);
     paymentSessionIdRef.current = paymentSessionId;
     isPollingRef.current = true;
+    pollCountRef.current = 0;
 
-    // Poll every 3 seconds
+    // Poll every 5 seconds with max attempt limit
     pollIntervalRef.current = setInterval(() => {
       if (isPollingRef.current) {
+        pollCountRef.current += 1;
+
+        // Stop polling if max attempts reached
+        if (pollCountRef.current >= MAX_POLL_ATTEMPTS) {
+          stopPolling();
+          setIsProcessing(false);
+          logPaymentTimeout(eventId, price, currency);
+          toast({
+            title: "Payment verification timeout",
+            description: "Please refresh the page to check your registration status.",
+          });
+          return;
+        }
+
         verifyPayment(paymentSessionId);
       }
-    }, 3000);
+    }, 5000);
 
-    // Stop polling after 5 minutes
+    // Also stop polling after 5 minutes as a backup
     pollTimeoutRef.current = setTimeout(() => {
       if (isPollingRef.current) {
         stopPolling();

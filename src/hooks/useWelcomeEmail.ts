@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { invokeWithTimeoutRace, TIMEOUT_VALUES } from '@/utils/supabaseWithTimeout';
 
 interface WelcomeEmailStatus {
   welcomeEmailSent: boolean;
@@ -66,18 +67,22 @@ export const useWelcomeEmail = () => {
         throw new Error('No valid session');
       }
 
-      const { data, error } = await supabase.functions.invoke('welcome-email-trigger', {
-        body: request,
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
+      const { data, error } = await invokeWithTimeoutRace<TriggerWelcomeEmailResponse>(
+        'welcome-email-trigger',
+        {
+          body: request,
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
         },
-      });
+        TIMEOUT_VALUES.NORMAL
+      );
 
       if (error) {
         throw new Error(`Failed to trigger welcome email: ${error.message}`);
       }
 
-      return data;
+      return data!;
     },
     onSuccess: (data) => {
       if (data.alreadySent) {

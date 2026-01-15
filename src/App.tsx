@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeProvider";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useWelcomeEmail } from "@/hooks/useWelcomeEmail";
 import Index from "./pages/Index";
 import AuthPage from "./pages/Auth";
@@ -33,14 +34,15 @@ const WelcomeEmailHandler = () => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <AuthProvider>
-        <WelcomeEmailHandler />
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AuthProvider>
+          <WelcomeEmailHandler />
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter
             future={{
               v7_startTransition: true,
               v7_relativeSplatPath: true
@@ -82,6 +84,7 @@ const App = () => (
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

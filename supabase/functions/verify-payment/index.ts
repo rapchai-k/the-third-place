@@ -20,10 +20,9 @@ serve(async (req) => {
     const razorpayKeySecret = Deno.env.get("RZP_KEY_SECRET") || Deno.env.get("RZP_TEST_KEY_SECRET");
     const razorpayBaseUrl = Deno.env.get("RZP_BASE_URL") || "https://api.razorpay.com";
 
-    // Get Cashfree credentials (for grace period - handling legacy payments)
-    const cashfreeAppId = Deno.env.get("CASHFREE_APP_ID");
-    const cashfreeSecretKey = Deno.env.get("CASHFREE_SECRET_KEY");
-    const cashfreeBaseUrl = Deno.env.get("CASHFREE_BASE_URL") || "https://sandbox.cashfree.com";
+    if (!razorpayKeyId || !razorpayKeySecret) {
+      throw new Error("Razorpay credentials not configured");
+    }
 
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -60,112 +59,59 @@ serve(async (req) => {
       throw new Error("Payment session not found");
     }
 
-    // Determine gateway type (default to cashfree for legacy payments)
-    const gateway = paymentSession.gateway || 'cashfree';
+    // Only Razorpay is supported
+    const gateway = paymentSession.gateway || 'razorpay';
+    if (gateway !== 'razorpay') {
+      throw new Error(`Unsupported payment gateway: ${gateway}`);
+    }
+
     logStep("Payment session found", { gateway, sessionId: paymentSession.id });
 
     let newStatus = paymentSession.status;
     let newPaymentStatus = paymentSession.payment_status || 'yet_to_pay';
     let orderStatusResponse: string = 'unknown';
 
-    // Handle Razorpay verification
-    if (gateway === 'razorpay') {
-      if (!razorpayKeyId || !razorpayKeySecret) {
-        throw new Error("Razorpay credentials not configured");
-      }
-
-      if (!paymentSession.razorpay_payment_link_id) {
-        throw new Error("Razorpay payment link ID not found");
-      }
-
-      logStep("Verifying Razorpay payment", { paymentLinkId: paymentSession.razorpay_payment_link_id });
-
-      const razorpayResponse = await fetch(
-        `${razorpayBaseUrl}/v1/payment_links/${paymentSession.razorpay_payment_link_id}`,
-        {
-          method: "GET",
-          headers: {
-            "Authorization": `Basic ${btoa(`${razorpayKeyId}:${razorpayKeySecret}`)}`
-          }
-        }
-      );
-
-      if (!razorpayResponse.ok) {
-        const errorData = await razorpayResponse.text();
-        throw new Error(`Razorpay API error: ${razorpayResponse.status} - ${errorData}`);
-      }
-
-      const linkStatus = await razorpayResponse.json();
-      logStep("Razorpay payment link status", { status: linkStatus.status });
-      orderStatusResponse = linkStatus.status;
-
-      // Map Razorpay statuses to internal statuses
-      switch (linkStatus.status) {
-        case "paid":
-          newStatus = "completed";
-          newPaymentStatus = "paid";
-          break;
-        case "expired":
-        case "cancelled":
-          newStatus = "failed";
-          // Payment status remains 'yet_to_pay' for failed payments
-          break;
-        case "created":
-        case "partially_paid":
-          newStatus = "pending";
-          // Payment status remains 'yet_to_pay' for pending payments
-          break;
-      }
+    if (!paymentSession.razorpay_payment_link_id) {
+      throw new Error("Razorpay payment link ID not found");
     }
-    // Handle Cashfree verification (legacy - for grace period)
-    else if (gateway === 'cashfree') {
-      if (!cashfreeAppId || !cashfreeSecretKey) {
-        throw new Error("Cashfree credentials not configured");
-      }
 
-      if (!paymentSession.cashfree_order_id) {
-        throw new Error("Cashfree order ID not found");
-      }
+    logStep("Verifying Razorpay payment", { paymentLinkId: paymentSession.razorpay_payment_link_id });
 
-      logStep("Verifying Cashfree payment", { orderId: paymentSession.cashfree_order_id });
-
-      const cashfreeResponse = await fetch(
-        `${cashfreeBaseUrl}/pg/orders/${paymentSession.cashfree_order_id}`,
-        {
-          method: "GET",
-          headers: {
-            "x-client-id": cashfreeAppId,
-            "x-client-secret": cashfreeSecretKey,
-            "x-api-version": "2023-08-01"
-          }
+    const razorpayResponse = await fetch(
+      `${razorpayBaseUrl}/v1/payment_links/${paymentSession.razorpay_payment_link_id}`,
+      {
+        method: "GET",
+        headers: {
+          "Authorization": `Basic ${btoa(`${razorpayKeyId}:${razorpayKeySecret}`)}`
         }
-      );
-
-      if (!cashfreeResponse.ok) {
-        const errorData = await cashfreeResponse.text();
-        throw new Error(`Cashfree API error: ${cashfreeResponse.status} - ${errorData}`);
       }
+    );
 
-      const orderStatus = await cashfreeResponse.json();
-      logStep("Cashfree order status", { status: orderStatus.order_status });
-      orderStatusResponse = orderStatus.order_status;
+    if (!razorpayResponse.ok) {
+      const errorData = await razorpayResponse.text();
+      throw new Error(`Razorpay API error: ${razorpayResponse.status} - ${errorData}`);
+    }
 
-      // Map Cashfree statuses to internal statuses
-      switch (orderStatus.order_status) {
-        case "PAID":
-          newStatus = "completed";
-          newPaymentStatus = "paid";
-          break;
-        case "EXPIRED":
-        case "TERMINATED":
-          newStatus = "failed";
-          break;
-        case "ACTIVE":
-          newStatus = "pending";
-          break;
-      }
-    } else {
-      throw new Error(`Unknown payment gateway: ${gateway}`);
+    const linkStatus = await razorpayResponse.json();
+    logStep("Razorpay payment link status", { status: linkStatus.status });
+    orderStatusResponse = linkStatus.status;
+
+    // Map Razorpay statuses to internal statuses
+    switch (linkStatus.status) {
+      case "paid":
+        newStatus = "completed";
+        newPaymentStatus = "paid";
+        break;
+      case "expired":
+      case "cancelled":
+        newStatus = "failed";
+        // Payment status remains 'yet_to_pay' for failed payments
+        break;
+      case "created":
+      case "partially_paid":
+        newStatus = "pending";
+        // Payment status remains 'yet_to_pay' for pending payments
+        break;
     }
 
     // Update payment session if status or payment_status changed

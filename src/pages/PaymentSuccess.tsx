@@ -6,20 +6,34 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Clock, CreditCard, Calendar, MapPin } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { invokeWithTimeoutRace, TIMEOUT_VALUES } from "@/utils/supabaseWithTimeout";
+
+interface PaymentVerificationData {
+  payment_status: string;
+  payment_session: {
+    id: string;
+    amount: number;
+    currency: string;
+    event_id: string;
+  };
+}
 
 export const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const [verificationAttempts, setVerificationAttempts] = useState(0);
+  const MAX_VERIFICATION_ATTEMPTS = 20;
 
   const { data: paymentData, isLoading, refetch } = useQuery({
     queryKey: ['payment-verification', sessionId],
     queryFn: async () => {
       if (!sessionId) throw new Error('No session ID provided');
 
-      const { data, error } = await supabase.functions.invoke('verify-payment', {
-        body: { paymentSessionId: sessionId }
-      });
+      const { data, error } = await invokeWithTimeoutRace<PaymentVerificationData>(
+        'verify-payment',
+        { body: { paymentSessionId: sessionId } },
+        TIMEOUT_VALUES.PAYMENT
+      );
 
       if (error) throw error;
       return data;
@@ -27,9 +41,9 @@ export const PaymentSuccess = () => {
     enabled: !!sessionId
   });
 
-  // Auto-refetch for yet_to_pay payments
+  // Auto-refetch for yet_to_pay payments with max retry limit
   useEffect(() => {
-    if (paymentData?.payment_status === 'yet_to_pay' && verificationAttempts < 20) {
+    if (paymentData?.payment_status === 'yet_to_pay' && verificationAttempts < MAX_VERIFICATION_ATTEMPTS) {
       const timer = setTimeout(() => {
         refetch();
       }, 3000);

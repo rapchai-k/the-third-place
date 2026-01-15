@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Users, UserCheck, CreditCard } from "lucide-react";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { useState } from "react";
+import { queryKeys } from "@/utils/queryKeys";
 
 interface EventRegistrationButtonProps {
   eventId: string;
@@ -48,7 +49,7 @@ export const EventRegistrationButton = ({
   // Check if user has pending/completed payment for this event (define this first for refetch logic)
   const queryClient = useQueryClient();
   const { data: pendingPayment } = useQuery({
-    queryKey: ['pending-payment', eventId, user?.id],
+    queryKey: queryKeys.events.pendingPayment(eventId, user?.id),
     queryFn: async () => {
       if (!user?.id) return null;
 
@@ -70,7 +71,7 @@ export const EventRegistrationButton = ({
   // Check if user is registered - with auto-refetch when payment is complete but registration not reflected
   const hasCompletedPaymentEarly = pendingPayment && pendingPayment.payment_status === 'paid';
   const { data: userRegistration, isLoading } = useQuery({
-    queryKey: ['user-registration', eventId],
+    queryKey: queryKeys.events.registration(eventId, user?.id),
     queryFn: async () => {
       if (!user) return null;
 
@@ -95,7 +96,7 @@ export const EventRegistrationButton = ({
 
   // Check if user has WhatsApp number
   const { data: userProfile } = useQuery({
-    queryKey: ['user-profile', user?.id],
+    queryKey: queryKeys.user.profile(user?.id),
     queryFn: async () => {
       if (!user?.id) return null;
 
@@ -185,8 +186,8 @@ export const EventRegistrationButton = ({
   if (isPaidEvent) {
     const handlePaymentSuccess = () => {
       // Refetch registration status after successful payment
-      queryClient.invalidateQueries({ queryKey: ['user-registration', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['pending-payment', eventId, user?.id] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.registration(eventId, user?.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.pendingPayment(eventId, user?.id) });
     };
 
     // Show "Payment Complete" if already paid but registration not yet reflected

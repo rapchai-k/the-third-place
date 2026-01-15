@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { invokeWithTimeoutRace, TIMEOUT_VALUES } from '@/utils/supabaseWithTimeout';
 
 interface ActivityLogParams {
   action_type: string;
@@ -20,9 +20,9 @@ export const useActivityLogger = () => {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('log-activity', {
+      const { data, error } = await invokeWithTimeoutRace('log-activity', {
         body: params
-      });
+      }, TIMEOUT_VALUES.QUICK);
 
       if (error) {
         // Failed to log activity - logging removed for security

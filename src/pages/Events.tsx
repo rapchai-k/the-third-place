@@ -26,6 +26,13 @@ export default function Events() {
     ])
   ]);
 
+  // Sanitize search term to prevent PostgREST injection
+  const sanitizeSearchTerm = (term: string): string => {
+    // Escape special characters that could be used for injection
+    // PostgREST uses these for operators: ., (, ), ,, :, *, %
+    return term.replace(/[.(),:%*\\]/g, '');
+  };
+
   const { data: events, isLoading } = useQuery({
     queryKey: ["events", searchTerm, selectedTag, selectedCity],
     queryFn: async () => {
@@ -43,7 +50,10 @@ export default function Events() {
         .order("date_time", { ascending: true, nullsFirst: false });
 
       if (searchTerm) {
-        query = query.ilike("title", `%${searchTerm}%`);
+        const sanitized = sanitizeSearchTerm(searchTerm);
+        if (sanitized) {
+          query = query.ilike("title", `%${sanitized}%`);
+        }
       }
 
       const { data, error } = await query;

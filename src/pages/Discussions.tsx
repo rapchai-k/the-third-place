@@ -27,6 +27,13 @@ export default function Discussions() {
     ])
   ]);
 
+  // Sanitize search term to prevent PostgREST injection
+  const sanitizeSearchTerm = (term: string): string => {
+    // Escape special characters that could be used for injection
+    // PostgREST uses these for operators: ., (, ), ,, :, *, %
+    return term.replace(/[.(),:%*\\]/g, '');
+  };
+
   // Fetch discussions with filters
   const { data: discussions, isLoading } = useQuery({
     queryKey: ['discussions', communityFilter, statusFilter, searchTerm],
@@ -54,9 +61,12 @@ export default function Discussions() {
         query = query.lt('expires_at', new Date().toISOString());
       }
 
-      // Apply search filter
+      // Apply search filter with sanitized input
       if (searchTerm) {
-        query = query.or(`title.ilike.%${searchTerm}%, prompt.ilike.%${searchTerm}%`);
+        const sanitized = sanitizeSearchTerm(searchTerm);
+        if (sanitized) {
+          query = query.or(`title.ilike.%${sanitized}%,prompt.ilike.%${sanitized}%`);
+        }
       }
 
       const { data, error } = await query;
