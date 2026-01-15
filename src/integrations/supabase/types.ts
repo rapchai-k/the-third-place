@@ -627,12 +627,9 @@ export type Database = {
           currency: string
           event_id: string
           expires_at: string
-          gateway: string
           id: string
           payment_status: Database["public"]["Enums"]["payment_status"]
           payment_url: string | null
-          razorpay_payment_id: string | null
-          razorpay_payment_link_id: string | null
           status: string
           updated_at: string
           user_id: string
@@ -645,12 +642,9 @@ export type Database = {
           currency?: string
           event_id: string
           expires_at?: string
-          gateway?: string
           id?: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
           payment_url?: string | null
-          razorpay_payment_id?: string | null
-          razorpay_payment_link_id?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -663,12 +657,9 @@ export type Database = {
           currency?: string
           event_id?: string
           expires_at?: string
-          gateway?: string
           id?: string
           payment_status?: Database["public"]["Enums"]["payment_status"]
           payment_url?: string | null
-          razorpay_payment_id?: string | null
-          razorpay_payment_link_id?: string | null
           status?: string
           updated_at?: string
           user_id?: string
