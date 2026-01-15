@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, CreditCard } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 
 interface PaymentButtonProps {
@@ -16,69 +16,71 @@ interface PaymentButtonProps {
   onPaymentSuccess?: () => void;
 }
 
-export const PaymentButton = ({ 
-  eventId, 
-  eventTitle, 
-  price, 
-  currency, 
+export const PaymentButton = ({
+  eventId,
+  eventTitle,
+  price,
+  currency,
   className,
-  onPaymentSuccess 
+  onPaymentSuccess
 }: PaymentButtonProps) => {
   const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const { logPaymentInitiated, logPaymentCompleted, logPaymentFailed, logPaymentTimeout, logEventRegistration } = useActivityLogger();
 
-  const createPaymentMutation = useMutation({
-    mutationFn: async () => {
-      if (!user) throw new Error('User not authenticated');
-      
-      const { data, error } = await supabase.functions.invoke('create-payment', {
-        body: { eventId }
-      });
+  // Refs for managing polling state
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const paymentSessionIdRef = useRef<string | null>(null);
+  const isPollingRef = useRef(false);
 
-      if (error) throw error;
-      if (!data?.payment_url) throw new Error('Payment URL not received');
-      
-      return data;
-    },
-    onSuccess: (data) => {
-      // Log payment initiation
-      logPaymentInitiated(eventId, price, currency);
-      
-      // Open payment URL in new tab
-      window.open(data.payment_url, '_blank');
-      
-      // Start polling for payment status
-      pollPaymentStatus(data.payment_session_id);
-      
-      toast({
-        title: "Redirecting to payment",
-        description: "Please complete your payment in the new tab.",
-      });
-    },
-    onError: (error) => {
-      // Log payment initialization failure
-      logPaymentFailed(eventId, price, currency, `Initialization failed: ${error.message}`);
-
-      toast({
-        title: "Payment initialization failed",
-        description: error.message,
-        variant: "destructive",
-      });
+  // Cleanup function to stop all polling
+  const stopPolling = useCallback(() => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
     }
-  });
+    if (pollTimeoutRef.current) {
+      clearTimeout(pollTimeoutRef.current);
+      pollTimeoutRef.current = null;
+    }
+    isPollingRef.current = false;
+  }, []);
 
-  const verifyPaymentMutation = useMutation({
-    mutationFn: async (paymentSessionId: string) => {
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopPolling();
+    };
+  }, [stopPolling]);
+
+  // Handle focus event to check payment status
+  useEffect(() => {
+    const handleFocus = () => {
+      if (paymentSessionIdRef.current && isPollingRef.current) {
+        verifyPayment(paymentSessionIdRef.current);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
+  const verifyPayment = async (paymentSessionId: string) => {
+    try {
       const { data, error } = await supabase.functions.invoke('verify-payment', {
         body: { paymentSessionId }
       });
 
       if (error) throw error;
-      return data;
-    },
-    onSuccess: (data) => {
+
       if (data.payment_status === 'paid') {
+        // Stop polling immediately
+        stopPolling();
+        setIsProcessing(false);
+
         // Log successful payment
         logPaymentCompleted(eventId, price, currency, data.payment_id);
 
@@ -96,30 +98,73 @@ export const PaymentButton = ({
           description: "You are now registered for the event.",
         });
         onPaymentSuccess?.();
-      } else if (data.payment_status === 'yet_to_pay') {
-        // Payment still pending - continue polling
-        // No action needed here, polling will continue
       }
-      setIsProcessing(false);
+      // If still 'yet_to_pay', polling will continue automatically
+    } catch (error) {
+      // Log payment verification error but don't stop polling
+      console.error('Payment verification error:', error);
+    }
+  };
+
+  const createPaymentMutation = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: { eventId }
+      });
+
+      if (error) throw error;
+      if (!data?.payment_url) throw new Error('Payment URL not received');
+
+      return data;
+    },
+    onSuccess: (data) => {
+      // Log payment initiation
+      logPaymentInitiated(eventId, price, currency);
+
+      // Open payment URL in new tab
+      window.open(data.payment_url, '_blank');
+
+      // Start polling for payment status
+      startPolling(data.payment_session_id);
+
+      toast({
+        title: "Redirecting to payment",
+        description: "Please complete your payment in the new tab.",
+      });
     },
     onError: (error) => {
-      // Log payment verification error
-      logPaymentFailed(eventId, price, currency, `Verification error: ${error.message}`);
-      setIsProcessing(false);
+      // Log payment initialization failure
+      logPaymentFailed(eventId, price, currency, `Initialization failed: ${error.message}`);
+
+      toast({
+        title: "Payment initialization failed",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   });
 
-  const pollPaymentStatus = (paymentSessionId: string) => {
+  const startPolling = (paymentSessionId: string) => {
+    // Stop any existing polling first
+    stopPolling();
+
     setIsProcessing(true);
-    
-    const pollInterval = setInterval(() => {
-      verifyPaymentMutation.mutate(paymentSessionId);
-    }, 3000); // Poll every 3 seconds
+    paymentSessionIdRef.current = paymentSessionId;
+    isPollingRef.current = true;
+
+    // Poll every 3 seconds
+    pollIntervalRef.current = setInterval(() => {
+      if (isPollingRef.current) {
+        verifyPayment(paymentSessionId);
+      }
+    }, 3000);
 
     // Stop polling after 5 minutes
-    setTimeout(() => {
-      clearInterval(pollInterval);
-      if (isProcessing) {
+    pollTimeoutRef.current = setTimeout(() => {
+      if (isPollingRef.current) {
+        stopPolling();
         setIsProcessing(false);
 
         // Log payment timeout
@@ -132,18 +177,6 @@ export const PaymentButton = ({
         });
       }
     }, 300000);
-
-    // Listen for tab focus to check payment status
-    const handleFocus = () => {
-      verifyPaymentMutation.mutate(paymentSessionId);
-    };
-    window.addEventListener('focus', handleFocus);
-
-    // Cleanup function
-    return () => {
-      clearInterval(pollInterval);
-      window.removeEventListener('focus', handleFocus);
-    };
   };
 
   if (!user) {

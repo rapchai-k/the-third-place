@@ -87,24 +87,8 @@ export const useEventRegistration = ({
 
       if (registrationError) throw registrationError;
 
-      // Step 3: For paid events, create payment session with 'yet_to_pay' status
-      if (price > 0) {
-        const { error: paymentError } = await supabase
-          .from('payment_sessions')
-          .insert({
-            user_id: user.id,
-            event_id: eventId,
-            amount: price,
-            currency: currency,
-            status: 'pending', // Keep old field for backward compatibility
-            payment_status: 'yet_to_pay',
-            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
-          });
-
-        if (paymentError) {
-          throw paymentError;
-        }
-      }
+      // Note: Payment session creation for paid events is now handled by PaymentButton
+      // This hook is only used for FREE event registrations
     },
     onMutate: async () => {
       // Cancel outgoing refetches for all registration-related queries

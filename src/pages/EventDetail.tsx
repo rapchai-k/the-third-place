@@ -52,9 +52,8 @@ export default function EventDetail() {
         .select("*")
         .eq("event_id", id)
         .eq("user_id", user.id)
-        .single();
-      // PGRST116 means no rows found, which is expected when user is not registered
-      if (error && error.code !== 'PGRST116') throw error;
+        .maybeSingle();
+      if (error) throw error;
       return data;
     },
     enabled: !!user && !!id,
