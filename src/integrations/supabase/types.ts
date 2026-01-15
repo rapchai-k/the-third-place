@@ -1,3 +1,4 @@
+Initialising login role...
 export type Json =
   | string
   | number
@@ -11,6 +12,31 @@ export type Database = {
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -427,8 +453,9 @@ export type Database = {
           community_id: string
           created_at: string
           currency: string | null
-          date_time: string
+          date_time: string | null
           description: string | null
+          external_link: string | null
           host_id: string | null
           id: string
           image_url: string | null
@@ -443,8 +470,9 @@ export type Database = {
           community_id: string
           created_at?: string
           currency?: string | null
-          date_time: string
+          date_time?: string | null
           description?: string | null
+          external_link?: string | null
           host_id?: string | null
           id?: string
           image_url?: string | null
@@ -459,8 +487,9 @@ export type Database = {
           community_id?: string
           created_at?: string
           currency?: string | null
-          date_time?: string
+          date_time?: string | null
           description?: string | null
+          external_link?: string | null
           host_id?: string | null
           id?: string
           image_url?: string | null
@@ -626,7 +655,7 @@ export type Database = {
           expires_at: string
           gateway: string
           id: string
-          payment_status: Database["public"]["Enums"]["payment_status"]
+          payment_status: Database["public"]["Enums"]["payment_status"] | null
           payment_url: string | null
           razorpay_payment_id: string | null
           razorpay_payment_link_id: string | null
@@ -644,7 +673,7 @@ export type Database = {
           expires_at?: string
           gateway?: string
           id?: string
-          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
           payment_url?: string | null
           razorpay_payment_id?: string | null
           razorpay_payment_link_id?: string | null
@@ -662,7 +691,7 @@ export type Database = {
           expires_at?: string
           gateway?: string
           id?: string
-          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
           payment_url?: string | null
           razorpay_payment_id?: string | null
           razorpay_payment_link_id?: string | null
@@ -843,6 +872,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_requests: {
+        Row: {
+          additional_details: Json | null
+          admin_notes: string | null
+          contact_email: string
+          contact_phone: string | null
+          created_at: string
+          description: string
+          id: string
+          request_type: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          additional_details?: Json | null
+          admin_notes?: string | null
+          contact_email: string
+          contact_phone?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          request_type: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          additional_details?: Json | null
+          admin_notes?: string | null
+          contact_email?: string
+          contact_phone?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          request_type?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -1037,10 +1117,8 @@ export type Database = {
         Args: { actor_user_id?: string; event_data: Json; event_type: string }
         Returns: undefined
       }
-      generate_referral_code: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_referral_code: { Args: never; Returns: string }
+      get_user_email: { Args: { _user_id: string }; Returns: string }
       get_user_highest_role: {
         Args: { _user_id?: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -1065,14 +1143,8 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: { _user_id?: string }
-        Returns: boolean
-      }
-      is_admin_user: {
-        Args: { _user_id?: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { _user_id?: string }; Returns: boolean }
+      is_admin_user: { Args: { _user_id?: string }; Returns: boolean }
       is_community_member: {
         Args: { _community_id: string; _user_id: string }
         Returns: boolean
@@ -1214,6 +1286,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: [
@@ -1230,3 +1305,5 @@ export const Constants = {
     },
   },
 } as const
+A new version of Supabase CLI is available: v2.67.1 (currently installed v2.48.3)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli

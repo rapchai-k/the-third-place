@@ -30,48 +30,48 @@ CREATE INDEX IF NOT EXISTS idx_email_logs_created_at ON public.email_logs(create
 ALTER TABLE public.email_logs ENABLE ROW LEVEL SECURITY;
 
 -- 5) RLS Policies (conditionally create)
-DO $$
+DO $policy$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies 
+    SELECT 1 FROM pg_policies
     WHERE schemaname = 'public' AND tablename = 'email_logs' AND policyname = 'Service can insert email logs'
   ) THEN
-    EXECUTE $$CREATE POLICY "Service can insert email logs" ON public.email_logs FOR INSERT WITH CHECK (true)$$;
+    EXECUTE 'CREATE POLICY "Service can insert email logs" ON public.email_logs FOR INSERT WITH CHECK (true)';
   END IF;
 
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies 
+    SELECT 1 FROM pg_policies
     WHERE schemaname = 'public' AND tablename = 'email_logs' AND policyname = 'Service can update email logs'
   ) THEN
-    EXECUTE $$CREATE POLICY "Service can update email logs" ON public.email_logs FOR UPDATE USING (true)$$;
+    EXECUTE 'CREATE POLICY "Service can update email logs" ON public.email_logs FOR UPDATE USING (true)';
   END IF;
 
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies 
+    SELECT 1 FROM pg_policies
     WHERE schemaname = 'public' AND tablename = 'email_logs' AND policyname = 'Admins can view email logs'
   ) THEN
-    EXECUTE $$CREATE POLICY "Admins can view email logs" ON public.email_logs FOR SELECT USING (public.get_user_role() = 'admin')$$;
+    EXECUTE 'CREATE POLICY "Admins can view email logs" ON public.email_logs FOR SELECT USING (public.get_user_role() = ''admin'')';
   END IF;
-END$$;
+END$policy$;
 
 -- 6) updated_at trigger for email_logs (conditionally create)
-DO $$
+DO $trigger$
 DECLARE
   _relid oid;
 BEGIN
   SELECT 'public.email_logs'::regclass::oid INTO _relid;
 
   IF NOT EXISTS (
-    SELECT 1 FROM pg_trigger 
+    SELECT 1 FROM pg_trigger
     WHERE tgrelid = _relid AND tgname = 'update_email_logs_updated_at'
   ) THEN
-    EXECUTE $$
+    EXECUTE '
       CREATE TRIGGER update_email_logs_updated_at
       BEFORE UPDATE ON public.email_logs
       FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column()
-    $$;
+    ';
   END IF;
-END$$;
+END$trigger$;
 
 -- 7) Comments (idempotent)
 COMMENT ON TABLE public.email_logs IS 'Tracks email delivery status and metadata for all outbound emails';

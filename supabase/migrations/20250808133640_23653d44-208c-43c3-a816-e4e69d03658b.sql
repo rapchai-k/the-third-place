@@ -1,6 +1,7 @@
 -- Create landing-page-images bucket for dynamic content
-INSERT INTO storage.buckets (id, name, public) 
-VALUES ('landing-page-images', 'landing-page-images', true);
+INSERT INTO storage.buckets (id, name)
+VALUES ('landing-page-images', 'landing-page-images')
+ON CONFLICT (id) DO NOTHING;
 
 -- Create RLS policies for landing page images bucket
 CREATE POLICY "Landing page images are publicly accessible" 

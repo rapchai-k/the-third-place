@@ -27,3 +27,15 @@ coverage
 *.sw?
 
 *.env
+
+RLS Policies.json
+schema_sql
+supabase performance analysis.csv
+SUPABASE_LOCAL_SETUP_SUMMARY.md
+type_verification_summary.md
+SCHEMA_SYNC_SUMMARY.md
+SCHEMA_ORG_IMPLEMENTATION.md
+API_SUPABASE_PERFORMANCE_ANALYSIS.md
+SECURITY_AND_SEO_IMPROVEMENTS.md
+TEST_SUITE_SUMMARY.md
+supabase/migrations/20250806094303_seed_data.sql

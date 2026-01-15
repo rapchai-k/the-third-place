@@ -1,15 +1,16 @@
--- Insert seed data from docs/01-seed-data.json
+-- Seed data for local development
+-- This file is automatically run when starting local Supabase with `supabase start`
 
--- First, temporarily disable the foreign key constraint if it exists
--- INSERT INTO auth.users manually is not allowed, so we'll use UUIDs that work with the existing schema
+-- Note: The foreign key constraint on users.id -> auth.users(id) is dropped in migration
+-- 20250806094303, so we can insert seed users directly without creating auth.users entries
 
--- Insert users (without foreign key to auth.users since we can't insert there)
+-- Insert seed users
 INSERT INTO public.users (id, name, photo_url, role, referral_code, created_at) VALUES
 ('550e8400-e29b-41d4-a716-446655440001', 'Aditi Rao', '/avatars/aditi.png', 'user', 'ADITI123', '2025-08-01T12:00:00Z'),
 ('550e8400-e29b-41d4-a716-446655440002', 'Ravi Iyer', '/avatars/ravi.png', 'admin', 'RAVI456', '2025-08-01T12:00:00Z')
 ON CONFLICT (id) DO NOTHING;
 
--- Insert communities
+-- Insert seed communities
 INSERT INTO public.communities (id, name, description, city, image_url, created_at) VALUES
 ('550e8400-e29b-41d4-a716-446655440010', 'Bangalore Bikers', 'For riders who love weekend escapes.', 'Bangalore', '/images/bikers.png', '2025-08-02T08:00:00Z')
 ON CONFLICT (id) DO NOTHING;
@@ -37,7 +38,7 @@ ON CONFLICT (event_id, tag_id) DO NOTHING;
 
 -- Insert event registrations
 INSERT INTO public.event_registrations (id, user_id, event_id, status, payment_id, created_at) VALUES
-('550e8400-e29b-41d4-a716-446655440040', '550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440030', 'success', 'cf-pay-abc123', '2025-08-04T15:00:00Z')
+('550e8400-e29b-41d4-a716-446655440040', '550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440030', 'registered', 'cf-pay-abc123', '2025-08-04T15:00:00Z')
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert discussions
@@ -49,3 +50,4 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.discussion_comments (id, discussion_id, user_id, text, created_at, flagged_count) VALUES
 ('550e8400-e29b-41d4-a716-446655440060', '550e8400-e29b-41d4-a716-446655440050', '550e8400-e29b-41d4-a716-446655440001', 'I always carry water, basic tools, and a power bank.', '2025-08-04T18:00:00Z', 0)
 ON CONFLICT (id) DO NOTHING;
+

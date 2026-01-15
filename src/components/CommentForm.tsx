@@ -56,9 +56,10 @@ export const CommentForm = ({ discussionId, onCommentAdded }: CommentFormProps) 
       };
 
       // Optimistically update comments
-      queryClient.setQueryData(['discussion-comments', discussionId], (old: any) => 
-        old ? [...old, optimisticComment] : [optimisticComment]
-      );
+      queryClient.setQueryData(['discussion-comments', discussionId], (old: unknown) => {
+        const comments = old as typeof optimisticComment[] | undefined;
+        return comments ? [...comments, optimisticComment] : [optimisticComment];
+      });
 
       // Clear form immediately
       setComment("");
