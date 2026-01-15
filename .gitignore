@@ -15,6 +15,9 @@ dist-ssr
 # Test coverage
 coverage
 
+# Local backups
+.local-backup/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -34,14 +37,29 @@ coverage
 .env.production
 .env.test
 
+# Supabase temporary files and local data
+supabase/.temp/
+supabase/.branches/
+supabase/seed.sql
+
+# Documentation and analysis files (generated/temporary)
 RLS Policies.json
+RLS policies.json
 schema_sql
 supabase performance analysis.csv
+Supabase Performance Security Lints*.csv
 SUPABASE_LOCAL_SETUP_SUMMARY.md
 type_verification_summary.md
+TYPE_VERIFICATION_SUMMARY.md
 SCHEMA_SYNC_SUMMARY.md
 SCHEMA_ORG_IMPLEMENTATION.md
 API_SUPABASE_PERFORMANCE_ANALYSIS.md
 SECURITY_AND_SEO_IMPROVEMENTS.md
+SECURITY_INCIDENT_RESPONSE.md
 TEST_SUITE_SUMMARY.md
+
+# Weird files
+-
+
+# Seed data migrations (should be in seed.sql instead)
 supabase/migrations/20250806094303_seed_data.sql
