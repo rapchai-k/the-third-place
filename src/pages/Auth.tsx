@@ -11,6 +11,7 @@ import { ReferralCodeInput } from "@/components/referrals/ReferralCodeInput";
 import { useReferrals } from "@/hooks/useReferrals";
 import { toast } from "@/hooks/use-toast";
 import { shouldShowReferralModal } from "@/utils/userUtils";
+import { Chrome } from "lucide-react";
 
 export const AuthPage = () => {
   const [email, setEmail] = useState("");
@@ -172,125 +173,155 @@ export const AuthPage = () => {
               </TabsList>
               
               <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
-                    <Input
-                      id="signin-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      disabled={loading}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
-                    <Input
-                      id="signin-password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      disabled={loading}
-                    />
-                  </div>
-                  
-                  {error && (
-                    <Alert variant="destructive">
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )}
-
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Signing in..." : "Sign In"}
+                <div className="space-y-4 mt-6">
+                  {/* Google Sign In Button - Above the fold */}
+                  <Button
+                    variant="default"
+                    className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 shadow-sm"
+                    onClick={handleGoogleSignIn}
+                    disabled={loading}
+                  >
+                    <Chrome className="mr-2 h-4 w-4" />
+                    Continue with Google
                   </Button>
-                </form>
+
+                  {/* OR Divider */}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        OR
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Email/Password Form */}
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-email">Email</Label>
+                      <Input
+                        id="signin-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        disabled={loading}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-password">Password</Label>
+                      <Input
+                        id="signin-password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        disabled={loading}
+                      />
+                    </div>
+
+                    {error && (
+                      <Alert variant="destructive">
+                        <AlertDescription>{error}</AlertDescription>
+                      </Alert>
+                    )}
+
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? "Signing in..." : "Sign In"}
+                    </Button>
+                  </form>
+                </div>
               </TabsContent>
               
               <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      disabled={loading}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      disabled={loading}
-                      minLength={6}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm Password</Label>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                      disabled={loading}
-                      minLength={6}
-                    />
-                  </div>
-
-                  {/* Referral Code Input for Sign Up */}
-                  <div className="space-y-4">
-                    <ReferralCodeInput
-                      onApplyCode={handleApplyReferralCode}
-                      error={referralError}
-                      success={referralCodeApplied}
-                      initialCode={referralCodeFromUrl || undefined}
-                      minimal={true}
-                    />
-                  </div>
-
-                  {error && (
-                    <Alert variant="destructive">
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )}
-
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Creating account..." : "Sign Up"}
+                <div className="space-y-4 mt-6">
+                  {/* Google Sign In Button - Above the fold */}
+                  <Button
+                    variant="default"
+                    className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 shadow-sm"
+                    onClick={handleGoogleSignIn}
+                    disabled={loading}
+                  >
+                    <Chrome className="mr-2 h-4 w-4" />
+                    Continue with Google
                   </Button>
-                </form>
+
+                  {/* OR Divider */}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        OR
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Email/Password Form */}
+                  <form onSubmit={handleSignUp} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-email">Email</Label>
+                      <Input
+                        id="signup-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        disabled={loading}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-password">Password</Label>
+                      <Input
+                        id="signup-password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        disabled={loading}
+                        minLength={6}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password">Confirm Password</Label>
+                      <Input
+                        id="confirm-password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        disabled={loading}
+                        minLength={6}
+                      />
+                    </div>
+
+                    {/* Referral Code Input for Sign Up */}
+                    <div className="space-y-4">
+                      <ReferralCodeInput
+                        onApplyCode={handleApplyReferralCode}
+                        error={referralError}
+                        success={referralCodeApplied}
+                        initialCode={referralCodeFromUrl || undefined}
+                        minimal={true}
+                      />
+                    </div>
+
+                    {error && (
+                      <Alert variant="destructive">
+                        <AlertDescription>{error}</AlertDescription>
+                      </Alert>
+                    )}
+
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? "Creating account..." : "Sign Up"}
+                    </Button>
+                  </form>
+                </div>
               </TabsContent>
             </Tabs>
-
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
-                  </span>
-                </div>
-              </div>
-
-              <Button
-                variant="outline"
-                className="w-full mt-4"
-                onClick={handleGoogleSignIn}
-                disabled={loading}
-              >
-                Continue with Google
-              </Button>
-            </div>
 
             {/* Referral Code Display Card - Only show during sign-up */}
             {currentTab === "signup" && referralCodeFromUrl && (
