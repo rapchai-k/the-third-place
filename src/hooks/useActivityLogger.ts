@@ -6,8 +6,9 @@ interface ActivityLogParams {
   action_type: string;
   target_type: string;
   target_id?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   anonymous?: boolean;
+  [key: string]: unknown;
 }
 
 export const useActivityLogger = () => {

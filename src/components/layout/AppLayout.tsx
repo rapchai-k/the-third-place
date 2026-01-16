@@ -1,4 +1,4 @@
-import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "@/lib/nextRouterAdapter";
 import { Home, Users, Calendar, MessageSquare, User, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
@@ -27,7 +27,11 @@ const userNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: User },
 ];
 
-export const AppLayout = () => {
+interface AppLayoutProps {
+  children?: React.ReactNode;
+}
+
+export const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -175,7 +179,7 @@ export const AppLayout = () => {
 
         {/* Page Content */}
         <main className={`flex-1 overflow-auto ${user ? 'pb-16 md:pb-0' : ''}`}>
-          <Outlet />
+          {children}
         </main>
 
         {/* Mobile Bottom Navigation - Only for authenticated users */}

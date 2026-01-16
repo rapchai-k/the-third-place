@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/nextRouterAdapter";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -100,7 +100,7 @@ export default function Events() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("events")
-        .select("communities(city)")
+        .select("date_time, communities(city)")
         .eq("is_cancelled", false);
       if (error) throw error;
       // Include events with null dates or future dates

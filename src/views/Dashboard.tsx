@@ -7,7 +7,7 @@ import { CalendarDays, Users, Star, Clock, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "@/lib/nextRouterAdapter";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReferralCodeModal } from "@/components/referrals/ReferralCodeModal";
 import { useReferrals } from "@/hooks/useReferrals";

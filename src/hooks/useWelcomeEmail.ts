@@ -14,6 +14,7 @@ interface TriggerWelcomeEmailRequest {
   userId: string;
   userEmail: string;
   userName: string;
+  [key: string]: unknown;
 }
 
 interface TriggerWelcomeEmailResponse {

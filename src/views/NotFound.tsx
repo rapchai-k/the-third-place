@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation } from "@/lib/nextRouterAdapter";
 import { useEffect } from "react";
 
 const NotFound = () => {
