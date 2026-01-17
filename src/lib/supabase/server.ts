@@ -109,3 +109,83 @@ export async function getEventById(id: string): Promise<EventWithRelations | nul
   return data as EventWithRelations;
 }
 
+/**
+ * Type-safe community data with relations for SSR
+ */
+export type CommunityWithRelations = Database['public']['Tables']['communities']['Row'] & {
+  community_members: { count: number }[];
+};
+
+/**
+ * Fetch a single community by ID with all relations needed for the detail page.
+ * Used in Server Components for SSR.
+ */
+export async function getCommunityById(id: string): Promise<CommunityWithRelations | null> {
+  const supabase = await createServerSupabaseClient();
+
+  const { data, error } = await supabase
+    .from('communities')
+    .select(`
+      *,
+      community_members(count)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching community:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
+    return null;
+  }
+
+  return data as CommunityWithRelations;
+}
+
+/**
+ * Type-safe discussion data with relations for SSR
+ */
+export type DiscussionWithRelations = Database['public']['Tables']['discussions']['Row'] & {
+  communities: {
+    name: string;
+  } | null;
+  users: {
+    name: string;
+    photo_url: string | null;
+  } | null;
+  discussion_comments: { count: number }[];
+};
+
+/**
+ * Fetch a single discussion by ID with all relations needed for the detail page.
+ * Used in Server Components for SSR.
+ */
+export async function getDiscussionById(id: string): Promise<DiscussionWithRelations | null> {
+  const supabase = await createServerSupabaseClient();
+
+  const { data, error } = await supabase
+    .from('discussions')
+    .select(`
+      *,
+      communities(name),
+      users(name, photo_url),
+      discussion_comments(count)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching discussion:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
+    return null;
+  }
+
+  return data as DiscussionWithRelations;
+}
