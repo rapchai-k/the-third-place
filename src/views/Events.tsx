@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@/lib/nextRouterAdapter";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,19 +12,30 @@ import { format } from "date-fns";
 import { useStructuredData, createCollectionSchema, createBreadcrumbSchema } from "@/utils/schema";
 import { useAuth } from "@/contexts/AuthContext";
 
+// SSR-safe helper to get the base URL
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return process.env.NEXT_PUBLIC_SITE_URL || '';
+};
+
 export default function Events() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
 
-  // Add structured data for SEO
-  useStructuredData([
-    createBreadcrumbSchema([
-      { name: "Home", url: window.location.origin },
-      { name: "Events", url: window.location.href }
-    ])
-  ]);
+  // Add structured data for SEO (memoized to avoid recalculating on every render)
+  const breadcrumbSchema = useMemo(() => {
+    const baseUrl = getBaseUrl();
+    return createBreadcrumbSchema([
+      { name: "Home", url: baseUrl },
+      { name: "Events", url: `${baseUrl}/events` }
+    ]);
+  }, []);
+
+  useStructuredData([breadcrumbSchema]);
 
   // Sanitize search term to prevent PostgREST injection
   const sanitizeSearchTerm = (term: string): string => {

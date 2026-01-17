@@ -2,8 +2,9 @@
 
 import DiscussionDetail from '@/views/DiscussionDetail';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageSuspenseWrapper } from '@/components/layout/PageSuspenseWrapper';
 
-export default function DiscussionDetailPage() {
+function DiscussionDetailContent() {
   return (
     <AppLayout>
       <DiscussionDetail />
@@ -11,3 +12,10 @@ export default function DiscussionDetailPage() {
   );
 }
 
+export default function DiscussionDetailPage() {
+  return (
+    <PageSuspenseWrapper>
+      <DiscussionDetailContent />
+    </PageSuspenseWrapper>
+  );
+}

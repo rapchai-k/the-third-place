@@ -3,8 +3,9 @@
 import { ProfilePage as Profile } from '@/views/Profile';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageSuspenseWrapper } from '@/components/layout/PageSuspenseWrapper';
 
-export default function ProfilePageWrapper() {
+function ProfileContent() {
   return (
     <ProtectedRoute>
       <AppLayout>
@@ -14,3 +15,10 @@ export default function ProfilePageWrapper() {
   );
 }
 
+export default function ProfilePageWrapper() {
+  return (
+    <PageSuspenseWrapper>
+      <ProfileContent />
+    </PageSuspenseWrapper>
+  );
+}

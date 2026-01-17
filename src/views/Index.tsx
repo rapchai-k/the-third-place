@@ -42,14 +42,14 @@ const Index = () => {
     logPageView('home');
   }, [logPageView]);
 
-  // Add structured data for SEO
+  // Add structured data for SEO (use static URL to avoid SSR issues with window)
   useStructuredData([
     websiteSchema,
     organizationSchema,
     createCollectionSchema({
       name: "Communities on My Third Place",
       description: "Discover and join communities based on your interests",
-      url: window.location.href,
+      url: typeof window !== 'undefined' ? window.location.href : 'https://thethirdplace.community',
       numberOfItems: allCommunities.length
     })
   ]);

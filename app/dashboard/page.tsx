@@ -3,8 +3,9 @@
 import Dashboard from '@/views/Dashboard';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageSuspenseWrapper } from '@/components/layout/PageSuspenseWrapper';
 
-export default function DashboardPage() {
+function DashboardContent() {
   return (
     <ProtectedRoute>
       <AppLayout>
@@ -14,3 +15,10 @@ export default function DashboardPage() {
   );
 }
 
+export default function DashboardPage() {
+  return (
+    <PageSuspenseWrapper>
+      <DashboardContent />
+    </PageSuspenseWrapper>
+  );
+}

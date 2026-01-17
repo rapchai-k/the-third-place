@@ -460,6 +460,10 @@ export type Database = {
           image_url: string | null
           is_cancelled: boolean
           price: number | null
+          seo_description: string | null
+          seo_image_url: string | null
+          seo_keywords: string[] | null
+          seo_title: string | null
           title: string
           updated_at: string
           venue: string
@@ -477,6 +481,10 @@ export type Database = {
           image_url?: string | null
           is_cancelled?: boolean
           price?: number | null
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
           title: string
           updated_at?: string
           venue: string
@@ -494,6 +502,10 @@ export type Database = {
           image_url?: string | null
           is_cancelled?: boolean
           price?: number | null
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
           title?: string
           updated_at?: string
           venue?: string

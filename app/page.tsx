@@ -2,8 +2,9 @@
 
 import Index from '@/views/Index';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageSuspenseWrapper } from '@/components/layout/PageSuspenseWrapper';
 
-export default function HomePage() {
+function HomeContent() {
   return (
     <AppLayout>
       <Index />
@@ -11,3 +12,10 @@ export default function HomePage() {
   );
 }
 
+export default function HomePage() {
+  return (
+    <PageSuspenseWrapper>
+      <HomeContent />
+    </PageSuspenseWrapper>
+  );
+}

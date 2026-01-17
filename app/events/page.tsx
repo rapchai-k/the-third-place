@@ -2,8 +2,9 @@
 
 import Events from '@/views/Events';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageSuspenseWrapper } from '@/components/layout/PageSuspenseWrapper';
 
-export default function EventsPage() {
+function EventsContent() {
   return (
     <AppLayout>
       <Events />
@@ -11,3 +12,10 @@ export default function EventsPage() {
   );
 }
 
+export default function EventsPage() {
+  return (
+    <PageSuspenseWrapper>
+      <EventsContent />
+    </PageSuspenseWrapper>
+  );
+}

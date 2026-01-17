@@ -2,8 +2,9 @@
 
 import CommunityDetail from '@/views/CommunityDetail';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageSuspenseWrapper } from '@/components/layout/PageSuspenseWrapper';
 
-export default function CommunityDetailPage() {
+function CommunityDetailContent() {
   return (
     <AppLayout>
       <CommunityDetail />
@@ -11,3 +12,10 @@ export default function CommunityDetailPage() {
   );
 }
 
+export default function CommunityDetailPage() {
+  return (
+    <PageSuspenseWrapper>
+      <CommunityDetailContent />
+    </PageSuspenseWrapper>
+  );
+}

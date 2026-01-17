@@ -24,9 +24,10 @@ const nextConfig = {
   },
 
   // Environment variables that should be available on the client
+  // Support both ANON_KEY and PUBLISHABLE_KEY naming conventions
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   },
 
   // Turbopack configuration (Next.js 16+ default bundler)

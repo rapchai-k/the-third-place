@@ -38,6 +38,7 @@ coverage
 *.env
 .env
 .env.local
+.env.local.backup
 .env.development
 .env.production
 .env.test

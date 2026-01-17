@@ -3,8 +3,9 @@
 import { ReferralCenter } from '@/views/ReferralCenter';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageSuspenseWrapper } from '@/components/layout/PageSuspenseWrapper';
 
-export default function ReferralsPage() {
+function ReferralsContent() {
   return (
     <ProtectedRoute>
       <AppLayout>
@@ -14,3 +15,10 @@ export default function ReferralsPage() {
   );
 }
 
+export default function ReferralsPage() {
+  return (
+    <PageSuspenseWrapper>
+      <ReferralsContent />
+    </PageSuspenseWrapper>
+  );
+}
