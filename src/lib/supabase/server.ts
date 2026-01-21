@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import type { Database } from '@/integrations/supabase/types';
+import type { User, Session } from '@supabase/supabase-js';
 
 /**
  * Creates a Supabase client for use in Server Components.
@@ -54,6 +55,91 @@ export async function createServerSupabaseClient() {
       },
     }
   );
+}
+
+/**
+ * Get the authenticated user from the server-side session.
+ * This function should be used in Server Components to access the current user.
+ *
+ * IMPORTANT: This calls getUser() which validates the JWT with Supabase Auth server,
+ * making it secure for authorization checks. Do NOT use getSession() for this purpose.
+ *
+ * Usage:
+ * ```ts
+ * import { getServerUser } from '@/lib/supabase/server';
+ *
+ * export default async function Page() {
+ *   const user = await getServerUser();
+ *   if (!user) {
+ *     redirect('/auth');
+ *   }
+ *   return <div>Hello, {user.email}</div>;
+ * }
+ * ```
+ *
+ * @returns The authenticated User object, or null if not authenticated
+ */
+export async function getServerUser(): Promise<User | null> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data: { user }, error } = await supabase.auth.getUser();
+
+    if (error) {
+      // Log error but don't throw - unauthenticated is a valid state
+      console.error('Error getting server user:', {
+        message: error.message,
+        status: error.status,
+      });
+      return null;
+    }
+
+    return user;
+  } catch (error) {
+    console.error('Unexpected error in getServerUser:', error);
+    return null;
+  }
+}
+
+/**
+ * Get the current session from the server-side cookies.
+ * This function provides access to the full session including access/refresh tokens.
+ *
+ * NOTE: For authorization checks, prefer getServerUser() as it validates the JWT.
+ * Use getServerSession() only when you need session metadata (e.g., token expiry).
+ *
+ * Usage:
+ * ```ts
+ * import { getServerSession } from '@/lib/supabase/server';
+ *
+ * export default async function Page() {
+ *   const session = await getServerSession();
+ *   if (session) {
+ *     console.log('Token expires at:', session.expires_at);
+ *   }
+ *   return <div>...</div>;
+ * }
+ * ```
+ *
+ * @returns The current Session object, or null if no session exists
+ */
+export async function getServerSession(): Promise<Session | null> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data: { session }, error } = await supabase.auth.getSession();
+
+    if (error) {
+      console.error('Error getting server session:', {
+        message: error.message,
+        status: error.status,
+      });
+      return null;
+    }
+
+    return session;
+  } catch (error) {
+    console.error('Unexpected error in getServerSession:', error);
+    return null;
+  }
 }
 
 /**
