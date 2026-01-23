@@ -88,7 +88,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             {/* Brand Logo */}
             {location.pathname !== '/' && (
               <div className="absolute left-4">
-                <img src="/logo.png" alt="My Third Place" className="h-24 w-auto md:h-[7.5rem]" loading="eager" decoding="async" />
+                <Link to="/">
+                  <img src="/logo.png" alt="My Third Place" className="h-24 w-auto md:h-[7.5rem] cursor-pointer" loading="eager" decoding="async" />
+                </Link>
               </div>
             )}
 

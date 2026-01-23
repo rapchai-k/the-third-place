@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { SilkBackground, SpotlightCard, Masonry, CommunityCarousel } from "@/components/reactbits";
 import { useStructuredData, websiteSchema, organizationSchema, createCollectionSchema } from "@/utils/schema";
 import type { CommunityListItem, EventListItem } from "@/lib/supabase/server";
@@ -249,9 +249,13 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
     return fetchedCommunities;
   }, [initialCommunities, fetchedCommunities]);
 
-	  // Seed UI with initial page on first load
+	  // Track if initial data has been seeded to prevent infinite loop
+	  const hasSeededInitialData = useRef(false);
+
+	  // Seed UI with initial page on first load (only once)
 	  useEffect(() => {
-	    if (featuredCommunities && featuredCommunities.length > 0) {
+	    if (!hasSeededInitialData.current && featuredCommunities && featuredCommunities.length > 0) {
+	      hasSeededInitialData.current = true;
 	      setAllCommunities(featuredCommunities);
 	      setCommunitiesPage(1); // first page loaded
 	      setHasMoreCommunities(featuredCommunities.length === PAGE_SIZE);
