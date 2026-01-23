@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { SilkBackground, SpotlightCard, Masonry, CommunityCarousel } from "@/components/reactbits";
 import { useStructuredData, websiteSchema, organizationSchema, createCollectionSchema } from "@/utils/schema";
 import type { CommunityListItem, EventListItem } from "@/lib/supabase/server";
@@ -236,12 +236,16 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
   });
 
   // Use SSR data if available, otherwise use fetched data
-  const featuredCommunities = (initialCommunities && initialCommunities.length > 0)
-    ? initialCommunities.map(community => ({
+  // Memoize to prevent infinite re-render loop in useEffect
+  const featuredCommunities = useMemo(() => {
+    if (initialCommunities && initialCommunities.length > 0) {
+      return initialCommunities.map(community => ({
         ...community,
         members: community.community_members?.[0]?.count || 0,
-      }))
-    : fetchedCommunities;
+      }));
+    }
+    return fetchedCommunities;
+  }, [initialCommunities, fetchedCommunities]);
 
 	  // Seed UI with initial page on first load
 	  useEffect(() => {
