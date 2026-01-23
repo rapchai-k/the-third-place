@@ -275,3 +275,137 @@ export async function getDiscussionById(id: string): Promise<DiscussionWithRelat
 
   return data as DiscussionWithRelations;
 }
+
+// ============================================================================
+// Listing Page Data Fetchers (Phase 4: SSR for listing pages)
+// ============================================================================
+
+/**
+ * Options for fetching listing data
+ */
+export interface ListingOptions {
+  limit?: number;
+  offset?: number;
+}
+
+/**
+ * Type-safe event list item for SSR
+ */
+export type EventListItem = Database['public']['Tables']['events']['Row'] & {
+  communities: { name: string; city: string } | null;
+  event_registrations: { count: number }[];
+  event_tags: { tags: { name: string } | null }[];
+};
+
+/**
+ * Fetch events list for SSR.
+ * Returns upcoming events (future or null dates) ordered by date.
+ */
+export async function getEvents(options: ListingOptions = {}): Promise<EventListItem[]> {
+  const { limit = 20 } = options;
+  const supabase = await createServerSupabaseClient();
+
+  const { data, error } = await supabase
+    .from('events')
+    .select(`
+      *,
+      communities(name, city),
+      event_registrations(count),
+      event_tags(tags(name))
+    `)
+    .eq('is_cancelled', false)
+    .order('date_time', { ascending: true, nullsFirst: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching events:', error);
+    return [];
+  }
+
+  // Filter to include events with null dates or future dates
+  const filtered = (data || []).filter(
+    (event) => !event.date_time || new Date(event.date_time) >= new Date()
+  );
+
+  return filtered as EventListItem[];
+}
+
+/**
+ * Type-safe community list item for SSR
+ */
+export type CommunityListItem = Database['public']['Tables']['communities']['Row'] & {
+  community_members: { count: number }[];
+};
+
+/**
+ * Fetch communities list for SSR.
+ */
+export async function getCommunities(options: ListingOptions = {}): Promise<CommunityListItem[]> {
+  const { limit = 20 } = options;
+  const supabase = await createServerSupabaseClient();
+
+  const { data, error } = await supabase
+    .from('communities')
+    .select(`
+      *,
+      community_members(count)
+    `)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching communities:', error);
+    return [];
+  }
+
+  return (data || []) as CommunityListItem[];
+}
+
+/**
+ * Type-safe discussion list item for SSR
+ */
+export type DiscussionListItem = Database['public']['Tables']['discussions']['Row'] & {
+  communities: { name: string; id: string } | null;
+  users: { name: string; photo_url: string | null } | null;
+  discussion_comments: { count: number }[];
+};
+
+/**
+ * Fetch visible discussions list for SSR.
+ */
+export async function getDiscussions(options: ListingOptions = {}): Promise<DiscussionListItem[]> {
+  const { limit = 20 } = options;
+  const supabase = await createServerSupabaseClient();
+
+  const { data, error } = await supabase
+    .from('discussions')
+    .select(`
+      *,
+      communities(name, id),
+      users(name, photo_url),
+      discussion_comments(count)
+    `)
+    .eq('is_visible', true)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching discussions:', error);
+    return [];
+  }
+
+  return (data || []) as DiscussionListItem[];
+}
+
+/**
+ * Fetch featured data for home page SSR.
+ * Returns a subset of communities and events for initial render.
+ */
+export async function getHomePageData() {
+  const [communities, events] = await Promise.all([
+    getCommunities({ limit: 6 }),
+    getEvents({ limit: 4 }),
+  ]);
+
+  return { communities, events };
+}

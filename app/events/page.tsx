@@ -1,21 +1,37 @@
-'use client';
+import type { Metadata } from 'next';
+import { getEvents } from '@/lib/supabase/server';
+import EventsClient from '@/views/Events';
+import { AppLayoutWrapper } from '@/components/layout/AppLayoutWrapper';
 
-import Events from '@/views/Events';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { PageSuspenseWrapper } from '@/components/layout/PageSuspenseWrapper';
+/**
+ * Static metadata for the events listing page.
+ */
+export const metadata: Metadata = {
+  title: 'Upcoming Events | My Third Place',
+  description: 'Discover and register for events in your community. Find exciting activities, workshops, and gatherings happening near you.',
+  openGraph: {
+    title: 'Upcoming Events | My Third Place',
+    description: 'Discover and register for events in your community.',
+    type: 'website',
+    siteName: 'My Third Place',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Upcoming Events | My Third Place',
+    description: 'Discover and register for events in your community.',
+  },
+};
 
-function EventsContent() {
+/**
+ * Server Component - fetches initial events data on the server.
+ * Client Component handles filters, search, and pagination.
+ */
+export default async function EventsPage() {
+  const events = await getEvents({ limit: 20 });
+
   return (
-    <AppLayout>
-      <Events />
-    </AppLayout>
-  );
-}
-
-export default function EventsPage() {
-  return (
-    <PageSuspenseWrapper>
-      <EventsContent />
-    </PageSuspenseWrapper>
+    <AppLayoutWrapper>
+      <EventsClient initialEvents={events} />
+    </AppLayoutWrapper>
   );
 }

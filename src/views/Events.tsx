@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@/lib/nextRouterAdapter";
@@ -11,6 +13,7 @@ import { Search, Calendar, MapPin, Users, Clock, ChevronDown } from "lucide-reac
 import { format } from "date-fns";
 import { useStructuredData, createCollectionSchema, createBreadcrumbSchema } from "@/utils/schema";
 import { useAuth } from "@/contexts/AuthContext";
+import type { EventListItem } from "@/lib/supabase/server";
 
 // SSR-safe helper to get the base URL
 const getBaseUrl = () => {
@@ -20,7 +23,11 @@ const getBaseUrl = () => {
   return process.env.NEXT_PUBLIC_SITE_URL || '';
 };
 
-export default function Events() {
+interface EventsProps {
+  initialEvents?: EventListItem[];
+}
+
+export default function Events({ initialEvents }: EventsProps = {}) {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
@@ -92,6 +99,8 @@ export default function Events() {
 
       return filteredData;
     },
+    // Use SSR data as initial data (avoids loading state on first render)
+    initialData: initialEvents,
   });
 
   const { data: tags } = useQuery({

@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams, Link } from '@/lib/nextRouterAdapter';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,22 +12,38 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useStructuredData, createCollectionSchema, createBreadcrumbSchema } from '@/utils/schema';
+import type { DiscussionListItem } from '@/lib/supabase/server';
 
-export default function Discussions() {
+// SSR-safe helper to get the base URL
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return process.env.NEXT_PUBLIC_SITE_URL || '';
+};
+
+interface DiscussionsProps {
+  initialDiscussions?: DiscussionListItem[];
+}
+
+export default function Discussions({ initialDiscussions }: DiscussionsProps = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const communityFilter = searchParams.get('community');
   const statusFilter = searchParams.get('status') || 'all';
 
-  // Add structured data for SEO
-  useStructuredData([
-    createBreadcrumbSchema([
-      { name: "Home", url: window.location.origin },
-      { name: "Discussions", url: window.location.href }
-    ])
-  ]);
+  // Add structured data for SEO (memoized to avoid recalculating)
+  const breadcrumbSchema = useMemo(() => {
+    const baseUrl = getBaseUrl();
+    return createBreadcrumbSchema([
+      { name: "Home", url: baseUrl },
+      { name: "Discussions", url: `${baseUrl}/discussions` }
+    ]);
+  }, []);
+
+  useStructuredData([breadcrumbSchema]);
 
   // Sanitize search term to prevent PostgREST injection
   const sanitizeSearchTerm = (term: string): string => {
@@ -73,6 +91,8 @@ export default function Discussions() {
       if (error) throw error;
       return data;
     },
+    // Use SSR data as initial data (avoids loading state on first render)
+    initialData: initialDiscussions,
   });
 
   // Fetch communities for filter dropdown

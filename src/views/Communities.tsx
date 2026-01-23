@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@/lib/nextRouterAdapter";
@@ -12,8 +14,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { useStructuredData, createCollectionSchema, createBreadcrumbSchema } from "@/utils/schema";
+import type { CommunityListItem } from "@/lib/supabase/server";
 
-export default function Communities() {
+interface CommunitiesProps {
+  initialCommunities?: CommunityListItem[];
+}
+
+export default function Communities({ initialCommunities }: CommunitiesProps = {}) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [loadingCommunityId, setLoadingCommunityId] = useState<string | null>(null);
@@ -44,6 +51,8 @@ export default function Communities() {
       if (error) throw error;
       return data;
     },
+    // Use SSR data as initial data (avoids loading state on first render)
+    initialData: initialCommunities,
   });
 
   // Add structured data for SEO after communities data is available

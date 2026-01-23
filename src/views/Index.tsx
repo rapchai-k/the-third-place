@@ -1,3 +1,5 @@
+'use client';
+
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +11,14 @@ import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { useEffect, useState, useCallback } from "react";
 import { SilkBackground, SpotlightCard, Masonry, CommunityCarousel } from "@/components/reactbits";
 import { useStructuredData, websiteSchema, organizationSchema, createCollectionSchema } from "@/utils/schema";
-const Index = () => {
+import type { CommunityListItem, EventListItem } from "@/lib/supabase/server";
+
+interface IndexProps {
+  initialCommunities?: CommunityListItem[];
+  initialEvents?: EventListItem[];
+}
+
+const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
   const {
     user
   } = useAuth();
@@ -158,9 +167,9 @@ const Index = () => {
     fetchGalleryImages();
   }, []);
 
-  // Fetch featured events with registration counts
+  // Fetch featured events with registration counts (skip if SSR data available)
   const {
-    data: featuredEvents = []
+    data: fetchedEvents = []
   } = useQuery({
     queryKey: ['featured-events'],
     queryFn: async () => {
@@ -187,11 +196,23 @@ const Index = () => {
         tags: event.event_tags?.map(et => et.tags?.name).filter(Boolean) || [],
         attendees: event.event_registrations?.length || 0
       })) || [];
-    }
+    },
+    // Skip query if we have SSR data
+    enabled: !initialEvents || initialEvents.length === 0,
   });
 
-  // Fetch communities (initial page)
-  const { data: featuredCommunities = [] } = useQuery({
+  // Use SSR data if available, otherwise use fetched data
+  const featuredEvents = (initialEvents && initialEvents.length > 0)
+    ? initialEvents.map(event => ({
+        ...event,
+        community_name: event.communities?.name,
+        tags: event.event_tags?.map(et => et.tags?.name).filter(Boolean) || [],
+        attendees: event.event_registrations?.[0]?.count || 0
+      }))
+    : fetchedEvents;
+
+  // Fetch communities (initial page) - skip if SSR data available
+  const { data: fetchedCommunities = [] } = useQuery({
     queryKey: ['featured-communities'],
     queryFn: async () => {
       const { data: communities, error } = await supabase
@@ -210,7 +231,17 @@ const Index = () => {
         })) || [];
       return mappedCommunities;
     },
+    // Skip query if we have SSR data
+    enabled: !initialCommunities || initialCommunities.length === 0,
   });
+
+  // Use SSR data if available, otherwise use fetched data
+  const featuredCommunities = (initialCommunities && initialCommunities.length > 0)
+    ? initialCommunities.map(community => ({
+        ...community,
+        members: community.community_members?.[0]?.count || 0,
+      }))
+    : fetchedCommunities;
 
 	  // Seed UI with initial page on first load
 	  useEffect(() => {

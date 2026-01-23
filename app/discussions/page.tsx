@@ -1,21 +1,37 @@
-'use client';
+import type { Metadata } from 'next';
+import { getDiscussions } from '@/lib/supabase/server';
+import DiscussionsClient from '@/views/Discussions';
+import { AppLayoutWrapper } from '@/components/layout/AppLayoutWrapper';
 
-import Discussions from '@/views/Discussions';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { PageSuspenseWrapper } from '@/components/layout/PageSuspenseWrapper';
+/**
+ * Static metadata for the discussions listing page.
+ */
+export const metadata: Metadata = {
+  title: 'Discussions | My Third Place',
+  description: 'Join community discussions, share your thoughts, and connect with others. Explore topics and conversations happening in your communities.',
+  openGraph: {
+    title: 'Discussions | My Third Place',
+    description: 'Join community discussions and share your thoughts.',
+    type: 'website',
+    siteName: 'My Third Place',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Discussions | My Third Place',
+    description: 'Join community discussions and share your thoughts.',
+  },
+};
 
-function DiscussionsContent() {
+/**
+ * Server Component - fetches initial discussions data on the server.
+ * Client Component handles filters, search, and user interactions.
+ */
+export default async function DiscussionsPage() {
+  const discussions = await getDiscussions({ limit: 20 });
+
   return (
-    <AppLayout>
-      <Discussions />
-    </AppLayout>
-  );
-}
-
-export default function DiscussionsPage() {
-  return (
-    <PageSuspenseWrapper>
-      <DiscussionsContent />
-    </PageSuspenseWrapper>
+    <AppLayoutWrapper>
+      <DiscussionsClient initialDiscussions={discussions} />
+    </AppLayoutWrapper>
   );
 }
