@@ -12,6 +12,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { SilkBackground, SpotlightCard, Masonry, CommunityCarousel } from "@/components/reactbits";
 import { useStructuredData, websiteSchema, organizationSchema, createCollectionSchema } from "@/utils/schema";
 import type { CommunityListItem, EventListItem } from "@/lib/supabase/server";
+import { useNavigate } from "@/lib/nextRouterAdapter";
 
 interface IndexProps {
   initialCommunities?: CommunityListItem[];
@@ -25,6 +26,7 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
   const {
     logPageView
   } = useActivityLogger();
+  const navigate = useNavigate();
   const [communitiesPage, setCommunitiesPage] = useState(0);
   const [allCommunities, setAllCommunities] = useState<any[]>([]);
   const [hasMoreCommunities, setHasMoreCommunities] = useState(true);
@@ -320,9 +322,9 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
 
         {/* Primary CTA */}
         <div className="text-center pb-12 md:pb-16 px-6 md:px-8">
-          {user ? <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => window.location.href = '/dashboard'}>
+          {user ? <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/dashboard')}>
               View Your Dashboard
-            </Button> : <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => window.location.href = '/auth'}>
+            </Button> : <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/auth')}>
               Join the Community
             </Button>}
         </div>
@@ -400,10 +402,10 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
               Join thousands of people who have discovered meaningful connections and exciting opportunities in their local communities.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
-              <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" onClick={() => window.location.href = '/communities'}>
+              <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" onClick={() => navigate('/communities')}>
                 Explore Communities
               </Button>
-              <Button variant="outline" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" onClick={() => window.location.href = '/events'}>
+              <Button variant="outline" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" onClick={() => navigate('/events')}>
                 Browse Events
               </Button>
             </div>

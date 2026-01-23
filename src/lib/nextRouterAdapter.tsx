@@ -7,7 +7,7 @@
  */
 
 import { useRouter, usePathname, useSearchParams as useNextSearchParams } from 'next/navigation';
-import { useCallback, useMemo, useEffect } from 'react';
+import { useCallback, useMemo, useEffect, useRef } from 'react';
 
 // Type for navigation options
 interface NavigateOptions {
@@ -44,10 +44,11 @@ export function useNavigate() {
 export function useLocation() {
   const pathname = usePathname();
   const searchParams = useNextSearchParams();
-  
+
   return useMemo(() => ({
-    pathname,
-    search: searchParams.toString() ? `?${searchParams.toString()}` : '',
+    pathname: pathname || '/',
+    // searchParams can be null during SSR without Suspense boundary
+    search: searchParams?.toString() ? `?${searchParams.toString()}` : '',
     hash: typeof window !== 'undefined' ? window.location.hash : '',
     state: null, // Next.js doesn't have location state like React Router
     key: 'default',
@@ -128,10 +129,19 @@ interface NavigateProps {
   replace?: boolean;
 }
 
+/**
+ * Declarative navigation component - navigates once on mount.
+ * Uses a ref to prevent repeated navigation caused by router reference changes.
+ */
 export function Navigate({ to, replace = false }: NavigateProps) {
   const router = useRouter();
+  const hasNavigated = useRef(false);
 
   useEffect(() => {
+    // Only navigate once to prevent loops from router reference changes
+    if (hasNavigated.current) return;
+    hasNavigated.current = true;
+
     if (replace) {
       router.replace(to);
     } else {

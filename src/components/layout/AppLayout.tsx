@@ -93,12 +93,13 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             )}
 
             {/* Desktop Navigation Tabs - Center aligned */}
+            {/* Using Link component for better SSR hydration and SEO */}
             {user && (
               <div className="hidden md:flex items-center space-x-8">
                 {navigation.map((item) => (
-                  <button
+                  <Link
                     key={item.name}
-                    onClick={() => navigate(item.href)}
+                    to={item.href}
                     className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive(item.href)
                         ? "text-primary bg-primary/10 border border-primary/20"
@@ -107,12 +108,12 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                   >
                     <item.icon className="w-4 h-4" />
                     <span>{item.name}</span>
-                  </button>
+                  </Link>
                 ))}
                 {userNavigation.map((item) => (
-                  <button
+                  <Link
                     key={item.name}
-                    onClick={() => navigate(item.href)}
+                    to={item.href}
                     className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive(item.href)
                         ? "text-primary bg-primary/10 border border-primary/20"
@@ -121,7 +122,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                   >
                     <item.icon className="w-4 h-4" />
                     <span>{item.name}</span>
-                  </button>
+                  </Link>
                 ))}
               </div>
             )}
