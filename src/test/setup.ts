@@ -212,27 +212,22 @@ vi.mock('next-themes', () => ({
   }),
 }))
 
-// Mock react-router-dom
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom')
-  return {
-    ...actual,
-    useNavigate: () => vi.fn(),
-    useLocation: () => ({
-      pathname: '/',
-      search: '',
-      hash: '',
-      state: null,
-      key: 'default'
-    }),
-    useParams: () => ({}),
-    useSearchParams: () => [new URLSearchParams(), vi.fn()],
-    BrowserRouter: ({ children }: { children: React.ReactNode }) => children,
-    MemoryRouter: ({ children }: { children: React.ReactNode }) => children,
-    Link: vi.fn(({ children, to, ...props }: any) => children),
-    NavLink: vi.fn(({ children, to, ...props }: any) => children),
-  }
-})
+// Mock Next.js navigation
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
+  useParams: () => ({}),
+  redirect: vi.fn(),
+  notFound: vi.fn(),
+}))
 
 // Mock @tanstack/react-query
 vi.mock('@tanstack/react-query', async () => {
