@@ -67,7 +67,7 @@ The application uses Resend for automated email delivery. To enable email functi
 2. In Resend, go to Settings → API Keys → Create API Key (Server)
 3. In Supabase project: Dashboard → Settings → Functions → Secrets → Add `RESEND_API_KEY`
 4. Verify a sender domain in Resend (DNS): Settings → Domains → Add Domain
-   - Current verified sender: onboarding@rapchai.com
+   - Example verified sender: onboarding@example.com (replace with your actual verified sender address)
 
 Helpful links:
 - Resend Dashboard: https://resend.com/dashboard
@@ -75,7 +75,7 @@ Helpful links:
 - Resend Webhooks: https://resend.com/docs/webhooks
 
 ### Verified Sender Domain
-Resend requires sending from a verified domain to avoid errors. Use a verified address (e.g., onboarding@rapchai.com). For non-verified testing, you can temporarily use onboarding@resend.dev.
+Resend requires sending from a verified domain to avoid errors. Use a verified address (for example, onboarding@example.com). For non-verified testing, you can temporarily use onboarding@resend.dev.
 
 ### Email Features
 - Welcome Emails: Automatically sent to new users upon signup via Edge Functions
@@ -94,7 +94,7 @@ Option A: End-to-end via signup
 
 Option B: Direct Function call
 1. Invoke POST {SUPABASE_URL}/functions/v1/welcome-email-trigger with JSON body:
-   { "userId": "<uuid>", "userEmail": "test@rapchai.com", "userName": "Test" }
+   { "userId": "<uuid>", "userEmail": "test@example.com", "userName": "Test" }
 2. Headers: Authorization: Bearer {SUPABASE_SERVICE_ROLE_KEY}, Content-Type: application/json
 3. Check response JSON for success and correlationId, and inspect email_logs
 

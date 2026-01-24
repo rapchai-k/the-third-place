@@ -52,7 +52,7 @@ Use this before/after deploying email-related functions.
 1) Preconditions
 - Supabase project ref present in supabase/config.toml (project_id)
 - Secrets configured in Supabase: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY
-- Verified sender configured in Resend (currently: onboarding@rapchai.com)
+- Verified sender configured in Resend (for example: onboarding@example.com; replace with your actual verified sender)
 
 2) Deploy
 - supabase functions deploy send-email
@@ -72,7 +72,7 @@ Use this before/after deploying email-related functions.
 ## Troubleshooting
 
 - Resend API error / Unknown error
-  - Ensure the From address uses a verified domain (onboarding@rapchai.com)
+  - Ensure the From address uses a verified domain (for example, onboarding@example.com)
   - Verify RESEND_API_KEY, no typos, correct environment
   - Check Resend dashboard Activity for the event and error message
 

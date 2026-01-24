@@ -119,7 +119,7 @@ supabase db reset
 supabase logs
 
 # Link to remote project
-supabase link --project-ref ggochdssgkfnvcrrmtlp
+supabase link --project-ref <your-project-ref>
 ```
 
 ## Troubleshooting
@@ -165,7 +165,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=<local anon key>
 
 ### For Remote/Production
 ```env
-VITE_SUPABASE_URL=https://ggochdssgkfnvcrrmtlp.supabase.co
+VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=<remote anon key>
 ```
 
