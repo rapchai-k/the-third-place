@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: CommunityDetailPageProps): Pr
     };
   }
 
-  const memberCount = community.community_members?.[0]?.count || 0;
+  const memberCount = community.member_count || 0;
 
   return {
     title: `${community.name} | My Third Place`,
