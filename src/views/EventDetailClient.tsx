@@ -83,6 +83,27 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
     }
 
     try {
+      // First, check if user is a community member
+      const { data: membership } = await supabase
+        .from("community_members")
+        .select("user_id")
+        .eq("community_id", event.community_id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      // If not a member, join the community first
+      if (!membership) {
+        const { error: joinError } = await supabase
+          .from("community_members")
+          .insert({
+            community_id: event.community_id,
+            user_id: user.id
+          });
+
+        if (joinError) throw joinError;
+      }
+
+      // Now register for the event
       const { error } = await supabase
         .from("event_registrations")
         .insert({
@@ -102,8 +123,10 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
       });
 
       toast({
-        title: "Registration submitted!",
-        description: "Your registration is pending confirmation",
+        title: "Registration successful!",
+        description: membership
+          ? "You've registered for the event"
+          : "You've joined the community and registered for the event",
       });
       refetchRegistration();
     } catch (error) {

@@ -119,10 +119,7 @@ const Dashboard = () => {
         .from('community_members')
         .select(`
           joined_at,
-          communities (
-            *,
-            community_members(count)
-          )
+          communities (*)
         `)
         .eq('user_id', user.id)
         .order('joined_at', { ascending: false });
@@ -132,7 +129,7 @@ const Dashboard = () => {
       return data?.map(membership => ({
         ...membership.communities,
         joined_at: membership.joined_at,
-        member_count: membership.communities?.community_members?.[0]?.count || 0
+        member_count: membership.communities?.member_count || 0
       })) || [];
     },
     enabled: !!user

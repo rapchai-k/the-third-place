@@ -67,7 +67,27 @@ export async function proxy(request: NextRequest) {
   // 
   // Avoid using getSession() as it doesn't revalidate the auth token.
   // See: https://supabase.com/docs/guides/auth/server-side/nextjs#understanding-the-middleware-flow
-  await supabase.auth.getUser();
+  //
+  // NOTE:
+  // In rare cases Supabase Auth can return a 500 (e.g. schema/service mismatch such as
+  // "missing destination name refresh_token_hmac_key in *models.Session").
+  // We should not fail the entire request in that case; just skip the refresh.
+  try {
+    const { error } = await supabase.auth.getUser();
+    if (error) {
+      console.warn('[Proxy] Supabase getUser() returned an error. Skipping session refresh.', {
+        pathname: request.nextUrl?.pathname,
+        status: (error as any)?.status,
+        code: (error as any)?.code,
+        message: (error as any)?.message,
+      });
+    }
+  } catch (error) {
+    console.warn('[Proxy] Supabase getUser() threw. Skipping session refresh.', {
+      pathname: request.nextUrl?.pathname,
+      error,
+    });
+  }
 
   return supabaseResponse;
 }

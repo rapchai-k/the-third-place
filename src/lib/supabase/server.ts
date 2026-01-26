@@ -198,9 +198,7 @@ export async function getEventById(id: string): Promise<EventWithRelations | nul
 /**
  * Type-safe community data with relations for SSR
  */
-export type CommunityWithRelations = Database['public']['Tables']['communities']['Row'] & {
-  community_members: { count: number }[];
-};
+export type CommunityWithRelations = Database['public']['Tables']['communities']['Row'];
 
 /**
  * Fetch a single community by ID with all relations needed for the detail page.
@@ -211,10 +209,7 @@ export async function getCommunityById(id: string): Promise<CommunityWithRelatio
 
   const { data, error } = await supabase
     .from('communities')
-    .select(`
-      *,
-      community_members(count)
-    `)
+    .select('*')
     .eq('id', id)
     .single();
 
@@ -333,9 +328,7 @@ export async function getEvents(options: ListingOptions = {}): Promise<EventList
 /**
  * Type-safe community list item for SSR
  */
-export type CommunityListItem = Database['public']['Tables']['communities']['Row'] & {
-  community_members: { count: number }[];
-};
+export type CommunityListItem = Database['public']['Tables']['communities']['Row'];
 
 /**
  * Fetch communities list for SSR.
@@ -346,10 +339,7 @@ export async function getCommunities(options: ListingOptions = {}): Promise<Comm
 
   const { data, error } = await supabase
     .from('communities')
-    .select(`
-      *,
-      community_members(count)
-    `)
+    .select('*')
     .order('created_at', { ascending: false })
     .limit(limit);
 

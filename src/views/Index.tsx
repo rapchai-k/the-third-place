@@ -219,17 +219,14 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
     queryFn: async () => {
       const { data: communities, error } = await supabase
         .from('communities')
-        .select(`
-          *,
-          community_members(count)
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
         .range(0, PAGE_SIZE - 1);
       if (error) throw error;
       const mappedCommunities =
         communities?.map((community) => ({
           ...community,
-          members: community.community_members?.[0]?.count || 0,
+          members: community.member_count || 0,
         })) || [];
       return mappedCommunities;
     },
@@ -243,7 +240,7 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
     if (initialCommunities && initialCommunities.length > 0) {
       return initialCommunities.map(community => ({
         ...community,
-        members: community.community_members?.[0]?.count || 0,
+        members: community.member_count || 0,
       }));
     }
     return fetchedCommunities;
@@ -270,10 +267,7 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
     try {
       const { data: communities, error } = await supabase
         .from('communities')
-        .select(`
-          *,
-          community_members(count)
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
         .range(communitiesPage * PAGE_SIZE, (communitiesPage + 1) * PAGE_SIZE - 1);
 
@@ -282,7 +276,7 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
       const mappedCommunities =
         communities?.map((community) => ({
           ...community,
-          members: community.community_members?.[0]?.count || 0,
+          members: community.member_count || 0,
         })) || [];
 
       // Deduplicate by id in case overlapping ranges or earlier bug

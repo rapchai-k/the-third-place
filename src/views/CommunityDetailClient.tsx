@@ -32,10 +32,7 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
     queryFn: async () => {
       const { data, error } = await supabase
         .from("communities")
-        .select(`
-          *,
-          community_members(count)
-        `)
+        .select("*")
         .eq("id", id)
         .single();
       if (error) throw error;
@@ -115,7 +112,7 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
       logCommunityView(id, {
         community_name: community.name,
         community_city: community.city,
-        member_count: community.community_members?.[0]?.count || 0
+        member_count: community.member_count || 0
       });
     }
   }, [id, community, logCommunityView]);
@@ -162,9 +159,7 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
       if (previousCommunity) {
         queryClient.setQueryData(["community", id], (old: any) => ({
           ...old,
-          community_members: [{
-            count: (old.community_members?.[0]?.count || 0) + 1
-          }]
+          member_count: (old.member_count || 0) + 1
         }));
       }
 
@@ -172,7 +167,7 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
         logCommunityJoin(id!, {
           community_name: community.name,
           community_city: community.city,
-          member_count: community.community_members?.[0]?.count || 0
+          member_count: community.member_count || 0
         });
       }
 
@@ -227,9 +222,7 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
       if (previousCommunity) {
         queryClient.setQueryData(["community", id], (old: any) => ({
           ...old,
-          community_members: [{
-            count: Math.max((old.community_members?.[0]?.count || 0) - 1, 0)
-          }]
+          member_count: Math.max((old.member_count || 0) - 1, 0)
         }));
       }
 
@@ -237,7 +230,7 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
         logCommunityLeave(id!, {
           community_name: community.name,
           community_city: community.city,
-          member_count: community.community_members?.[0]?.count || 0
+          member_count: community.member_count || 0
         });
       }
 
@@ -305,7 +298,7 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
                 </div>
                 <Badge variant="secondary" className="flex items-center gap-1 w-fit">
                   <Users className="h-3 w-3" />
-                  {community.community_members?.[0]?.count || 0} members
+                  {community.member_count || 0} members
                 </Badge>
               </div>
 

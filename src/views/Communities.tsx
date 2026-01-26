@@ -35,10 +35,7 @@ export default function Communities({ initialCommunities }: CommunitiesProps = {
     queryFn: async () => {
       let query = supabase
         .from("communities")
-        .select(`
-          *,
-          community_members(count)
-        `);
+        .select("*");
 
       if (searchTerm) {
         query = query.ilike("name", `%${searchTerm}%`);
@@ -124,7 +121,7 @@ export default function Communities({ initialCommunities }: CommunitiesProps = {
         logCommunityJoin(communityId, {
           community_name: community.name,
           community_city: community.city,
-          member_count: community.community_members?.[0]?.count || 0
+          member_count: community.member_count || 0
         });
       }
 
@@ -186,7 +183,7 @@ export default function Communities({ initialCommunities }: CommunitiesProps = {
         logCommunityLeave(communityId, {
           community_name: community.name,
           community_city: community.city,
-          member_count: community.community_members?.[0]?.count || 0
+          member_count: community.member_count || 0
         });
       }
 
@@ -324,7 +321,7 @@ export default function Communities({ initialCommunities }: CommunitiesProps = {
                   <div className="flex items-center justify-between">
                     <Badge variant="secondary" className="flex items-center gap-1">
                       <Users className="h-3 w-3" />
-                      {community.community_members?.[0]?.count || 0} members
+                      {community.member_count || 0} members
                     </Badge>
                     
                     <div className="flex gap-2">

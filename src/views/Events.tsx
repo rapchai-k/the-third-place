@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Calendar, MapPin, Users, Clock, ChevronDown } from "lucide-react";
+import { Search, Calendar, MapPin, Users, Clock, ChevronDown, MessageSquare, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { useStructuredData, createCollectionSchema, createBreadcrumbSchema } from "@/utils/schema";
 import { useAuth } from "@/contexts/AuthContext";
@@ -229,66 +229,99 @@ export default function Events({ initialEvents }: EventsProps = {}) {
             const isRegistered = registeredEventIds.has(event.id);
 
             return (
-              <Link key={event.id} to={`/events/${event.id}`}>
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col relative">
-                  {/* Registration Status Badge - Top Right */}
-                  {user && (
-                    <div className="absolute top-3 right-3 z-10">
-                      <Badge
-                        className={
-                          isRegistered
-                            ? "bg-green-600 hover:bg-green-700 text-white"
-                            : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
-                        }
-                      >
-                        {isRegistered ? "Registered" : "Unregistered"}
+              <Card key={event.id} className="hover:shadow-lg transition-shadow h-full flex flex-col relative">
+                {/* Registration Status Badge - Top Right */}
+                {user && (
+                  <div className="absolute top-3 right-3 z-10">
+                    <Badge
+                      className={
+                        isRegistered
+                          ? "bg-green-600 hover:bg-green-700 text-white"
+                          : "bg-yellow-500 hover:bg-yellow-600 text-gray-900"
+                      }
+                    >
+                      {isRegistered ? "Registered" : "Unregistered"}
+                    </Badge>
+                  </div>
+                )}
+
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg line-clamp-2 mb-3 pr-24">{event.title || "TBD"}</CardTitle>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm text-muted-foreground gap-2">
+                      <Calendar className="h-4 w-4 flex-shrink-0" />
+                      <span>{event.date_time ? format(new Date(event.date_time), "MMM d, yyyy") : "TBD"}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-muted-foreground gap-2">
+                      <Clock className="h-4 w-4 flex-shrink-0" />
+                      <span>{event.date_time ? format(new Date(event.date_time), "h:mm a") : "TBD"}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-muted-foreground gap-2">
+                      <MapPin className="h-4 w-4 flex-shrink-0" />
+                      <span className="line-clamp-1">{event.venue || "TBD"}</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col space-y-4">
+                  <CardDescription className="line-clamp-3 flex-grow" style={{ height: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {event.description || "TBD"}
+                  </CardDescription>
+
+                  <div className="flex flex-wrap gap-2">
+                    {event.event_tags?.map((et, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {et.tags?.name}
                       </Badge>
-                    </div>
-                  )}
+                    ))}
+                  </div>
 
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg line-clamp-2 mb-3 pr-24">{event.title || "TBD"}</CardTitle>
+                  <div className="space-y-2 pt-2 border-t">
+                    <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+                      <Users className="h-3 w-3" />
+                      {event.event_registrations?.[0]?.count || 0}/{event.capacity}
+                    </Badge>
+                    <p className="text-xs text-muted-foreground">
+                      by {event.communities?.name || "TBD"}
+                    </p>
+                  </div>
 
-                    <div className="space-y-2">
-                      <div className="flex items-center text-sm text-muted-foreground gap-2">
-                        <Calendar className="h-4 w-4 flex-shrink-0" />
-                        <span>{event.date_time ? format(new Date(event.date_time), "MMM d, yyyy") : "TBD"}</span>
-                      </div>
-                      <div className="flex items-center text-sm text-muted-foreground gap-2">
-                        <Clock className="h-4 w-4 flex-shrink-0" />
-                        <span>{event.date_time ? format(new Date(event.date_time), "h:mm a") : "TBD"}</span>
-                      </div>
-                      <div className="flex items-center text-sm text-muted-foreground gap-2">
-                        <MapPin className="h-4 w-4 flex-shrink-0" />
-                        <span className="line-clamp-1">{event.venue || "TBD"}</span>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex-1 flex flex-col space-y-4">
-                    <CardDescription className="line-clamp-3 flex-grow" style={{ height: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {event.description || "TBD"}
-                    </CardDescription>
-
-                    <div className="flex flex-wrap gap-2">
-                      {event.event_tags?.map((et, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {et.tags?.name}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="space-y-2 pt-2 border-t">
-                      <Badge variant="secondary" className="flex items-center gap-1 w-fit">
-                        <Users className="h-3 w-3" />
-                        {event.event_registrations?.[0]?.count || 0}/{event.capacity}
-                      </Badge>
-                      <p className="text-xs text-muted-foreground">
-                        by {event.communities?.name || "TBD"}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                  {/* Action Buttons */}
+                  <div className="flex flex-col gap-2 pt-2 border-t mt-auto">
+                    {user && isRegistered ? (
+                      <>
+                        <Button asChild variant="outline" size="sm" className="w-full">
+                          <Link to={`/events/${event.id}`}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </Link>
+                        </Button>
+                        <Button asChild variant="secondary" size="sm" className="w-full">
+                          <Link to="/discussions">
+                            <MessageSquare className="h-4 w-4 mr-2" />
+                            Explore Discussions
+                          </Link>
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button asChild variant="outline" size="sm" className="w-full">
+                          <Link to={`/events/${event.id}`}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </Link>
+                        </Button>
+                        <Button asChild variant="default" size="sm" className="w-full">
+                          <Link to={`/events/${event.id}`}>
+                            <Users className="h-4 w-4 mr-2" />
+                            Register Now
+                          </Link>
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             );
           })}
         </div>
