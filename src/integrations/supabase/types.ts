@@ -99,6 +99,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          member_count: number
           name: string
           updated_at: string
         }
@@ -108,6 +109,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          member_count?: number
           name: string
           updated_at?: string
         }
@@ -117,6 +119,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          member_count?: number
           name?: string
           updated_at?: string
         }
