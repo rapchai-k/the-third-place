@@ -83,10 +83,6 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        <link
-          rel="canonical"
-          href={process.env.NEXT_PUBLIC_SITE_URL || 'https://mythirdplace.rapchai.com'}
-        />
       </head>
       <body className="min-h-screen bg-background antialiased" suppressHydrationWarning>
         <Providers>{children}</Providers>

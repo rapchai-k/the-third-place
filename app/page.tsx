@@ -9,6 +9,9 @@ import { AppLayoutWrapper } from '@/components/layout/AppLayoutWrapper';
 export const metadata: Metadata = {
   title: 'My Third Place | Connect, Discover, Engage',
   description: 'Find your community and connect with like-minded people. Discover events, join discussions, and build meaningful relationships in your third place.',
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'My Third Place | Connect, Discover, Engage',
     description: 'Find your community and connect with like-minded people.',
