@@ -161,13 +161,17 @@ serve(async (req) => {
     // This is a fallback in case the webhook failed to create registration
     // Use upsert with onConflict to handle race condition between webhook and polling
     if (newPaymentStatus === "paid") {
+      // Use the extracted razorpayPaymentId or the one from payment session
+      const paymentId = razorpayPaymentId || paymentSession.razorpay_payment_id || null;
+
       const { error: regError } = await supabaseClient
         .from("event_registrations")
         .upsert({
           event_id: paymentSession.event_id,
           user_id: user.id,
           status: "registered",
-          payment_session_id: paymentSession.id
+          payment_session_id: paymentSession.id,
+          payment_id: paymentId
         }, {
           onConflict: 'user_id,event_id',
           ignoreDuplicates: true
@@ -176,7 +180,7 @@ serve(async (req) => {
       if (regError) {
         logStep("Failed to create/update registration", { error: regError.message });
       } else {
-        logStep("Registration upserted via verify-payment fallback");
+        logStep("Registration upserted via verify-payment fallback", { payment_id: paymentId });
       }
     }
 

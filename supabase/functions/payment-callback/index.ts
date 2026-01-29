@@ -176,7 +176,8 @@ serve(async (req) => {
           event_id: paymentSession.event_id,
           user_id: paymentSession.user_id,
           status: "registered",
-          payment_session_id: paymentSession.id
+          payment_session_id: paymentSession.id,
+          payment_id: paymentEntity?.id || null
         }, {
           onConflict: 'user_id,event_id',
           ignoreDuplicates: true
@@ -185,7 +186,7 @@ serve(async (req) => {
       if (regError) {
         logStep("Failed to create/update registration", { error: regError.message });
       } else {
-        logStep("Registration upserted successfully for paid event");
+        logStep("Registration upserted successfully for paid event", { payment_id: paymentEntity?.id });
       }
     }
 
