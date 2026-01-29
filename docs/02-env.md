@@ -3,9 +3,11 @@ Set in Supabase/Lovable env, not in repo:
 - GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET (Supabase Auth → Google provider)
 - RZP_KEY_ID, RZP_KEY_SECRET, RZP_WEBHOOK_SECRET (production/test)
 - RZP_BASE_URL (https://api.razorpay.com for production, default if not set)
-- CASHFREE_APP_ID, CASHFREE_SECRET_KEY (LEGACY - kept for grace period on existing payments)
 - RESEND_API_KEY (for automated email notifications)
 - EMAIL/WA/SMS provider keys (when enabled)
+
+> **Note:** Cashfree was deprecated in January 2026. All payments now use Razorpay.
+> See [RAZORPAY_PAYMENT_INTEGRATION.md](./RAZORPAY_PAYMENT_INTEGRATION.md) for details.
 
 
 ## Payment Gateway Setup (Razorpay)
