@@ -291,7 +291,7 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
           <CardHeader className="pb-4">
             <div className="flex flex-col md:flex-row justify-between items-start gap-4">
               <div className="space-y-2">
-                <CardTitle className="text-3xl">{community.name}</CardTitle>
+                <h1 className="text-3xl font-bold tracking-tight">{community.name}</h1>
                 <div className="flex items-center text-muted-foreground">
                   <MapPin className="h-4 w-4 mr-1" />
                   {community.city}

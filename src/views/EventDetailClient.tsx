@@ -164,7 +164,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
                     </Badge>
                   ))}
                 </div>
-                <CardTitle className="text-3xl">{event.title || "TBD"}</CardTitle>
+                <h1 className="text-3xl font-bold tracking-tight">{event.title || "TBD"}</h1>
                 <div className="space-y-2 text-muted-foreground">
                   <div className="flex items-center">
                     <CalendarDays className="h-4 w-4 mr-2" />

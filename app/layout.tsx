@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   creator: 'My Third Place',
   publisher: 'My Third Place',
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || 'https://mythirdplace.com'
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://mythirdplace.rapchai.com'
   ),
   openGraph: {
     type: 'website',
@@ -82,6 +82,10 @@ export default function RootLayout({
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
+        />
+        <link
+          rel="canonical"
+          href={process.env.NEXT_PUBLIC_SITE_URL || 'https://mythirdplace.rapchai.com'}
         />
       </head>
       <body className="min-h-screen bg-background antialiased" suppressHydrationWarning>

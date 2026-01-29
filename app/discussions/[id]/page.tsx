@@ -29,6 +29,9 @@ export async function generateMetadata({ params }: DiscussionDetailPageProps): P
   return {
     title: `${discussion.title} | ${communityName} | My Third Place`,
     description: discussion.prompt || `Join the discussion "${discussion.title}" in ${communityName} with ${commentCount} comments.`,
+    alternates: {
+      canonical: `/discussions/${id}`,
+    },
     openGraph: {
       title: `${discussion.title} | My Third Place`,
       description: discussion.prompt || `Join the discussion in ${communityName}.`,

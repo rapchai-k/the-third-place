@@ -15,8 +15,8 @@ export const organizationSchema = {
   "@type": "Organization",
   "name": "My Third Place",
   "description": "A community platform connecting people through shared interests, events, and discussions",
-  "url": "https://thethirdplace.community",
-  "logo": "https://thethirdplace.community/logo.png",
+  "url": "https://mythirdplace.rapchai.com",
+  "logo": "https://mythirdplace.rapchai.com/logo.png",
   "sameAs": [
     // Add social media links here when available
   ],
@@ -32,13 +32,13 @@ export const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "My Third Place",
-  "url": "https://thethirdplace.community",
+  "url": "https://mythirdplace.rapchai.com",
   "description": "Connect with your community through shared spaces, events, and discussions",
   "potentialAction": {
     "@type": "SearchAction",
     "target": {
       "@type": "EntryPoint",
-      "urlTemplate": "https://thethirdplace.community/search?q={search_term_string}"
+      "urlTemplate": "https://mythirdplace.rapchai.com/search?q={search_term_string}"
     },
     "query-input": "required name=search_term_string"
   }

@@ -28,6 +28,9 @@ export async function generateMetadata({ params }: CommunityDetailPageProps): Pr
   return {
     title: `${community.name} | My Third Place`,
     description: community.description || `Join ${community.name} community in ${community.city} with ${memberCount} members.`,
+    alternates: {
+      canonical: `/communities/${id}`,
+    },
     openGraph: {
       title: `${community.name} | My Third Place`,
       description: community.description || `Join ${community.name} community in ${community.city}.`,

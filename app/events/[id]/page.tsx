@@ -58,6 +58,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: seoTitle,
     description: `${seoDescription} | ${eventDate}${eventTime ? ` at ${eventTime}` : ''} | ${price}`,
     keywords: seoKeywords,
+    alternates: {
+      canonical: `/events/${id}`,
+    },
     openGraph: {
       title: seoTitle,
       description: seoDescription,
