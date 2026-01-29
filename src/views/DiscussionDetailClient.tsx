@@ -17,6 +17,7 @@ import { CommentForm } from "@/components/CommentForm";
 import { FlagCommentDialog } from '@/components/FlagCommentDialog';
 import { isAfter } from "date-fns";
 import type { DiscussionWithRelations } from '@/lib/supabase/server';
+import { analytics } from '@/utils/analytics';
 
 interface DiscussionDetailClientProps {
   initialDiscussion: DiscussionWithRelations;
@@ -97,6 +98,13 @@ export default function DiscussionDetailClient({ initialDiscussion }: Discussion
         community_name: discussion.communities?.name,
         expires_at: discussion.expires_at,
         is_expired: isAfter(new Date(), new Date(discussion.expires_at))
+      });
+
+      // Track view_discussion for GA4
+      analytics.viewDiscussion({
+        discussion_id: id,
+        discussion_title: discussion.title,
+        community_id: discussion.community_id,
       });
     }
   }, [id, discussion, logDiscussionView]);

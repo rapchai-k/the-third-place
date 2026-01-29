@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { useState, useMemo } from 'react';
 import { useStructuredData, createCollectionSchema, createBreadcrumbSchema } from '@/utils/schema';
 import type { DiscussionListItem } from '@/lib/supabase/server';
+import { analytics } from '@/utils/analytics';
 
 // SSR-safe helper to get the base URL
 const getBaseUrl = () => {
@@ -114,6 +115,13 @@ export default function Discussions({ initialDiscussions }: DiscussionsProps = {
     const newParams = new URLSearchParams(searchParams);
     if (searchTerm) {
       newParams.set('search', searchTerm);
+
+      // Track search for GA4
+      analytics.search({
+        search_term: searchTerm,
+        search_type: 'discussions',
+        results_count: discussions?.length,
+      });
     } else {
       newParams.delete('search');
     }

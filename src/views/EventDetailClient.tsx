@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tantml:react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { useEffect } from "react";
 import { Link } from "@/lib/nextRouterAdapter";
 import type { EventWithRelations } from "@/lib/supabase/server";
+import { analytics } from "@/utils/analytics";
 
 interface EventDetailClientProps {
   event: EventWithRelations;
@@ -69,6 +70,16 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
       event_capacity: event.capacity,
       current_attendees: registrationCount,
       user_is_registered: !!userRegistration
+    });
+
+    // Track view_item for GA4 e-commerce
+    analytics.viewItem({
+      item_id: event.id,
+      item_name: event.title,
+      price: event.price || 0,
+      currency: event.currency || 'INR',
+      item_category: 'event',
+      item_category2: event.communities?.name,
     });
   }, [event.id, logEventView, registrationCount, userRegistration]);
 

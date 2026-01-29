@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { analytics } from '@/utils/analytics';
 
 interface AuthContextType {
   user: User | null;
@@ -83,6 +84,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signOut = async () => {
+    // Track logout before signing out
+    analytics.clearUser();
+
     const { error } = await supabase.auth.signOut();
     return { error };
   };
