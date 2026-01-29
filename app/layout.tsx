@@ -2,6 +2,11 @@ import type { Metadata } from 'next';
 import './globals.css';
 import '@/index.css';
 import { Providers } from './providers';
+import {
+  GoogleTagManagerScript,
+  GoogleTagManagerNoScript,
+  AnalyticsProvider,
+} from '@/components/analytics';
 
 export const metadata: Metadata = {
   title: {
@@ -85,7 +90,16 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-background antialiased" suppressHydrationWarning>
-        <Providers>{children}</Providers>
+        {/* Google Tag Manager (noscript) - must be immediately after body tag */}
+        <GoogleTagManagerNoScript />
+
+        {/* GTM Script - loads after page is interactive */}
+        <GoogleTagManagerScript />
+
+        {/* Analytics Provider wraps app for automatic page tracking */}
+        <Providers>
+          <AnalyticsProvider>{children}</AnalyticsProvider>
+        </Providers>
       </body>
     </html>
   );
