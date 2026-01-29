@@ -1,9 +1,9 @@
 # SSR/CSR Hybrid Implementation Plan
 
-**Last Updated:** January 23, 2026
+**Last Updated:** January 29, 2026
 **Branch:** `enhancement/ssr-development-jan`
 **Framework:** Next.js 16.1.2 (App Router)
-**Status:** Phase 1-4 Complete, Review Pending
+**Status:** Phase 1-4 Complete, Build Verified
 
 ---
 
@@ -283,15 +283,32 @@ Without proxy/middleware:
 | `getDiscussions(options)` | Fetch discussions list with limit | ✅ |
 | `getHomePageData()` | Fetch featured content for home | ✅ |
 
-### Build Verification (January 23, 2026)
+### Build Verification (January 29, 2026)
 
-All listing pages confirmed as Dynamic (SSR) in build output:
+Latest `next build` confirms all planned SSR routes as dynamic (server-rendered on demand):
+
 ```
 Route (app)
-┌ ƒ /                  ← Dynamic (SSR)
-├ ƒ /communities       ← Dynamic (SSR)
-├ ƒ /discussions       ← Dynamic (SSR)
-├ ƒ /events            ← Dynamic (SSR)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /api/test-auth
+├ ○ /auth
+├ ○ /auth/callback
+├ ƒ /communities
+├ ƒ /communities/[id]
+├ ○ /dashboard
+├ ƒ /discussions
+├ ƒ /discussions/[id]
+├ ƒ /events
+├ ƒ /events/[id]
+├ ○ /payment-success
+├ ○ /profile
+└ ○ /referrals
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
 ```
 
 ### Completion Checklist
