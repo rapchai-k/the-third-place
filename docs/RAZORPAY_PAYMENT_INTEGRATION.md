@@ -151,8 +151,8 @@ The platform uses **Razorpay Payment Links** for processing event registration p
 | event_id | UUID | Event being registered for |
 | amount | DECIMAL(10,2) | Payment amount |
 | currency | TEXT | Currency code (INR) |
-| status | TEXT | Session status: pending/completed/failed |
-| payment_status | payment_status | Payment state: yet_to_pay/paid |
+| status | TEXT | Session status: pending/completed/expired/cancelled |
+| payment_status | payment_status | Payment state: yet_to_pay/paid/failed/expired/cancelled/refunded |
 | gateway | TEXT | Always 'razorpay' |
 | razorpay_payment_link_id | TEXT | Razorpay Payment Link ID |
 | razorpay_payment_id | TEXT | Razorpay Payment ID (after success) |
@@ -163,17 +163,34 @@ The platform uses **Razorpay Payment Links** for processing event registration p
 ### Status Transitions
 
 ```
-payment_status: yet_to_pay ──────────────────────► paid
-                    │                                │
-                    │  (user pays)                   │
-                    │                                │
-                    ▼                                ▼
-status:        pending ─────► completed ◄──── registration created
+                                    ┌──────────────────────────────────────┐
+                                    │                                      │
+payment_status: yet_to_pay ─────────┼──────────────────────► paid          │
+                    │               │                          │           │
+                    │  (user pays)  │                          │           │
+                    │               │                          ▼           │
+                    │               │              registration created    │
+                    │               │                                      │
+                    │  (link expires)                                      │
+                    ├───────────────┼──────────────────────► expired       │
+                    │               │                                      │
+                    │  (user cancels registration after paying)            │
+                    │               └──────────────────────► cancelled ◄───┘
                     │
-                    │  (expired/cancelled)
-                    ▼
-                 failed
+                    │  (payment fails)
+                    └──────────────────────────────────────► failed
+
+status:        pending ─────► completed (if paid)
+                    │
+                    ├─────► expired (if link expires)
+                    │
+                    └─────► cancelled (if user cancels)
 ```
+
+**Terminal States (allow retry):** `failed`, `expired`, `cancelled`
+**Success State:** `paid`
+**Pending State:** `yet_to_pay`
+**Future State:** `refunded` (for refund processing)
 
 ---
 

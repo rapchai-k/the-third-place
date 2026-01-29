@@ -1163,7 +1163,7 @@ export type Database = {
         | "event_organizer"
         | "user"
       flag_status: "open" | "resolved" | "urgent"
-      payment_status: "yet_to_pay" | "paid"
+      payment_status: "yet_to_pay" | "paid" | "failed" | "expired" | "cancelled" | "refunded"
       registration_status: "unregistered" | "registered"
       user_role: "user" | "admin"
     }

@@ -172,20 +172,27 @@ export const useEventRegistration = ({
 
       if (registrationError) throw registrationError;
 
-      // For paid events, also delete any unpaid payment sessions
+      // For paid events, handle payment sessions appropriately
       if (price > 0) {
-        const { error: paymentError } = await supabase
+        // Delete any unpaid payment sessions
+        await supabase
           .from('payment_sessions')
           .delete()
           .eq('event_id', eventId)
           .eq('user_id', user.id)
           .eq('payment_status', 'yet_to_pay');
 
-        // Don't throw error if payment session doesn't exist or is already paid
-        // Silently continue - error logging removed
-        if (paymentError && paymentError.code !== 'PGRST116') {
-          // Non-critical error, continue silently
-        }
+        // Mark any paid payment sessions as 'cancelled' (for refund tracking)
+        // This prevents the "Payment Complete - Processing..." stuck state
+        await supabase
+          .from('payment_sessions')
+          .update({
+            status: 'cancelled',
+            payment_status: 'cancelled'
+          })
+          .eq('event_id', eventId)
+          .eq('user_id', user.id)
+          .eq('payment_status', 'paid');
       }
     },
     onMutate: async () => {

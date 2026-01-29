@@ -120,6 +120,9 @@ export const EventRegistrationButton = ({
   const isPaidEvent = price > 0;
   const hasPendingPayment = pendingPayment && pendingPayment.payment_status === 'yet_to_pay';
   const hasCompletedPayment = pendingPayment && pendingPayment.payment_status === 'paid';
+  // Check for terminal payment states that allow retry (cancelled, expired, failed)
+  const hasTerminalPaymentState = pendingPayment &&
+    ['cancelled', 'expired', 'failed'].includes(pendingPayment.payment_status || '');
 
   if (!user) {
     return (
@@ -191,7 +194,8 @@ export const EventRegistrationButton = ({
     };
 
     // Show "Payment Complete" if already paid but registration not yet reflected
-    if (hasCompletedPayment && !isRegistered) {
+    // Only show this for truly "paid" status, not for cancelled/expired/failed
+    if (hasCompletedPayment && !isRegistered && !hasTerminalPaymentState) {
       return (
         <Button variant="secondary" disabled className={className}>
           <CreditCard className="w-4 h-4 mr-2" />
@@ -201,6 +205,7 @@ export const EventRegistrationButton = ({
     }
 
     // Show PaymentButton for paid events (user not registered yet)
+    // This includes: no payment session, pending payment, or terminal states (cancelled/expired/failed)
     return (
       <PaymentButton
         eventId={eventId}

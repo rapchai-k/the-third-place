@@ -134,12 +134,18 @@ serve(async (req) => {
         break;
       case "payment.failed":
         newStatus = "failed";
+        newPaymentStatus = "failed";
         logStep("Razorpay payment failed", { reason: paymentEntity?.error_description });
         break;
       case "payment_link.cancelled":
+        newStatus = "cancelled";
+        newPaymentStatus = "cancelled";
+        logStep("Razorpay payment link cancelled");
+        break;
       case "payment_link.expired":
-        newStatus = "failed";
-        logStep("Razorpay payment link cancelled/expired");
+        newStatus = "expired";
+        newPaymentStatus = "expired";
+        logStep("Razorpay payment link expired");
         break;
       default:
         logStep("Unknown Razorpay webhook event", { event: webhookData.event });

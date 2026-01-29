@@ -114,9 +114,12 @@ serve(async (req) => {
         newPaymentStatus = "paid";
         break;
       case "expired":
+        newStatus = "expired";
+        newPaymentStatus = "expired";
+        break;
       case "cancelled":
-        newStatus = "failed";
-        // Payment status remains 'yet_to_pay' for failed payments
+        newStatus = "cancelled";
+        newPaymentStatus = "cancelled";
         break;
       case "created":
       case "partially_paid":

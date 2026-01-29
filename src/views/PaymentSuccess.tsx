@@ -118,6 +118,8 @@ export const PaymentSuccess = () => {
       case 'yet_to_pay':
         return <Clock className="w-16 h-16 mx-auto mb-4 text-warning animate-pulse" />;
       case 'failed':
+      case 'expired':
+      case 'cancelled':
         return <XCircle className="w-16 h-16 mx-auto mb-4 text-destructive" />;
       default:
         return <Clock className="w-16 h-16 mx-auto mb-4 text-warning animate-pulse" />;
@@ -141,6 +143,16 @@ export const PaymentSuccess = () => {
           title: "Payment Failed",
           description: "Your payment could not be processed. Please try again or contact support if the issue persists."
         };
+      case 'expired':
+        return {
+          title: "Payment Link Expired",
+          description: "This payment link has expired. Please go back to the event page to start a new payment."
+        };
+      case 'cancelled':
+        return {
+          title: "Payment Cancelled",
+          description: "This payment was cancelled. You can register again from the event page."
+        };
       default:
         return {
           title: "Processing Payment...",
@@ -148,6 +160,9 @@ export const PaymentSuccess = () => {
         };
     }
   };
+
+  // Check if payment is in a terminal failed state (allows retry)
+  const isTerminalFailedState = ['failed', 'expired', 'cancelled'].includes(paymentData.payment_status);
 
   const statusMessage = getStatusMessage();
 
@@ -208,7 +223,7 @@ export const PaymentSuccess = () => {
               </Button>
             )}
 
-            {paymentData.payment_status === 'failed' && paymentData.payment_session?.event_id && (
+            {isTerminalFailedState && paymentData.payment_session?.event_id && (
               <Button variant="outline" asChild>
                 <Link to={`/events/${paymentData.payment_session.event_id}`}>
                   Try Again
