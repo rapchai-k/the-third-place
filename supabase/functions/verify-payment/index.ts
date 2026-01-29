@@ -96,6 +96,17 @@ serve(async (req) => {
     logStep("Razorpay payment link status", { status: linkStatus.status });
     orderStatusResponse = linkStatus.status;
 
+    // Extract razorpay_payment_id from the payments array if available
+    let razorpayPaymentId: string | null = null;
+    if (linkStatus.payments && Array.isArray(linkStatus.payments) && linkStatus.payments.length > 0) {
+      // Get the most recent successful payment
+      const successfulPayment = linkStatus.payments.find(
+        (p: { status: string }) => p.status === 'captured' || p.status === 'authorized'
+      ) || linkStatus.payments[0];
+      razorpayPaymentId = successfulPayment?.payment_id || null;
+      logStep("Extracted razorpay_payment_id", { razorpayPaymentId });
+    }
+
     // Map Razorpay statuses to internal statuses
     switch (linkStatus.status) {
       case "paid":
@@ -114,14 +125,25 @@ serve(async (req) => {
         break;
     }
 
-    // Update payment session if status or payment_status changed
-    if (newStatus !== paymentSession.status || newPaymentStatus !== paymentSession.payment_status) {
+    // Update payment session if status, payment_status, or payment_id changed
+    const needsUpdate = newStatus !== paymentSession.status ||
+                        newPaymentStatus !== paymentSession.payment_status ||
+                        (razorpayPaymentId && !paymentSession.razorpay_payment_id);
+
+    if (needsUpdate) {
+      const updateData: { status: string; payment_status: string; razorpay_payment_id?: string } = {
+        status: newStatus,
+        payment_status: newPaymentStatus
+      };
+
+      // Only update razorpay_payment_id if we have a new one and it's not already set
+      if (razorpayPaymentId && !paymentSession.razorpay_payment_id) {
+        updateData.razorpay_payment_id = razorpayPaymentId;
+      }
+
       const { error: updateError } = await supabaseClient
         .from("payment_sessions")
-        .update({
-          status: newStatus,
-          payment_status: newPaymentStatus
-        })
+        .update(updateData)
         .eq("id", paymentSession.id);
 
       if (updateError) {
@@ -129,39 +151,32 @@ serve(async (req) => {
       } else {
         logStep("Payment session updated successfully", {
           status: newStatus,
-          payment_status: newPaymentStatus
+          payment_status: newPaymentStatus,
+          razorpay_payment_id: razorpayPaymentId
         });
       }
     }
 
     // Create registration if payment succeeded but registration doesn't exist yet
     // This is a fallback in case the webhook failed to create registration
+    // Use upsert with onConflict to handle race condition between webhook and polling
     if (newPaymentStatus === "paid") {
-      const { data: existingRegistration, error: regCheckError } = await supabaseClient
+      const { error: regError } = await supabaseClient
         .from("event_registrations")
-        .select("id")
-        .eq("event_id", paymentSession.event_id)
-        .eq("user_id", user.id)
-        .maybeSingle();
+        .upsert({
+          event_id: paymentSession.event_id,
+          user_id: user.id,
+          status: "registered",
+          payment_session_id: paymentSession.id
+        }, {
+          onConflict: 'user_id,event_id',
+          ignoreDuplicates: true
+        });
 
-      if (regCheckError) {
-        logStep("Error checking existing registration", { error: regCheckError.message });
-      } else if (!existingRegistration) {
-        // Create new registration for successful payment
-        const { error: regError } = await supabaseClient
-          .from("event_registrations")
-          .insert({
-            event_id: paymentSession.event_id,
-            user_id: user.id,
-            status: "registered",
-            payment_session_id: paymentSession.id
-          });
-
-        if (regError) {
-          logStep("Failed to create registration", { error: regError.message });
-        } else {
-          logStep("Registration created via verify-payment fallback");
-        }
+      if (regError) {
+        logStep("Failed to create/update registration", { error: regError.message });
+      } else {
+        logStep("Registration upserted via verify-payment fallback");
       }
     }
 

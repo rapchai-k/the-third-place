@@ -117,6 +117,8 @@ export const PaymentSuccess = () => {
         return <CheckCircle className="w-16 h-16 mx-auto mb-4 text-success" />;
       case 'yet_to_pay':
         return <Clock className="w-16 h-16 mx-auto mb-4 text-warning animate-pulse" />;
+      case 'failed':
+        return <XCircle className="w-16 h-16 mx-auto mb-4 text-destructive" />;
       default:
         return <Clock className="w-16 h-16 mx-auto mb-4 text-warning animate-pulse" />;
     }
@@ -133,6 +135,11 @@ export const PaymentSuccess = () => {
         return {
           title: "Processing Payment...",
           description: "We're verifying your payment. This may take a few moments."
+        };
+      case 'failed':
+        return {
+          title: "Payment Failed",
+          description: "Your payment could not be processed. Please try again or contact support if the issue persists."
         };
       default:
         return {
@@ -194,10 +201,18 @@ export const PaymentSuccess = () => {
             </Card>
           )}
 
-          <div className="flex gap-3 justify-center">
+          <div className="flex gap-3 justify-center flex-wrap">
             {paymentData.payment_status === 'yet_to_pay' && (
               <Button variant="outline" onClick={() => refetch()}>
                 Check Status
+              </Button>
+            )}
+
+            {paymentData.payment_status === 'failed' && paymentData.payment_session?.event_id && (
+              <Button variant="outline" asChild>
+                <Link to={`/events/${paymentData.payment_session.event_id}`}>
+                  Try Again
+                </Link>
               </Button>
             )}
 

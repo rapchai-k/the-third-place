@@ -168,35 +168,24 @@ serve(async (req) => {
     }
 
     // Create registration if payment was successful
+    // Use upsert with onConflict to handle race condition between webhook and polling
     if (newPaymentStatus === "paid") {
-      // Check if registration already exists (use maybeSingle to handle 0 rows gracefully)
-      const { data: existingRegistration, error: regCheckError } = await supabaseClient
+      const { error: regError } = await supabaseClient
         .from("event_registrations")
-        .select("id")
-        .eq("event_id", paymentSession.event_id)
-        .eq("user_id", paymentSession.user_id)
-        .maybeSingle();
+        .upsert({
+          event_id: paymentSession.event_id,
+          user_id: paymentSession.user_id,
+          status: "registered",
+          payment_session_id: paymentSession.id
+        }, {
+          onConflict: 'user_id,event_id',
+          ignoreDuplicates: true
+        });
 
-      if (regCheckError) {
-        logStep("Error checking existing registration", { error: regCheckError.message });
-      } else if (!existingRegistration) {
-        // Create new registration for successful payment
-        const { error: regError } = await supabaseClient
-          .from("event_registrations")
-          .insert({
-            event_id: paymentSession.event_id,
-            user_id: paymentSession.user_id,
-            status: "registered",
-            payment_session_id: paymentSession.id
-          });
-
-        if (regError) {
-          logStep("Failed to create registration", { error: regError.message });
-        } else {
-          logStep("Registration created successfully for paid event");
-        }
+      if (regError) {
+        logStep("Failed to create/update registration", { error: regError.message });
       } else {
-        logStep("Registration already exists, skipping creation");
+        logStep("Registration upserted successfully for paid event");
       }
     }
 

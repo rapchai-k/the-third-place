@@ -14,17 +14,17 @@ Standard error envelope: see docs/02-error-envelope.md
 ### Auth & Users
 - Supabase Auth (Google OAuth) handles signup/login; profile routes are handled via Supabase client + RLS, not custom REST.
 
-### Payments (Cashfree)
+### Payments (Razorpay)
 - POST /functions/v1/create-payment
   - Auth: User JWT required
   - Body: { eventId: string }
-  - Returns: { success, payment_session_id, payment_url, order_id }
-  - Notes: Creates payment_sessions, calls Cashfree Orders API; prevents duplicate registrations
+  - Returns: { success, payment_session_id, payment_url, payment_link_id }
+  - Notes: Creates payment_sessions, calls Razorpay Payment Links API; prevents duplicate registrations
 
 - POST /functions/v1/payment-callback
-  - Auth: None (Cashfree webhook)
-  - Body: raw Cashfree webhook payload
-  - Behavior: Verifies signature (placeholder today), logs in payment_logs, updates payment_sessions, may create event_registrations on success
+  - Auth: None (Razorpay webhook)
+  - Body: raw Razorpay webhook payload
+  - Behavior: Verifies HMAC-SHA256 signature, logs in payment_logs, updates payment_sessions, creates event_registrations on success
   - Returns: 200 OK
 
 - POST /functions/v1/verify-payment

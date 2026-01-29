@@ -625,7 +625,6 @@ export type Database = {
       }
       payment_logs: {
         Row: {
-          cashfree_signature: string | null
           created_at: string
           event_data: Json | null
           event_type: string
@@ -633,7 +632,6 @@ export type Database = {
           payment_session_id: string
         }
         Insert: {
-          cashfree_signature?: string | null
           created_at?: string
           event_data?: Json | null
           event_type: string
@@ -641,7 +639,6 @@ export type Database = {
           payment_session_id: string
         }
         Update: {
-          cashfree_signature?: string | null
           created_at?: string
           event_data?: Json | null
           event_type?: string
@@ -661,8 +658,6 @@ export type Database = {
       payment_sessions: {
         Row: {
           amount: number
-          cashfree_order_id: string | null
-          cashfree_payment_id: string | null
           created_at: string
           currency: string
           event_id: string
@@ -679,8 +674,6 @@ export type Database = {
         }
         Insert: {
           amount: number
-          cashfree_order_id?: string | null
-          cashfree_payment_id?: string | null
           created_at?: string
           currency?: string
           event_id: string
@@ -697,8 +690,6 @@ export type Database = {
         }
         Update: {
           amount?: number
-          cashfree_order_id?: string | null
-          cashfree_payment_id?: string | null
           created_at?: string
           currency?: string
           event_id?: string
