@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { analytics } from "@/utils/analytics";
 
 export const AuthCallback = () => {
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
@@ -40,6 +41,16 @@ export const AuthCallback = () => {
           }
           
           if (session) {
+            // Check if this is a new user (sign up) or existing user (login)
+            const isNewUser = session.user.created_at === session.user.updated_at;
+
+            // Track authentication event
+            if (isNewUser) {
+              analytics.signUp('google', session.user.id);
+            } else {
+              analytics.login('google', session.user.id);
+            }
+
             setStatus('success');
             // Clean URL and redirect
             cleanURLAndRedirect();
@@ -63,8 +74,18 @@ export const AuthCallback = () => {
           throw new Error('Failed to create session. Tokens may be invalid or expired.');
         }
 
+        // Check if this is a new user (sign up) or existing user (login)
+        const isNewUser = session.user.created_at === session.user.updated_at;
+
+        // Track authentication event
+        if (isNewUser) {
+          analytics.signUp('google', session.user.id);
+        } else {
+          analytics.login('google', session.user.id);
+        }
+
         setStatus('success');
-        
+
         // Clean URL and redirect after successful authentication
         cleanURLAndRedirect();
         

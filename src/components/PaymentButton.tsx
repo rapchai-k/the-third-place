@@ -6,6 +6,7 @@ import { Loader2, CreditCard } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { invokeWithTimeoutRace, TIMEOUT_VALUES } from "@/utils/supabaseWithTimeout";
+import { analytics } from "@/utils/analytics";
 
 interface PaymentButtonProps {
   eventId: string;
@@ -97,6 +98,21 @@ export const PaymentButton = ({
           currency: currency
         });
 
+        // Track purchase for GA4 e-commerce
+        analytics.purchase({
+          transaction_id: data.payment_id || paymentSessionId,
+          value: price,
+          currency: currency,
+          items: [
+            {
+              item_id: eventId,
+              item_name: eventTitle,
+              price: price,
+              quantity: 1,
+            },
+          ],
+        });
+
         toast({
           title: "Payment successful!",
           description: "You are now registered for the event.",
@@ -127,6 +143,21 @@ export const PaymentButton = ({
     onSuccess: (data) => {
       // Log payment initiation
       logPaymentInitiated(eventId, price, currency);
+
+      // Track begin_checkout for GA4 e-commerce
+      analytics.beginCheckout({
+        transaction_id: data.payment_session_id,
+        value: price,
+        currency: currency,
+        items: [
+          {
+            item_id: eventId,
+            item_name: eventTitle,
+            price: price,
+            quantity: 1,
+          },
+        ],
+      });
 
       // Open payment URL in new tab
       window.open(data.payment_url, '_blank');

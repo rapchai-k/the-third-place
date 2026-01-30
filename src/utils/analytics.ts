@@ -147,6 +147,255 @@ export const analytics = {
   },
 
   /**
+   * Track e-commerce: view item (event detail page)
+   * @param params - Item view parameters
+   */
+  viewItem(params: {
+    item_id: string;
+    item_name: string;
+    price: number;
+    currency?: string;
+    item_category?: string;
+    item_category2?: string;
+  }): void {
+    const eventParams = {
+      event: 'view_item',
+      currency: params.currency || 'INR',
+      value: params.price,
+      items: [
+        {
+          item_id: params.item_id,
+          item_name: params.item_name,
+          price: params.price,
+          ...(params.item_category && { item_category: params.item_category }),
+          ...(params.item_category2 && { item_category2: params.item_category2 }),
+        },
+      ],
+    };
+
+    debugLog('view_item', eventParams);
+    pushToDataLayer(eventParams);
+  },
+
+  /**
+   * Track e-commerce: begin checkout (payment initiation)
+   * @param params - Checkout parameters
+   */
+  beginCheckout(params: {
+    transaction_id?: string;
+    value: number;
+    currency?: string;
+    items: Array<{
+      item_id: string;
+      item_name: string;
+      price: number;
+      quantity?: number;
+    }>;
+  }): void {
+    const eventParams = {
+      event: 'begin_checkout',
+      currency: params.currency || 'INR',
+      value: params.value,
+      ...(params.transaction_id && { transaction_id: params.transaction_id }),
+      items: params.items,
+    };
+
+    debugLog('begin_checkout', eventParams);
+    pushToDataLayer(eventParams);
+  },
+
+  /**
+   * Track e-commerce: purchase (successful payment)
+   * @param params - Purchase parameters
+   */
+  purchase(params: {
+    transaction_id: string;
+    value: number;
+    currency?: string;
+    items: Array<{
+      item_id: string;
+      item_name: string;
+      price: number;
+      quantity?: number;
+    }>;
+  }): void {
+    const eventParams = {
+      event: 'purchase',
+      transaction_id: params.transaction_id,
+      currency: params.currency || 'INR',
+      value: params.value,
+      items: params.items,
+    };
+
+    debugLog('purchase', eventParams);
+    pushToDataLayer(eventParams);
+  },
+
+  /**
+   * Track e-commerce: refund (registration cancellation)
+   * @param params - Refund parameters
+   */
+  refund(params: {
+    transaction_id: string;
+    value: number;
+    currency?: string;
+    reason?: string;
+  }): void {
+    const eventParams = {
+      event: 'refund',
+      transaction_id: params.transaction_id,
+      currency: params.currency || 'INR',
+      value: params.value,
+      ...(params.reason && { reason: params.reason }),
+    };
+
+    debugLog('refund', eventParams);
+    pushToDataLayer(eventParams);
+  },
+
+  /**
+   * Track community join
+   * @param params - Community join parameters
+   */
+  joinCommunity(params: {
+    community_id: string;
+    community_name: string;
+    community_city?: string;
+  }): void {
+    const eventParams = {
+      event: 'join_community',
+      community_id: params.community_id,
+      community_name: params.community_name,
+      ...(params.community_city && { community_city: params.community_city }),
+    };
+
+    debugLog('join_community', eventParams);
+    pushToDataLayer(eventParams);
+  },
+
+  /**
+   * Track community leave
+   * @param params - Community leave parameters
+   */
+  leaveCommunity(params: {
+    community_id: string;
+    community_name: string;
+    community_city?: string;
+  }): void {
+    const eventParams = {
+      event: 'leave_community',
+      community_id: params.community_id,
+      community_name: params.community_name,
+      ...(params.community_city && { community_city: params.community_city }),
+    };
+
+    debugLog('leave_community', eventParams);
+    pushToDataLayer(eventParams);
+  },
+
+  /**
+   * Track community view
+   * @param params - Community view parameters
+   */
+  viewCommunity(params: {
+    community_id: string;
+    community_name: string;
+    community_city?: string;
+    member_count?: number;
+  }): void {
+    const eventParams = {
+      event: 'view_community',
+      community_id: params.community_id,
+      community_name: params.community_name,
+      ...(params.community_city && { community_city: params.community_city }),
+      ...(params.member_count !== undefined && { member_count: params.member_count }),
+    };
+
+    debugLog('view_community', eventParams);
+    pushToDataLayer(eventParams);
+  },
+
+  /**
+   * Track discussion creation
+   * @param params - Discussion creation parameters
+   */
+  createDiscussion(params: {
+    discussion_id: string;
+    community_id: string;
+    title: string;
+  }): void {
+    const eventParams = {
+      event: 'create_discussion',
+      discussion_id: params.discussion_id,
+      community_id: params.community_id,
+      discussion_title: params.title,
+    };
+
+    debugLog('create_discussion', eventParams);
+    pushToDataLayer(eventParams);
+  },
+
+  /**
+   * Track comment creation
+   * @param params - Comment creation parameters
+   */
+  createComment(params: {
+    comment_id: string;
+    discussion_id: string;
+    comment_length?: number;
+  }): void {
+    const eventParams = {
+      event: 'create_comment',
+      comment_id: params.comment_id,
+      discussion_id: params.discussion_id,
+      ...(params.comment_length !== undefined && { comment_length: params.comment_length }),
+    };
+
+    debugLog('create_comment', eventParams);
+    pushToDataLayer(eventParams);
+  },
+
+  /**
+   * Track search queries
+   * @param params - Search parameters
+   */
+  search(params: {
+    search_term: string;
+    search_type?: string;
+    results_count?: number;
+  }): void {
+    const eventParams = {
+      event: 'search',
+      search_term: params.search_term,
+      ...(params.search_type && { search_type: params.search_type }),
+      ...(params.results_count !== undefined && { results_count: params.results_count }),
+    };
+
+    debugLog('search', eventParams);
+    pushToDataLayer(eventParams);
+  },
+
+  /**
+   * Track discussion view
+   * @param params - Discussion view parameters
+   */
+  viewDiscussion(params: {
+    discussion_id: string;
+    discussion_title: string;
+    community_id: string;
+  }): void {
+    const eventParams = {
+      event: 'view_discussion',
+      discussion_id: params.discussion_id,
+      discussion_title: params.discussion_title,
+      community_id: params.community_id,
+    };
+
+    debugLog('view_discussion', eventParams);
+    pushToDataLayer(eventParams);
+  },
+
+  /**
    * Initialize analytics (called once on app load)
    */
   init(): void {

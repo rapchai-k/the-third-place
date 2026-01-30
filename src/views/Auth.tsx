@@ -12,6 +12,7 @@ import { useReferrals } from "@/hooks/useReferrals";
 import { toast } from "@/hooks/use-toast";
 import { shouldShowReferralModal } from "@/utils/userUtils";
 import { Chrome } from "lucide-react";
+import { analytics } from "@/utils/analytics";
 
 export const AuthPage = () => {
   const [email, setEmail] = useState("");
@@ -67,7 +68,7 @@ export const AuthPage = () => {
     setError("");
 
     const { error } = await signIn(email, password);
-    
+
     if (error) {
       setError(error.message);
       toast({
@@ -76,12 +77,15 @@ export const AuthPage = () => {
         description: error.message,
       });
     } else {
+      // Track successful login
+      analytics.login('email', user?.id);
+
       toast({
         title: "Welcome back!",
         description: "You've successfully signed in.",
       });
     }
-    
+
     setLoading(false);
   };
 
@@ -103,7 +107,7 @@ export const AuthPage = () => {
     }
 
     const result = await signUp(email, password);
-    
+
     if (result.error) {
       setError(result.error.message);
       toast({
@@ -112,13 +116,16 @@ export const AuthPage = () => {
         description: result.error.message,
       });
     } else {
+      // Track successful sign up
+      analytics.signUp('email', user?.id);
+
       // Apply referral code if available (we'll get user from context after auth)
       toast({
         title: "Account created!",
         description: "Please check your email for verification.",
       });
     }
-    
+
     setLoading(false);
   };
 

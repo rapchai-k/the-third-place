@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { format } from "date-fns";
 import type { CommunityWithRelations } from "@/lib/supabase/server";
+import { analytics } from "@/utils/analytics";
 
 interface CommunityDetailClientProps {
   initialCommunity: CommunityWithRelations;
@@ -114,6 +115,14 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
         community_city: community.city,
         member_count: community.member_count || 0
       });
+
+      // Track view_community for GA4
+      analytics.viewCommunity({
+        community_id: id,
+        community_name: community.name,
+        community_city: community.city,
+        member_count: community.member_count || 0,
+      });
     }
   }, [id, community, logCommunityView]);
 
@@ -168,6 +177,13 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
           community_name: community.name,
           community_city: community.city,
           member_count: community.member_count || 0
+        });
+
+        // Track join_community for GA4
+        analytics.joinCommunity({
+          community_id: id!,
+          community_name: community.name,
+          community_city: community.city,
         });
       }
 
@@ -231,6 +247,13 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
           community_name: community.name,
           community_city: community.city,
           member_count: community.member_count || 0
+        });
+
+        // Track leave_community for GA4
+        analytics.leaveCommunity({
+          community_id: id!,
+          community_name: community.name,
+          community_city: community.city,
         });
       }
 
