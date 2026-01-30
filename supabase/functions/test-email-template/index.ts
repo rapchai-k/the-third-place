@@ -78,11 +78,11 @@ serve(async (req) => {
     const sampleVariables = {
       userName: "John Doe",
       userEmail: body.testEmail,
-      dashboardUrl: "https://thethirdplace.community/dashboard",
+      dashboardUrl: "https://mythirdplace.rapchai.com/dashboard",
       eventName: "Sample Community Event",
       eventDate: "March 15, 2025 at 7:00 PM",
       eventLocation: "Community Center, Main Street",
-      eventUrl: "https://thethirdplace.community/events/sample-event",
+      eventUrl: "https://mythirdplace.rapchai.com/events/sample-event",
       ...body.sampleVariables
     };
 

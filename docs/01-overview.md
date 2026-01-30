@@ -5,7 +5,7 @@ Goal: Help people in metro cities discover communities and join events, reducing
 
 ## What the product does today
 - Communities: Browse and join communities (free). Mobile-first discovery UI with Material UI navigation.
-- Events: View details and register. Paid events use Cashfree; free events register directly.
+- Events: View details and register. Paid events use Razorpay; free events register directly.
 - Discussions: Admin-created, time-bound threads per community; comment access gated to members.
 - Referrals: Code-based referral flow per spec (copy code-only; shown in sign-up, hidden in sign-in; post-OAuth modal).
 - Auth: Google OAuth via Supabase Auth; session handling and protected routes.
@@ -16,7 +16,7 @@ Goal: Help people in metro cities discover communities and join events, reducing
 ## Tech stack & architecture
 - Frontend: React + TypeScript + Tailwind + Material UI patterns; mobile-first
 - Backend: Supabase (Postgres, RLS, Auth, Storage) with Edge Functions
-- Payments: Cashfree (Edge Functions for create/verify/callback)
+- Payments: Razorpay (Edge Functions for create/verify/callback)
 - Email: Resend via Supabase Edge Function
 - Integrations: Outbound webhooks (n8n compatible) via queue + dispatcher
 

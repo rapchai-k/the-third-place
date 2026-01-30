@@ -15,13 +15,13 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    // Get Cashfree credentials from environment
-    const cashfreeAppId = Deno.env.get("CASHFREE_APP_ID");
-    const cashfreeSecretKey = Deno.env.get("CASHFREE_SECRET_KEY");
-    const cashfreeBaseUrl = Deno.env.get("CASHFREE_BASE_URL") || "https://sandbox.cashfree.com"; // Default to sandbox
+    // Get Razorpay credentials from environment (production keys take precedence over test keys)
+    const razorpayKeyId = Deno.env.get("RZP_KEY_ID") || Deno.env.get("RZP_TEST_KEY_ID");
+    const razorpayKeySecret = Deno.env.get("RZP_KEY_SECRET") || Deno.env.get("RZP_TEST_KEY_SECRET");
+    const razorpayBaseUrl = Deno.env.get("RZP_BASE_URL") || "https://api.razorpay.com";
 
-    if (!cashfreeAppId || !cashfreeSecretKey) {
-      throw new Error("Cashfree credentials not configured. Please add CASHFREE_APP_ID and CASHFREE_SECRET_KEY to edge function secrets.");
+    if (!razorpayKeyId || !razorpayKeySecret) {
+      throw new Error("Razorpay credentials not configured. Please add RZP_KEY_ID/RZP_KEY_SECRET or RZP_TEST_KEY_ID/RZP_TEST_KEY_SECRET to edge function secrets.");
     }
 
     // Initialize Supabase client with service role key
@@ -30,6 +30,28 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { auth: { persistSession: false } }
     );
+
+    // Check if payments are enabled via feature flag (hard gate)
+    const { data: paymentsSettingData, error: settingsError } = await supabaseClient
+      .from("app_settings")
+      .select("value")
+      .eq("key", "enable_payments")
+      .maybeSingle();
+
+    // Default to disabled if setting not found or error
+    const paymentsEnabled = paymentsSettingData?.value === "true";
+
+    if (!paymentsEnabled) {
+      logStep("Payments disabled via feature flag");
+      return new Response(JSON.stringify({
+        error: "Payments are currently disabled. Please check back soon."
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 503, // Service Unavailable
+      });
+    }
+
+    logStep("Payments enabled, proceeding with payment creation");
 
     // Get user from auth header
     const authHeader = req.headers.get("Authorization");
@@ -76,7 +98,7 @@ serve(async (req) => {
       throw new Error("User is already registered for this event");
     }
 
-    // Create payment session in database with payment_status='yet_to_pay'
+    // Create payment session in database with payment_status='yet_to_pay' and gateway='razorpay'
     const { data: paymentSession, error: sessionError } = await supabaseClient
       .from("payment_sessions")
       .insert({
@@ -85,7 +107,8 @@ serve(async (req) => {
         amount: event.price,
         currency: event.currency,
         status: "pending",
-        payment_status: "yet_to_pay"
+        payment_status: "yet_to_pay",
+        gateway: "razorpay"
       })
       .select()
       .single();
@@ -94,54 +117,65 @@ serve(async (req) => {
 
     logStep("Payment session created", { sessionId: paymentSession.id });
 
-    // Generate unique order ID
-    const orderId = `EVENT_${eventId}_${paymentSession.id}`.replace(/-/g, '').slice(0, 20);
+    // Get user profile for customer details
+    const { data: userProfile } = await supabaseClient
+      .from("users")
+      .select("name, whatsapp_number")
+      .eq("id", user.id)
+      .single();
 
-    // Create Cashfree order
-    const cashfreeOrder = {
-      order_id: orderId,
-      order_amount: event.price,
-      order_currency: event.currency,
-      customer_details: {
-        customer_id: user.id,
-        customer_email: user.email,
-        customer_phone: "9999999999" // Placeholder - should be from user profile
+    // Create Razorpay Payment Link
+    const razorpayPaymentLink = {
+      amount: Math.round(event.price * 100), // Convert to paise (smallest currency unit)
+      currency: event.currency,
+      description: `Registration for ${event.title}`,
+      customer: {
+        email: user.email,
+        name: userProfile?.name || "User",
+        contact: userProfile?.whatsapp_number || undefined
       },
-      order_meta: {
-        return_url: `${req.headers.get("origin")}/payment-success?session_id=${paymentSession.id}`,
-        notify_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/payment-callback`
+      callback_url: `${req.headers.get("origin")}/payment-success?session_id=${paymentSession.id}`,
+      callback_method: "get",
+      reference_id: paymentSession.id,
+      expire_by: Math.floor((Date.now() + 24 * 60 * 60 * 1000) / 1000), // 24 hours from now
+      notify: {
+        sms: false,
+        email: true
+      },
+      notes: {
+        event_id: eventId,
+        user_id: user.id,
+        payment_session_id: paymentSession.id
       }
     };
 
-    logStep("Creating Cashfree order", { orderId });
+    logStep("Creating Razorpay Payment Link", { reference_id: paymentSession.id });
 
-    // Make request to Cashfree API
-    const cashfreeResponse = await fetch(`${cashfreeBaseUrl}/pg/orders`, {
+    // Make request to Razorpay API
+    const razorpayResponse = await fetch(`${razorpayBaseUrl}/v1/payment_links`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-client-id": cashfreeAppId,
-        "x-client-secret": cashfreeSecretKey,
-        "x-api-version": "2023-08-01"
+        "Authorization": `Basic ${btoa(`${razorpayKeyId}:${razorpayKeySecret}`)}`
       },
-      body: JSON.stringify(cashfreeOrder)
+      body: JSON.stringify(razorpayPaymentLink)
     });
 
-    if (!cashfreeResponse.ok) {
-      const errorData = await cashfreeResponse.text();
-      logStep("Cashfree API error", { status: cashfreeResponse.status, error: errorData });
-      throw new Error(`Cashfree API error: ${cashfreeResponse.status} - ${errorData}`);
+    if (!razorpayResponse.ok) {
+      const errorData = await razorpayResponse.text();
+      logStep("Razorpay API error", { status: razorpayResponse.status, error: errorData });
+      throw new Error(`Razorpay API error: ${razorpayResponse.status} - ${errorData}`);
     }
 
-    const cashfreeData = await cashfreeResponse.json();
-    logStep("Cashfree order created", { cashfreeOrderId: cashfreeData.order_id });
+    const razorpayData = await razorpayResponse.json();
+    logStep("Razorpay Payment Link created", { paymentLinkId: razorpayData.id });
 
-    // Update payment session with Cashfree details
+    // Update payment session with Razorpay details
     const { error: updateError } = await supabaseClient
       .from("payment_sessions")
       .update({
-        cashfree_order_id: cashfreeData.order_id,
-        payment_url: cashfreeData.payment_link
+        razorpay_payment_link_id: razorpayData.id,
+        payment_url: razorpayData.short_url
       })
       .eq("id", paymentSession.id);
 
@@ -155,16 +189,16 @@ serve(async (req) => {
       .insert({
         payment_session_id: paymentSession.id,
         event_type: "payment_created",
-        event_data: { cashfree_order: cashfreeData }
+        event_data: { razorpay_payment_link: razorpayData }
       });
 
-    logStep("Payment creation completed", { paymentUrl: cashfreeData.payment_link });
+    logStep("Payment creation completed", { paymentUrl: razorpayData.short_url });
 
     return new Response(JSON.stringify({
       success: true,
       payment_session_id: paymentSession.id,
-      payment_url: cashfreeData.payment_link,
-      order_id: cashfreeData.order_id
+      payment_url: razorpayData.short_url,
+      payment_link_id: razorpayData.id
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

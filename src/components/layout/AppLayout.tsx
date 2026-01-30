@@ -1,4 +1,4 @@
-import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "@/lib/nextRouterAdapter";
 import { Home, Users, Calendar, MessageSquare, User, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
@@ -27,7 +27,11 @@ const userNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: User },
 ];
 
-export const AppLayout = () => {
+interface AppLayoutProps {
+  children?: React.ReactNode;
+}
+
+export const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -84,17 +88,20 @@ export const AppLayout = () => {
             {/* Brand Logo */}
             {location.pathname !== '/' && (
               <div className="absolute left-4">
-                <img src="/logo.png" alt="My Third Place" className="h-24 w-auto md:h-[7.5rem]" loading="eager" decoding="async" />
+                <Link to="/">
+                  <img src="/logo.png" alt="My Third Place" className="h-24 w-auto md:h-[7.5rem] cursor-pointer" loading="eager" decoding="async" />
+                </Link>
               </div>
             )}
 
             {/* Desktop Navigation Tabs - Center aligned */}
+            {/* Using Link component for better SSR hydration and SEO */}
             {user && (
               <div className="hidden md:flex items-center space-x-8">
                 {navigation.map((item) => (
-                  <button
+                  <Link
                     key={item.name}
-                    onClick={() => navigate(item.href)}
+                    to={item.href}
                     className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive(item.href)
                         ? "text-primary bg-primary/10 border border-primary/20"
@@ -103,12 +110,12 @@ export const AppLayout = () => {
                   >
                     <item.icon className="w-4 h-4" />
                     <span>{item.name}</span>
-                  </button>
+                  </Link>
                 ))}
                 {userNavigation.map((item) => (
-                  <button
+                  <Link
                     key={item.name}
-                    onClick={() => navigate(item.href)}
+                    to={item.href}
                     className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive(item.href)
                         ? "text-primary bg-primary/10 border border-primary/20"
@@ -117,7 +124,7 @@ export const AppLayout = () => {
                   >
                     <item.icon className="w-4 h-4" />
                     <span>{item.name}</span>
-                  </button>
+                  </Link>
                 ))}
               </div>
             )}
@@ -175,7 +182,7 @@ export const AppLayout = () => {
 
         {/* Page Content */}
         <main className={`flex-1 overflow-auto ${user ? 'pb-16 md:pb-0' : ''}`}>
-          <Outlet />
+          {children}
         </main>
 
         {/* Mobile Bottom Navigation - Only for authenticated users */}

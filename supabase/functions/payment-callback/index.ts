@@ -1,18 +1,35 @@
-import { serve} from "https://deno.land/std@0.190.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { corsHeaders, getSecureHeaders } from "../shared/security-headers.ts";
+import { crypto } from "https://deno.land/std@0.190.0/crypto/mod.ts";
+import { encodeHex } from "https://deno.land/std@0.190.0/encoding/hex.ts";
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   // Logging removed for security
 };
 
-// Helper function to verify Cashfree signature
-const verifyCashfreeSignature = (payload: string, signature: string, secretKey: string): boolean => {
-  // Cashfree uses HMAC-SHA256 for signature verification
-  // This is a placeholder - actual implementation would use crypto library
-  logStep("Signature verification", { received: signature ? "present" : "missing" });
-  return true; // Placeholder - should implement actual signature verification
+// Helper function to verify Razorpay webhook signature
+const verifyRazorpaySignature = async (payload: string, signature: string, secret: string): Promise<boolean> => {
+  if (!signature || !secret) return false;
+
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const signatureBuffer = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(payload)
+  );
+
+  const expectedSignature = encodeHex(new Uint8Array(signatureBuffer));
+  return signature === expectedSignature;
 };
 
 serve(async (req) => {
@@ -23,10 +40,10 @@ serve(async (req) => {
   try {
     logStep("Webhook received");
 
-    const cashfreeSecretKey = (typeof process !== "undefined" && process.env?.CASHFREE_SECRET_KEY)
-      || (typeof Deno !== "undefined" && Deno.env.get("CASHFREE_SECRET_KEY"));
-    if (!cashfreeSecretKey) {
-      throw new Error("Cashfree secret key not configured");
+    // Get Razorpay webhook secret
+    const razorpayWebhookSecret = Deno.env.get("RZP_WEBHOOK_SECRET");
+    if (!razorpayWebhookSecret) {
+      throw new Error("Razorpay webhook secret not configured");
     }
 
     // Initialize Supabase client with service role key
@@ -39,37 +56,52 @@ serve(async (req) => {
     // Get webhook payload
     const payload = await req.text();
     const webhookData = JSON.parse(payload);
-    
-    // Get signature from headers
-    const signature = req.headers.get("x-webhook-signature") || "";
-    
-    logStep("Webhook data received", { 
-      type: webhookData.type, 
-      orderId: webhookData.data?.order?.order_id 
-    });
 
-    // Verify signature (placeholder implementation)
-    if (!verifyCashfreeSignature(payload, signature, cashfreeSecretKey)) {
-      logStep("Invalid signature");
+    // Get Razorpay signature from headers
+    const razorpaySignature = req.headers.get("x-razorpay-signature") || "";
+
+    logStep("Webhook data received", { eventType: webhookData.event });
+
+    // Verify Razorpay signature
+    const isValidSignature = await verifyRazorpaySignature(payload, razorpaySignature, razorpayWebhookSecret);
+    if (!isValidSignature) {
+      logStep("Invalid Razorpay signature");
       return new Response("Invalid signature", { status: 401 });
     }
 
-    const orderData = webhookData.data?.order;
-    const paymentData = webhookData.data?.payment;
-    
-    if (!orderData?.order_id) {
-      throw new Error("Order ID not found in webhook data");
+    const paymentLinkEntity = webhookData.payload?.payment_link?.entity;
+    const paymentEntity = webhookData.payload?.payment?.entity;
+
+    // Get payment link ID from the webhook
+    const paymentLinkId = paymentLinkEntity?.id || paymentEntity?.notes?.payment_link_id;
+    const referenceId = paymentLinkEntity?.reference_id;
+
+    logStep("Razorpay webhook details", {
+      event: webhookData.event,
+      paymentLinkId,
+      referenceId
+    });
+
+    // Find payment session by Razorpay payment link ID or reference_id (which is our session ID)
+    let paymentSession: any = null;
+    if (referenceId) {
+      const { data, error } = await supabaseClient
+        .from("payment_sessions")
+        .select("*")
+        .eq("id", referenceId)
+        .single();
+      paymentSession = data;
+    } else if (paymentLinkId) {
+      const { data, error } = await supabaseClient
+        .from("payment_sessions")
+        .select("*")
+        .eq("razorpay_payment_link_id", paymentLinkId)
+        .single();
+      paymentSession = data;
     }
 
-    // Find payment session by Cashfree order ID
-    const { data: paymentSession, error: sessionError } = await supabaseClient
-      .from("payment_sessions")
-      .select("*")
-      .eq("cashfree_order_id", orderData.order_id)
-      .single();
-
-    if (sessionError || !paymentSession) {
-      logStep("Payment session not found", { orderId: orderData.order_id });
+    if (!paymentSession) {
+      logStep("Payment session not found", { paymentLinkId, referenceId });
       return new Response("Payment session not found", { status: 404 });
     }
 
@@ -80,44 +112,53 @@ serve(async (req) => {
       .from("payment_logs")
       .insert({
         payment_session_id: paymentSession.id,
-        event_type: webhookData.type,
-        event_data: webhookData.data,
-        cashfree_signature: signature
+        event_type: webhookData.event,
+        event_data: webhookData.payload
       });
 
-    // Handle different webhook events
+    // Handle different Razorpay webhook events
     let newStatus = paymentSession.status;
     let newPaymentStatus = paymentSession.payment_status || 'yet_to_pay';
+    const updateData: any = {};
 
-    switch (webhookData.type) {
-      case "PAYMENT_SUCCESS_WEBHOOK":
+    switch (webhookData.event) {
+      case "payment_link.paid":
         newStatus = "completed";
         newPaymentStatus = "paid";
-        logStep("Payment successful", { paymentId: paymentData?.cf_payment_id });
+        logStep("Razorpay payment successful");
         break;
-      case "PAYMENT_FAILED_WEBHOOK":
+      case "payment.captured":
+        newStatus = "completed";
+        newPaymentStatus = "paid";
+        logStep("Razorpay payment captured", { paymentId: paymentEntity?.id });
+        break;
+      case "payment.failed":
         newStatus = "failed";
-        // Payment status remains 'yet_to_pay' for failed payments
-        logStep("Payment failed", { reason: paymentData?.payment_message });
+        newPaymentStatus = "failed";
+        logStep("Razorpay payment failed", { reason: paymentEntity?.error_description });
         break;
-      case "PAYMENT_USER_DROPPED_WEBHOOK":
+      case "payment_link.cancelled":
         newStatus = "cancelled";
-        // Payment status remains 'yet_to_pay' for cancelled payments
-        logStep("Payment cancelled by user");
+        newPaymentStatus = "cancelled";
+        logStep("Razorpay payment link cancelled");
+        break;
+      case "payment_link.expired":
+        newStatus = "expired";
+        newPaymentStatus = "expired";
+        logStep("Razorpay payment link expired");
         break;
       default:
-        logStep("Unknown webhook type", { type: webhookData.type });
+        logStep("Unknown Razorpay webhook event", { event: webhookData.event });
+    }
+
+    // Set update data
+    updateData.status = newStatus;
+    updateData.payment_status = newPaymentStatus;
+    if (paymentEntity?.id) {
+      updateData.razorpay_payment_id = paymentEntity.id;
     }
 
     // Update payment session with new status and payment_status
-    const updateData: any = {
-      status: newStatus,
-      payment_status: newPaymentStatus
-    };
-    if (paymentData?.cf_payment_id) {
-      updateData.cashfree_payment_id = paymentData.cf_payment_id;
-    }
-
     const { error: updateError } = await supabaseClient
       .from("payment_sessions")
       .update(updateData)
@@ -132,12 +173,32 @@ serve(async (req) => {
       });
     }
 
-    // Note: Registration should already exist (created when user clicked "I'm interested")
-    // We no longer create registration here - only update payment status
+    // Create registration if payment was successful
+    // Use upsert with onConflict to handle race condition between webhook and polling
+    if (newPaymentStatus === "paid") {
+      const { error: regError } = await supabaseClient
+        .from("event_registrations")
+        .upsert({
+          event_id: paymentSession.event_id,
+          user_id: paymentSession.user_id,
+          status: "registered",
+          payment_session_id: paymentSession.id,
+          payment_id: paymentEntity?.id || null
+        }, {
+          onConflict: 'user_id,event_id',
+          ignoreDuplicates: true
+        });
 
-    return new Response("OK", { 
+      if (regError) {
+        logStep("Failed to create/update registration", { error: regError.message });
+      } else {
+        logStep("Registration upserted successfully for paid event", { payment_id: paymentEntity?.id });
+      }
+    }
+
+    return new Response("OK", {
       headers: corsHeaders,
-      status: 200 
+      status: 200
     });
 
   } catch (error) {

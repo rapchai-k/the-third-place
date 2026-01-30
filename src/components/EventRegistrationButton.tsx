@@ -2,11 +2,14 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEventRegistration } from "@/hooks/useEventRegistration";
 import { WhatsAppCollectionModal } from "@/components/WhatsAppCollectionModal";
-import { useQuery } from "@tanstack/react-query";
+import { PaymentButton } from "@/components/PaymentButton";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Users, UserCheck } from "lucide-react";
+import { Loader2, Users, UserCheck, CreditCard } from "lucide-react";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
+import { useAppSettings } from "@/hooks/useAppSettings";
 import { useState } from "react";
+import { queryKeys } from "@/utils/queryKeys";
 
 interface EventRegistrationButtonProps {
   eventId: string;
@@ -34,6 +37,7 @@ export const EventRegistrationButton = ({
   className
 }: EventRegistrationButtonProps) => {
   const { user } = useAuth();
+  const { paymentsEnabled } = useAppSettings();
   const { register, cancel, isRegistering, isCancelling, registrationStep } = useEventRegistration({
     eventId,
     communityId,
@@ -44,9 +48,32 @@ export const EventRegistrationButton = ({
   const { logEventRegistration } = useActivityLogger();
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
 
-  // Check if user is registered
+  // Check if user has pending/completed payment for this event (define this first for refetch logic)
+  const queryClient = useQueryClient();
+  const { data: pendingPayment } = useQuery({
+    queryKey: queryKeys.events.pendingPayment(eventId, user?.id),
+    queryFn: async () => {
+      if (!user?.id) return null;
+
+      const { data, error } = await supabase
+        .from('payment_sessions')
+        .select('id, payment_status, payment_url')
+        .eq('event_id', eventId)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id && price > 0
+  });
+
+  // Check if user is registered - with auto-refetch when payment is complete but registration not reflected
+  const hasCompletedPaymentEarly = pendingPayment && pendingPayment.payment_status === 'paid';
   const { data: userRegistration, isLoading } = useQuery({
-    queryKey: ['user-registration', eventId],
+    queryKey: queryKeys.events.registration(eventId, user?.id),
     queryFn: async () => {
       if (!user) return null;
 
@@ -55,17 +82,23 @@ export const EventRegistrationButton = ({
         .select('*')
         .eq('event_id', eventId)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       return data;
     },
-    enabled: !!user
+    enabled: !!user,
+    // Auto-refetch every 2 seconds when payment is complete but registration not yet reflected
+    // Use a function to access the current data without causing temporal dead zone issues
+    refetchInterval: (query) => {
+      const currentData = query.state.data;
+      return hasCompletedPaymentEarly && !currentData ? 2000 : false;
+    }
   });
 
   // Check if user has WhatsApp number
   const { data: userProfile } = useQuery({
-    queryKey: ['user-profile', user?.id],
+    queryKey: queryKeys.user.profile(user?.id),
     queryFn: async () => {
       if (!user?.id) return null;
 
@@ -86,6 +119,12 @@ export const EventRegistrationButton = ({
   const isPastEvent = eventDateObj ? eventDateObj < new Date() : false;
   const isFullyBooked = currentAttendees >= capacity;
   const isRegistered = !!userRegistration;
+  const isPaidEvent = price > 0;
+  const hasPendingPayment = pendingPayment && pendingPayment.payment_status === 'yet_to_pay';
+  const hasCompletedPayment = pendingPayment && pendingPayment.payment_status === 'paid';
+  // Check for terminal payment states that allow retry (cancelled, expired, failed)
+  const hasTerminalPaymentState = pendingPayment &&
+    ['cancelled', 'expired', 'failed'].includes(pendingPayment.payment_status || '');
 
   if (!user) {
     return (
@@ -148,19 +187,52 @@ export const EventRegistrationButton = ({
     );
   }
 
-  // Handle registration for all events (both free and paid)
-  // All events create registration with 'registered' status
-  // For paid events, payment tracking is separate via payment_sessions table
+  // For paid events with payments enabled, show PaymentButton
+  // When payments are disabled, paid events are treated as free RSVP (fall through to free registration below)
+  if (isPaidEvent && paymentsEnabled) {
+    const handlePaymentSuccess = () => {
+      // Refetch registration status after successful payment
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.registration(eventId, user?.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.pendingPayment(eventId, user?.id) });
+    };
+
+    // Show "Payment Complete" if already paid but registration not yet reflected
+    // Only show this for truly "paid" status, not for cancelled/expired/failed
+    if (hasCompletedPayment && !isRegistered && !hasTerminalPaymentState) {
+      return (
+        <Button variant="secondary" disabled className={className}>
+          <CreditCard className="w-4 h-4 mr-2" />
+          Payment Complete - Processing...
+        </Button>
+      );
+    }
+
+    // Show PaymentButton for paid events (user not registered yet)
+    // This includes: no payment session, pending payment, or terminal states (cancelled/expired/failed)
+    return (
+      <PaymentButton
+        eventId={eventId}
+        eventTitle={eventTitle}
+        price={price}
+        currency={currency}
+        className={className}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
+    );
+  }
+
+  // Handle registration for FREE events (or paid events when payments are disabled)
   const handleRegistration = () => {
+    const registrationType = isPaidEvent ? 'paid_as_free' : 'free';
     // If user already has WhatsApp number, proceed directly to registration
     if (userProfile?.whatsapp_number) {
       logEventRegistration(eventId, {
-        event_type: price > 0 ? 'paid' : 'free',
+        event_type: registrationType,
         event_title: eventTitle,
         event_date: eventDate,
-        price: price,
+        price: isPaidEvent ? price : 0,
         currency: currency,
-        registration_type: price > 0 ? 'interest' : 'free'
+        registration_type: registrationType
       });
       register();
     } else {
@@ -170,14 +242,15 @@ export const EventRegistrationButton = ({
   };
 
   const handleWhatsAppSuccess = () => {
+    const registrationType = isPaidEvent ? 'paid_as_free' : 'free';
     // After WhatsApp number is saved, proceed with registration
     logEventRegistration(eventId, {
-      event_type: price > 0 ? 'paid' : 'free',
+      event_type: registrationType,
       event_title: eventTitle,
       event_date: eventDate,
-      price: price,
+      price: isPaidEvent ? price : 0,
       currency: currency,
-      registration_type: price > 0 ? 'interest' : 'free'
+      registration_type: registrationType
     });
     register();
   };
@@ -220,7 +293,7 @@ export const EventRegistrationButton = ({
           onClose={() => setShowWhatsAppModal(false)}
           onSuccess={handleWhatsAppSuccess}
           userId={user.id}
-          eventType={price > 0 ? "paid" : "free"}
+          eventType="free"
         />
       )}
     </>

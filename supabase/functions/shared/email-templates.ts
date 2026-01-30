@@ -375,9 +375,9 @@ export function generateWelcomeEmailTemplate(data: EmailTemplateData): string {
 
             <div class="secondary-cta">
                 <p>Or browse our popular sections:</p>
-                <a href="https://thethirdplace.community/communities" class="secondary-link">Communities</a> • 
-                <a href="https://thethirdplace.community/events" class="secondary-link">Events</a> • 
-                <a href="https://thethirdplace.community/discussions" class="secondary-link">Discussions</a>
+                <a href="https://mythirdplace.rapchai.com/communities" class="secondary-link">Communities</a> •
+                <a href="https://mythirdplace.rapchai.com/events" class="secondary-link">Events</a> •
+                <a href="https://mythirdplace.rapchai.com/discussions" class="secondary-link">Discussions</a>
             </div>
         </div>
         

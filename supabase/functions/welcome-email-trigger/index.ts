@@ -135,7 +135,7 @@ serve(async (req) => {
       variables: {
         userName: body.userName,
         userEmail: body.userEmail,
-        dashboardUrl: "https://thethirdplace.community/dashboard"
+        dashboardUrl: "https://mythirdplace.rapchai.com/dashboard"
       },
       userId: body.userId,
       correlationId

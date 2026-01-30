@@ -4,6 +4,7 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useActivityLogger } from '@/hooks/useActivityLogger';
 import { useState } from 'react';
+import { queryKeys } from '@/utils/queryKeys';
 
 interface UseEventRegistrationParams {
   eventId: string;
@@ -68,9 +69,9 @@ export const useEventRegistration = ({
           });
 
           // Invalidate community membership queries
-          queryClient.invalidateQueries({ queryKey: ['isMember', communityId, user.id] });
-          queryClient.invalidateQueries({ queryKey: ['userMemberships', user.id] });
-          queryClient.invalidateQueries({ queryKey: ['community', communityId] });
+          queryClient.invalidateQueries({ queryKey: queryKeys.communities.membership(communityId, user.id) });
+          queryClient.invalidateQueries({ queryKey: queryKeys.user.memberships(user.id) });
+          queryClient.invalidateQueries({ queryKey: queryKeys.communities.detail(communityId) });
         }
       }
 
@@ -87,49 +88,33 @@ export const useEventRegistration = ({
 
       if (registrationError) throw registrationError;
 
-      // Step 3: For paid events, create payment session with 'yet_to_pay' status
-      if (price > 0) {
-        const { error: paymentError } = await supabase
-          .from('payment_sessions')
-          .insert({
-            user_id: user.id,
-            event_id: eventId,
-            amount: price,
-            currency: currency,
-            status: 'pending', // Keep old field for backward compatibility
-            payment_status: 'yet_to_pay',
-            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
-          });
-
-        if (paymentError) {
-          throw paymentError;
-        }
-      }
+      // Note: Payment session creation for paid events is now handled by PaymentButton
+      // This hook is only used for FREE event registrations
     },
     onMutate: async () => {
       // Cancel outgoing refetches for all registration-related queries
-      await queryClient.cancelQueries({ queryKey: ['user-registration', eventId] });
-      await queryClient.cancelQueries({ queryKey: ['userRegistration', eventId, user?.id] });
-      await queryClient.cancelQueries({ queryKey: ['event', eventId] });
+      const registrationKey = queryKeys.events.registration(eventId, user?.id);
+      const eventKey = queryKeys.events.detail(eventId);
+
+      await queryClient.cancelQueries({ queryKey: registrationKey });
+      await queryClient.cancelQueries({ queryKey: eventKey });
 
       // Snapshot previous values
-      const previousRegistration = queryClient.getQueryData(['user-registration', eventId]);
-      const previousRegistrationAlt = queryClient.getQueryData(['userRegistration', eventId, user?.id]);
-      const previousEvent = queryClient.getQueryData(['event', eventId]);
+      const previousRegistration = queryClient.getQueryData(registrationKey);
+      const previousEvent = queryClient.getQueryData(eventKey);
 
-      // Optimistically update registration status for both query keys
+      // Optimistically update registration status
       const optimisticData = {
         user_id: user?.id,
         event_id: eventId,
         status: 'registered'
       };
 
-      queryClient.setQueryData(['user-registration', eventId], optimisticData);
-      queryClient.setQueryData(['userRegistration', eventId, user?.id], optimisticData);
+      queryClient.setQueryData(registrationKey, optimisticData);
 
       // Update event attendee count optimistically
       if (previousEvent) {
-        queryClient.setQueryData(['event', eventId], (old: any) => ({
+        queryClient.setQueryData(eventKey, (old: any) => ({
           ...old,
           event_registrations: [{
             count: (old.event_registrations?.[0]?.count || 0) + 1
@@ -143,18 +128,18 @@ export const useEventRegistration = ({
         description: "You're now registered for this event.",
       });
 
-      return { previousRegistration, previousRegistrationAlt, previousEvent };
+      return { previousRegistration, previousEvent };
     },
     onError: (err, variables, context) => {
-      // Rollback on error for both query keys
+      // Rollback on error
+      const registrationKey = queryKeys.events.registration(eventId, user?.id);
+      const eventKey = queryKeys.events.detail(eventId);
+
       if (context?.previousRegistration !== undefined) {
-        queryClient.setQueryData(['user-registration', eventId], context.previousRegistration);
-      }
-      if (context?.previousRegistrationAlt !== undefined) {
-        queryClient.setQueryData(['userRegistration', eventId, user?.id], context.previousRegistrationAlt);
+        queryClient.setQueryData(registrationKey, context.previousRegistration);
       }
       if (context?.previousEvent !== undefined) {
-        queryClient.setQueryData(['event', eventId], context.previousEvent);
+        queryClient.setQueryData(eventKey, context.previousEvent);
       }
 
       const errorMessage = err instanceof Error ? err.message : 'Please try again';
@@ -169,9 +154,8 @@ export const useEventRegistration = ({
       // Reset registration step
       setRegistrationStep('idle');
       // Always refetch after error or success for all registration-related queries
-      queryClient.invalidateQueries({ queryKey: ['user-registration', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['userRegistration', eventId, user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.registration(eventId, user?.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.detail(eventId) });
     }
   });
 
@@ -188,39 +172,47 @@ export const useEventRegistration = ({
 
       if (registrationError) throw registrationError;
 
-      // For paid events, also delete any unpaid payment sessions
+      // For paid events, handle payment sessions appropriately
       if (price > 0) {
-        const { error: paymentError } = await supabase
+        // Delete any unpaid payment sessions
+        await supabase
           .from('payment_sessions')
           .delete()
           .eq('event_id', eventId)
           .eq('user_id', user.id)
           .eq('payment_status', 'yet_to_pay');
 
-        // Don't throw error if payment session doesn't exist or is already paid
-        if (paymentError && paymentError.code !== 'PGRST116') {
-          console.warn('Failed to delete payment session:', paymentError);
-        }
+        // Mark any paid payment sessions as 'cancelled' (for refund tracking)
+        // This prevents the "Payment Complete - Processing..." stuck state
+        await supabase
+          .from('payment_sessions')
+          .update({
+            status: 'cancelled',
+            payment_status: 'cancelled'
+          })
+          .eq('event_id', eventId)
+          .eq('user_id', user.id)
+          .eq('payment_status', 'paid');
       }
     },
     onMutate: async () => {
       // Cancel outgoing refetches for all registration-related queries
-      await queryClient.cancelQueries({ queryKey: ['user-registration', eventId] });
-      await queryClient.cancelQueries({ queryKey: ['userRegistration', eventId, user?.id] });
-      await queryClient.cancelQueries({ queryKey: ['event', eventId] });
+      const registrationKey = queryKeys.events.registration(eventId, user?.id);
+      const eventKey = queryKeys.events.detail(eventId);
+
+      await queryClient.cancelQueries({ queryKey: registrationKey });
+      await queryClient.cancelQueries({ queryKey: eventKey });
 
       // Snapshot previous values
-      const previousRegistration = queryClient.getQueryData(['user-registration', eventId]);
-      const previousRegistrationAlt = queryClient.getQueryData(['userRegistration', eventId, user?.id]);
-      const previousEvent = queryClient.getQueryData(['event', eventId]);
+      const previousRegistration = queryClient.getQueryData(registrationKey);
+      const previousEvent = queryClient.getQueryData(eventKey);
 
-      // Optimistically remove registration for both query keys
-      queryClient.setQueryData(['user-registration', eventId], null);
-      queryClient.setQueryData(['userRegistration', eventId, user?.id], null);
+      // Optimistically remove registration
+      queryClient.setQueryData(registrationKey, null);
 
       // Update event attendee count optimistically
       if (previousEvent) {
-        queryClient.setQueryData(['event', eventId], (old: any) => ({
+        queryClient.setQueryData(eventKey, (old: any) => ({
           ...old,
           event_registrations: [{
             count: Math.max((old.event_registrations?.[0]?.count || 0) - 1, 0)
@@ -240,18 +232,18 @@ export const useEventRegistration = ({
         description: "You're no longer registered for this event.",
       });
 
-      return { previousRegistration, previousRegistrationAlt, previousEvent };
+      return { previousRegistration, previousEvent };
     },
     onError: (err, variables, context) => {
-      // Rollback on error for both query keys
+      // Rollback on error
+      const registrationKey = queryKeys.events.registration(eventId, user?.id);
+      const eventKey = queryKeys.events.detail(eventId);
+
       if (context?.previousRegistration !== undefined) {
-        queryClient.setQueryData(['user-registration', eventId], context.previousRegistration);
-      }
-      if (context?.previousRegistrationAlt !== undefined) {
-        queryClient.setQueryData(['userRegistration', eventId, user?.id], context.previousRegistrationAlt);
+        queryClient.setQueryData(registrationKey, context.previousRegistration);
       }
       if (context?.previousEvent !== undefined) {
-        queryClient.setQueryData(['event', eventId], context.previousEvent);
+        queryClient.setQueryData(eventKey, context.previousEvent);
       }
 
       toast({
@@ -262,9 +254,10 @@ export const useEventRegistration = ({
     },
     onSettled: () => {
       // Always refetch after error or success for all registration-related queries
-      queryClient.invalidateQueries({ queryKey: ['user-registration', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['userRegistration', eventId, user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.registration(eventId, user?.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.detail(eventId) });
+      // Also invalidate pending payment query so button state updates correctly
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.pendingPayment(eventId, user?.id) });
     }
   });
 

@@ -15,13 +15,13 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    // Get Cashfree credentials
-    const cashfreeAppId = Deno.env.get("CASHFREE_APP_ID");
-    const cashfreeSecretKey = Deno.env.get("CASHFREE_SECRET_KEY");
-    const cashfreeBaseUrl = Deno.env.get("CASHFREE_BASE_URL") || "https://sandbox.cashfree.com";
+    // Get Razorpay credentials (production keys take precedence over test keys)
+    const razorpayKeyId = Deno.env.get("RZP_KEY_ID") || Deno.env.get("RZP_TEST_KEY_ID");
+    const razorpayKeySecret = Deno.env.get("RZP_KEY_SECRET") || Deno.env.get("RZP_TEST_KEY_SECRET");
+    const razorpayBaseUrl = Deno.env.get("RZP_BASE_URL") || "https://api.razorpay.com";
 
-    if (!cashfreeAppId || !cashfreeSecretKey) {
-      throw new Error("Cashfree credentials not configured");
+    if (!razorpayKeyId || !razorpayKeySecret) {
+      throw new Error("Razorpay credentials not configured");
     }
 
     // Initialize Supabase client
@@ -59,61 +59,94 @@ serve(async (req) => {
       throw new Error("Payment session not found");
     }
 
-    if (!paymentSession.cashfree_order_id) {
-      throw new Error("Cashfree order ID not found");
+    // Only Razorpay is supported
+    const gateway = paymentSession.gateway || 'razorpay';
+    if (gateway !== 'razorpay') {
+      throw new Error(`Unsupported payment gateway: ${gateway}`);
     }
 
-    logStep("Payment session found", { orderId: paymentSession.cashfree_order_id });
+    logStep("Payment session found", { gateway, sessionId: paymentSession.id });
 
-    // Query Cashfree API for order status
-    const cashfreeResponse = await fetch(
-      `${cashfreeBaseUrl}/pg/orders/${paymentSession.cashfree_order_id}`,
+    let newStatus = paymentSession.status;
+    let newPaymentStatus = paymentSession.payment_status || 'yet_to_pay';
+    let orderStatusResponse: string = 'unknown';
+
+    if (!paymentSession.razorpay_payment_link_id) {
+      throw new Error("Razorpay payment link ID not found");
+    }
+
+    logStep("Verifying Razorpay payment", { paymentLinkId: paymentSession.razorpay_payment_link_id });
+
+    const razorpayResponse = await fetch(
+      `${razorpayBaseUrl}/v1/payment_links/${paymentSession.razorpay_payment_link_id}`,
       {
         method: "GET",
         headers: {
-          "x-client-id": cashfreeAppId,
-          "x-client-secret": cashfreeSecretKey,
-          "x-api-version": "2023-08-01"
+          "Authorization": `Basic ${btoa(`${razorpayKeyId}:${razorpayKeySecret}`)}`
         }
       }
     );
 
-    if (!cashfreeResponse.ok) {
-      const errorData = await cashfreeResponse.text();
-      throw new Error(`Cashfree API error: ${cashfreeResponse.status} - ${errorData}`);
+    if (!razorpayResponse.ok) {
+      const errorData = await razorpayResponse.text();
+      throw new Error(`Razorpay API error: ${razorpayResponse.status} - ${errorData}`);
     }
 
-    const orderStatus = await cashfreeResponse.json();
-    logStep("Cashfree order status", { status: orderStatus.order_status });
+    const linkStatus = await razorpayResponse.json();
+    logStep("Razorpay payment link status", { status: linkStatus.status });
+    orderStatusResponse = linkStatus.status;
 
-    // Update payment session based on Cashfree status
-    let newStatus = paymentSession.status;
-    let newPaymentStatus = paymentSession.payment_status || 'yet_to_pay';
+    // Extract razorpay_payment_id from the payments array if available
+    let razorpayPaymentId: string | null = null;
+    if (linkStatus.payments && Array.isArray(linkStatus.payments) && linkStatus.payments.length > 0) {
+      // Get the most recent successful payment
+      const successfulPayment = linkStatus.payments.find(
+        (p: { status: string }) => p.status === 'captured' || p.status === 'authorized'
+      ) || linkStatus.payments[0];
+      razorpayPaymentId = successfulPayment?.payment_id || null;
+      logStep("Extracted razorpay_payment_id", { razorpayPaymentId });
+    }
 
-    switch (orderStatus.order_status) {
-      case "PAID":
+    // Map Razorpay statuses to internal statuses
+    switch (linkStatus.status) {
+      case "paid":
         newStatus = "completed";
         newPaymentStatus = "paid";
         break;
-      case "EXPIRED":
-      case "TERMINATED":
-        newStatus = "failed";
-        // Payment status remains 'yet_to_pay' for failed payments
+      case "expired":
+        newStatus = "expired";
+        newPaymentStatus = "expired";
         break;
-      case "ACTIVE":
+      case "cancelled":
+        newStatus = "cancelled";
+        newPaymentStatus = "cancelled";
+        break;
+      case "created":
+      case "partially_paid":
         newStatus = "pending";
         // Payment status remains 'yet_to_pay' for pending payments
         break;
     }
 
-    // Update payment session if status or payment_status changed
-    if (newStatus !== paymentSession.status || newPaymentStatus !== paymentSession.payment_status) {
+    // Update payment session if status, payment_status, or payment_id changed
+    const needsUpdate = newStatus !== paymentSession.status ||
+                        newPaymentStatus !== paymentSession.payment_status ||
+                        (razorpayPaymentId && !paymentSession.razorpay_payment_id);
+
+    if (needsUpdate) {
+      const updateData: { status: string; payment_status: string; razorpay_payment_id?: string } = {
+        status: newStatus,
+        payment_status: newPaymentStatus
+      };
+
+      // Only update razorpay_payment_id if we have a new one and it's not already set
+      if (razorpayPaymentId && !paymentSession.razorpay_payment_id) {
+        updateData.razorpay_payment_id = razorpayPaymentId;
+      }
+
       const { error: updateError } = await supabaseClient
         .from("payment_sessions")
-        .update({
-          status: newStatus,
-          payment_status: newPaymentStatus
-        })
+        .update(updateData)
         .eq("id", paymentSession.id);
 
       if (updateError) {
@@ -121,18 +154,44 @@ serve(async (req) => {
       } else {
         logStep("Payment session updated successfully", {
           status: newStatus,
-          payment_status: newPaymentStatus
+          payment_status: newPaymentStatus,
+          razorpay_payment_id: razorpayPaymentId
         });
       }
     }
 
-    // Note: Registration should already exist (created when user clicked "I'm interested")
-    // We no longer create registration here - only update payment status
+    // Create registration if payment succeeded but registration doesn't exist yet
+    // This is a fallback in case the webhook failed to create registration
+    // Use upsert with onConflict to handle race condition between webhook and polling
+    if (newPaymentStatus === "paid") {
+      // Use the extracted razorpayPaymentId or the one from payment session
+      const paymentId = razorpayPaymentId || paymentSession.razorpay_payment_id || null;
+
+      const { error: regError } = await supabaseClient
+        .from("event_registrations")
+        .upsert({
+          event_id: paymentSession.event_id,
+          user_id: user.id,
+          status: "registered",
+          payment_session_id: paymentSession.id,
+          payment_id: paymentId
+        }, {
+          onConflict: 'user_id,event_id',
+          ignoreDuplicates: true
+        });
+
+      if (regError) {
+        logStep("Failed to create/update registration", { error: regError.message });
+      } else {
+        logStep("Registration upserted via verify-payment fallback", { payment_id: paymentId });
+      }
+    }
 
     return new Response(JSON.stringify({
       success: true,
       payment_status: newPaymentStatus,
-      order_status: orderStatus.order_status,
+      order_status: orderStatusResponse,
+      gateway: gateway,
       payment_session: {
         id: paymentSession.id,
         status: newStatus,

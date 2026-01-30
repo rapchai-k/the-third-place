@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       bulk_operations: {
         Row: {
           completed_at: string | null
@@ -74,7 +95,12 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          member_count: number
           name: string
+          seo_description: string | null
+          seo_image_url: string | null
+          seo_keywords: string[] | null
+          seo_title: string | null
           updated_at: string
         }
         Insert: {
@@ -83,7 +109,12 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          member_count?: number
           name: string
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
           updated_at?: string
         }
         Update: {
@@ -92,7 +123,12 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          member_count?: number
           name?: string
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -185,6 +221,10 @@ export type Database = {
           id: string
           is_visible: boolean
           prompt: string | null
+          seo_description: string | null
+          seo_image_url: string | null
+          seo_keywords: string[] | null
+          seo_title: string | null
           title: string
           updated_at: string
         }
@@ -197,6 +237,10 @@ export type Database = {
           id?: string
           is_visible?: boolean
           prompt?: string | null
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
           title: string
           updated_at?: string
         }
@@ -209,6 +253,10 @@ export type Database = {
           id?: string
           is_visible?: boolean
           prompt?: string | null
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
           title?: string
           updated_at?: string
         }
@@ -427,13 +475,18 @@ export type Database = {
           community_id: string
           created_at: string
           currency: string | null
-          date_time: string
+          date_time: string | null
           description: string | null
+          external_link: string | null
           host_id: string | null
           id: string
           image_url: string | null
           is_cancelled: boolean
           price: number | null
+          seo_description: string | null
+          seo_image_url: string | null
+          seo_keywords: string[] | null
+          seo_title: string | null
           title: string
           updated_at: string
           venue: string
@@ -443,13 +496,18 @@ export type Database = {
           community_id: string
           created_at?: string
           currency?: string | null
-          date_time: string
+          date_time?: string | null
           description?: string | null
+          external_link?: string | null
           host_id?: string | null
           id?: string
           image_url?: string | null
           is_cancelled?: boolean
           price?: number | null
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
           title: string
           updated_at?: string
           venue: string
@@ -459,13 +517,18 @@ export type Database = {
           community_id?: string
           created_at?: string
           currency?: string | null
-          date_time?: string
+          date_time?: string | null
           description?: string | null
+          external_link?: string | null
           host_id?: string | null
           id?: string
           image_url?: string | null
           is_cancelled?: boolean
           price?: number | null
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
           title?: string
           updated_at?: string
           venue?: string
@@ -582,7 +645,6 @@ export type Database = {
       }
       payment_logs: {
         Row: {
-          cashfree_signature: string | null
           created_at: string
           event_data: Json | null
           event_type: string
@@ -590,7 +652,6 @@ export type Database = {
           payment_session_id: string
         }
         Insert: {
-          cashfree_signature?: string | null
           created_at?: string
           event_data?: Json | null
           event_type: string
@@ -598,7 +659,6 @@ export type Database = {
           payment_session_id: string
         }
         Update: {
-          cashfree_signature?: string | null
           created_at?: string
           event_data?: Json | null
           event_type?: string
@@ -618,45 +678,48 @@ export type Database = {
       payment_sessions: {
         Row: {
           amount: number
-          cashfree_order_id: string | null
-          cashfree_payment_id: string | null
           created_at: string
           currency: string
           event_id: string
           expires_at: string
+          gateway: string
           id: string
-          payment_status: Database["public"]["Enums"]["payment_status"]
+          payment_status: Database["public"]["Enums"]["payment_status"] | null
           payment_url: string | null
+          razorpay_payment_id: string | null
+          razorpay_payment_link_id: string | null
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
           amount: number
-          cashfree_order_id?: string | null
-          cashfree_payment_id?: string | null
           created_at?: string
           currency?: string
           event_id: string
           expires_at?: string
+          gateway?: string
           id?: string
-          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
           payment_url?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_payment_link_id?: string | null
           status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           amount?: number
-          cashfree_order_id?: string | null
-          cashfree_payment_id?: string | null
           created_at?: string
           currency?: string
           event_id?: string
           expires_at?: string
+          gateway?: string
           id?: string
-          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
           payment_url?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_payment_link_id?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -834,6 +897,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_requests: {
+        Row: {
+          additional_details: Json | null
+          admin_notes: string | null
+          contact_email: string
+          contact_phone: string | null
+          created_at: string
+          description: string
+          id: string
+          request_type: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          additional_details?: Json | null
+          admin_notes?: string | null
+          contact_email: string
+          contact_phone?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          request_type: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          additional_details?: Json | null
+          admin_notes?: string | null
+          contact_email?: string
+          contact_phone?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          request_type?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -1028,10 +1142,8 @@ export type Database = {
         Args: { actor_user_id?: string; event_data: Json; event_type: string }
         Returns: undefined
       }
-      generate_referral_code: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_referral_code: { Args: never; Returns: string }
+      get_user_email: { Args: { _user_id: string }; Returns: string }
       get_user_highest_role: {
         Args: { _user_id?: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -1056,14 +1168,8 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: { _user_id?: string }
-        Returns: boolean
-      }
-      is_admin_user: {
-        Args: { _user_id?: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { _user_id?: string }; Returns: boolean }
+      is_admin_user: { Args: { _user_id?: string }; Returns: boolean }
       is_community_member: {
         Args: { _community_id: string; _user_id: string }
         Returns: boolean
@@ -1077,7 +1183,13 @@ export type Database = {
         | "event_organizer"
         | "user"
       flag_status: "open" | "resolved" | "urgent"
-      payment_status: "yet_to_pay" | "paid"
+      payment_status:
+        | "yet_to_pay"
+        | "paid"
+        | "failed"
+        | "expired"
+        | "cancelled"
+        | "refunded"
       registration_status: "unregistered" | "registered"
       user_role: "user" | "admin"
     }
@@ -1215,7 +1327,14 @@ export const Constants = {
         "user",
       ],
       flag_status: ["open", "resolved", "urgent"],
-      payment_status: ["yet_to_pay", "paid"],
+      payment_status: [
+        "yet_to_pay",
+        "paid",
+        "failed",
+        "expired",
+        "cancelled",
+        "refunded",
+      ],
       registration_status: ["unregistered", "registered"],
       user_role: ["user", "admin"],
     },

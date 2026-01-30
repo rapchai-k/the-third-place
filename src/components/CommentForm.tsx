@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { Send, Loader2 } from "lucide-react";
+import { analytics } from "@/utils/analytics";
 
 interface CommentFormProps {
   discussionId: string;
@@ -56,9 +57,10 @@ export const CommentForm = ({ discussionId, onCommentAdded }: CommentFormProps) 
       };
 
       // Optimistically update comments
-      queryClient.setQueryData(['discussion-comments', discussionId], (old: any) => 
-        old ? [...old, optimisticComment] : [optimisticComment]
-      );
+      queryClient.setQueryData(['discussion-comments', discussionId], (old: unknown) => {
+        const comments = old as typeof optimisticComment[] | undefined;
+        return comments ? [...comments, optimisticComment] : [optimisticComment];
+      });
 
       // Clear form immediately
       setComment("");
@@ -67,6 +69,13 @@ export const CommentForm = ({ discussionId, onCommentAdded }: CommentFormProps) 
       logCommentCreate(discussionId, optimisticComment.id, {
         comment_text: text.trim(),
         comment_length: text.trim().length
+      });
+
+      // Track create_comment for GA4
+      analytics.createComment({
+        comment_id: optimisticComment.id,
+        discussion_id: discussionId,
+        comment_length: text.trim().length,
       });
 
       // Show success toast immediately

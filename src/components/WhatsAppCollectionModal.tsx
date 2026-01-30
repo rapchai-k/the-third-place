@@ -79,7 +79,7 @@ export const WhatsAppCollectionModal = ({
       onSuccess();
       onClose();
     } catch (err) {
-      console.error("Error saving WhatsApp number:", err);
+      // Error logging removed for security
       setError("Failed to save WhatsApp number. Please try again.");
       toast({
         title: "Error",

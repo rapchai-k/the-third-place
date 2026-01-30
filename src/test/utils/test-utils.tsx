@@ -1,25 +1,19 @@
 import React from 'react'
 import { render, RenderOptions } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/contexts/ThemeProvider'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 // Custom render function that includes all providers
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
-  // Router options
-  initialEntries?: string[]
-  useMemoryRouter?: boolean
-  
   // Query client options
   queryClient?: QueryClient
-  
+
   // Provider options
   withAuth?: boolean
   withTheme?: boolean
   withTooltip?: boolean
-  withRouter?: boolean
 }
 
 const createTestQueryClient = () => new QueryClient({
@@ -39,13 +33,10 @@ export function renderWithProviders(
   options: CustomRenderOptions = {}
 ) {
   const {
-    initialEntries = ['/'],
-    useMemoryRouter = true,
     queryClient = createTestQueryClient(),
     withAuth = true,
     withTheme = true,
     withTooltip = true,
-    withRouter = true,
     ...renderOptions
   } = options
 
@@ -74,19 +65,6 @@ export function renderWithProviders(
       content = <TooltipProvider>{content}</TooltipProvider>
     }
 
-    // Wrap with Router
-    if (withRouter) {
-      if (useMemoryRouter) {
-        content = (
-          <MemoryRouter initialEntries={initialEntries}>
-            {content}
-          </MemoryRouter>
-        )
-      } else {
-        content = <BrowserRouter>{content}</BrowserRouter>
-      }
-    }
-
     return <>{content}</>
   }
 
@@ -95,35 +73,19 @@ export function renderWithProviders(
 
 // Specialized render functions for common scenarios
 export function renderWithAuth(ui: React.ReactElement, options?: CustomRenderOptions) {
-  return renderWithProviders(ui, { 
-    withRouter: false, 
-    withTheme: false, 
+  return renderWithProviders(ui, {
+    withTheme: false,
     withTooltip: false,
-    ...options 
-  })
-}
-
-export function renderWithRouter(
-  ui: React.ReactElement, 
-  initialEntries?: string[],
-  options?: CustomRenderOptions
-) {
-  return renderWithProviders(ui, { 
-    initialEntries,
-    withAuth: false, 
-    withTheme: false, 
-    withTooltip: false,
-    ...options 
+    ...options
   })
 }
 
 export function renderWithQuery(ui: React.ReactElement, options?: CustomRenderOptions) {
-  return renderWithProviders(ui, { 
-    withAuth: false, 
-    withTheme: false, 
+  return renderWithProviders(ui, {
+    withAuth: false,
+    withTheme: false,
     withTooltip: false,
-    withRouter: false,
-    ...options 
+    ...options
   })
 }
 
