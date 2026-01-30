@@ -65,13 +65,6 @@ Current behavior:
 
 Planned gating (recommended default):
 
-- If `!paymentsEnabled` **and** `price > 0`:
-  - Do **not** render `<PaymentButton />`.
-  - Instead show a disabled button like “Payments temporarily disabled / Registrations closed”.
-- For free events (`price <= 0`): unchanged.
-
-Optional variant (if product wants):
-
 - If `!paymentsEnabled` and `price > 0`, we could treat the event as **temporary free RSVP** by routing through the existing “free event” registration path instead. This would register users without taking payment.
 
 ### 4.2 PaymentButton
@@ -100,7 +93,7 @@ Current behavior:
 Plan:
 
 - Keep behavior **unchanged** even when payments are disabled, so that users with in‑flight or historical payment links can still see their status.
-- (Optional) Show a small banner when `!paymentsEnabled`, e.g. “New payments are currently disabled; this page reflects an existing payment only.”
+- Show a small banner when `!paymentsEnabled`, e.g. “New payments are currently disabled; this page reflects an existing payment only.”
 
 ---
 
@@ -152,7 +145,7 @@ Strict alternative:
 ## 6. Rollout playbook
 
 1. **Before deploy**
-   - Set `NEXT_PUBLIC_ENABLE_PAYMENTS=false` in app env.
+   - Set `NEXT_PUBLIC_ENABLE_PAYMENTS=false` in the app setting table
    - Set `ENABLE_PAYMENTS=false` in Supabase Edge Function secrets.
 2. **Deploy**
    - Deploy frontend, Edge Functions, and DB migrations as usual.

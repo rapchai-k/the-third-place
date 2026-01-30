@@ -5,6 +5,7 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, CreditCard } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
+import { useAppSettings } from "@/hooks/useAppSettings";
 import { invokeWithTimeoutRace, TIMEOUT_VALUES } from "@/utils/supabaseWithTimeout";
 import { analytics } from "@/utils/analytics";
 
@@ -26,6 +27,7 @@ export const PaymentButton = ({
   onPaymentSuccess
 }: PaymentButtonProps) => {
   const { user } = useAuth();
+  const { paymentsEnabled, isLoading: isLoadingSettings } = useAppSettings();
   const [isProcessing, setIsProcessing] = useState(false);
   const { logPaymentInitiated, logPaymentCompleted, logPaymentFailed, logPaymentTimeout, logEventRegistration } = useActivityLogger();
 
@@ -232,8 +234,8 @@ export const PaymentButton = ({
 
   if (!user) {
     return (
-      <Button 
-        variant="outline" 
+      <Button
+        variant="outline"
         onClick={() => window.location.href = '/auth'}
         className={className}
       >
@@ -243,19 +245,41 @@ export const PaymentButton = ({
   }
 
   const handlePayment = () => {
+    // Block payment if payments are disabled
+    if (!paymentsEnabled) {
+      toast({
+        title: "Payments temporarily disabled",
+        description: "Payments are currently disabled. Please check back soon.",
+        variant: "destructive",
+      });
+      return;
+    }
     createPaymentMutation.mutate();
   };
 
+  // Show disabled state when payments are disabled
+  const isDisabled = createPaymentMutation.isPending || isProcessing || isLoadingSettings || !paymentsEnabled;
+
   return (
-    <Button 
+    <Button
       onClick={handlePayment}
-      disabled={createPaymentMutation.isPending || isProcessing}
+      disabled={isDisabled}
       className={className}
     >
       {createPaymentMutation.isPending || isProcessing ? (
         <>
           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           {isProcessing ? 'Processing...' : 'Initializing...'}
+        </>
+      ) : isLoadingSettings ? (
+        <>
+          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          Loading...
+        </>
+      ) : !paymentsEnabled ? (
+        <>
+          <CreditCard className="w-4 h-4 mr-2" />
+          Payments Disabled
         </>
       ) : (
         <>

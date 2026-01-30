@@ -7,6 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Users, UserCheck, CreditCard } from "lucide-react";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
+import { useAppSettings } from "@/hooks/useAppSettings";
 import { useState } from "react";
 import { queryKeys } from "@/utils/queryKeys";
 
@@ -36,6 +37,7 @@ export const EventRegistrationButton = ({
   className
 }: EventRegistrationButtonProps) => {
   const { user } = useAuth();
+  const { paymentsEnabled } = useAppSettings();
   const { register, cancel, isRegistering, isCancelling, registrationStep } = useEventRegistration({
     eventId,
     communityId,
@@ -185,8 +187,9 @@ export const EventRegistrationButton = ({
     );
   }
 
-  // For paid events, show PaymentButton instead of registration button
-  if (isPaidEvent) {
+  // For paid events with payments enabled, show PaymentButton
+  // When payments are disabled, paid events are treated as free RSVP (fall through to free registration below)
+  if (isPaidEvent && paymentsEnabled) {
     const handlePaymentSuccess = () => {
       // Refetch registration status after successful payment
       queryClient.invalidateQueries({ queryKey: queryKeys.events.registration(eventId, user?.id) });
@@ -218,17 +221,18 @@ export const EventRegistrationButton = ({
     );
   }
 
-  // Handle registration for FREE events only
+  // Handle registration for FREE events (or paid events when payments are disabled)
   const handleRegistration = () => {
+    const registrationType = isPaidEvent ? 'paid_as_free' : 'free';
     // If user already has WhatsApp number, proceed directly to registration
     if (userProfile?.whatsapp_number) {
       logEventRegistration(eventId, {
-        event_type: 'free',
+        event_type: registrationType,
         event_title: eventTitle,
         event_date: eventDate,
-        price: 0,
+        price: isPaidEvent ? price : 0,
         currency: currency,
-        registration_type: 'free'
+        registration_type: registrationType
       });
       register();
     } else {
@@ -238,14 +242,15 @@ export const EventRegistrationButton = ({
   };
 
   const handleWhatsAppSuccess = () => {
+    const registrationType = isPaidEvent ? 'paid_as_free' : 'free';
     // After WhatsApp number is saved, proceed with registration
     logEventRegistration(eventId, {
-      event_type: 'free',
+      event_type: registrationType,
       event_title: eventTitle,
       event_date: eventDate,
-      price: 0,
+      price: isPaidEvent ? price : 0,
       currency: currency,
-      registration_type: 'free'
+      registration_type: registrationType
     });
     register();
   };

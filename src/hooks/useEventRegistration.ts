@@ -256,6 +256,8 @@ export const useEventRegistration = ({
       // Always refetch after error or success for all registration-related queries
       queryClient.invalidateQueries({ queryKey: queryKeys.events.registration(eventId, user?.id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.events.detail(eventId) });
+      // Also invalidate pending payment query so button state updates correctly
+      queryClient.invalidateQueries({ queryKey: queryKeys.events.pendingPayment(eventId, user?.id) });
     }
   });
 

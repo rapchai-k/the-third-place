@@ -4,8 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Clock, CreditCard, Calendar, MapPin } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CheckCircle, XCircle, Clock, CreditCard, Calendar, MapPin, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAppSettings } from "@/hooks/useAppSettings";
 import { invokeWithTimeoutRace, TIMEOUT_VALUES } from "@/utils/supabaseWithTimeout";
 
 interface PaymentVerificationData {
@@ -23,6 +25,7 @@ export const PaymentSuccess = () => {
   const sessionId = searchParams.get('session_id');
   const [verificationAttempts, setVerificationAttempts] = useState(0);
   const MAX_VERIFICATION_ATTEMPTS = 20;
+  const { paymentsEnabled } = useAppSettings();
 
   const { data: paymentData, isLoading, refetch } = useQuery({
     queryKey: ['payment-verification', sessionId],
@@ -173,8 +176,18 @@ export const PaymentSuccess = () => {
           <CardTitle className="text-2xl">Payment Status</CardTitle>
         </CardHeader>
         <CardContent className="p-6 text-center space-y-6">
+          {/* Show banner when payments are disabled */}
+          {!paymentsEnabled && (
+            <Alert variant="default" className="text-left">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                New payments are currently disabled. This page reflects an existing payment only.
+              </AlertDescription>
+            </Alert>
+          )}
+
           {renderStatusIcon()}
-          
+
           <div>
             <h2 className="text-xl font-semibold mb-2">{statusMessage.title}</h2>
             <p className="text-muted-foreground">{statusMessage.description}</p>

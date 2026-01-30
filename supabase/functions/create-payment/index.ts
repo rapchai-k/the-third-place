@@ -31,6 +31,28 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
+    // Check if payments are enabled via feature flag (hard gate)
+    const { data: paymentsSettingData, error: settingsError } = await supabaseClient
+      .from("app_settings")
+      .select("value")
+      .eq("key", "enable_payments")
+      .maybeSingle();
+
+    // Default to disabled if setting not found or error
+    const paymentsEnabled = paymentsSettingData?.value === "true";
+
+    if (!paymentsEnabled) {
+      logStep("Payments disabled via feature flag");
+      return new Response(JSON.stringify({
+        error: "Payments are currently disabled. Please check back soon."
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 503, // Service Unavailable
+      });
+    }
+
+    logStep("Payments enabled, proceeding with payment creation");
+
     // Get user from auth header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
