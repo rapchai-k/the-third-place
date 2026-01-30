@@ -12,33 +12,29 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       bulk_operations: {
         Row: {
           completed_at: string | null
@@ -101,6 +97,10 @@ export type Database = {
           image_url: string | null
           member_count: number
           name: string
+          seo_description: string | null
+          seo_image_url: string | null
+          seo_keywords: string[] | null
+          seo_title: string | null
           updated_at: string
         }
         Insert: {
@@ -111,6 +111,10 @@ export type Database = {
           image_url?: string | null
           member_count?: number
           name: string
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
           updated_at?: string
         }
         Update: {
@@ -121,6 +125,10 @@ export type Database = {
           image_url?: string | null
           member_count?: number
           name?: string
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -213,6 +221,10 @@ export type Database = {
           id: string
           is_visible: boolean
           prompt: string | null
+          seo_description: string | null
+          seo_image_url: string | null
+          seo_keywords: string[] | null
+          seo_title: string | null
           title: string
           updated_at: string
         }
@@ -225,6 +237,10 @@ export type Database = {
           id?: string
           is_visible?: boolean
           prompt?: string | null
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
           title: string
           updated_at?: string
         }
@@ -237,6 +253,10 @@ export type Database = {
           id?: string
           is_visible?: boolean
           prompt?: string | null
+          seo_description?: string | null
+          seo_image_url?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
           title?: string
           updated_at?: string
         }
@@ -1163,7 +1183,13 @@ export type Database = {
         | "event_organizer"
         | "user"
       flag_status: "open" | "resolved" | "urgent"
-      payment_status: "yet_to_pay" | "paid" | "failed" | "expired" | "cancelled" | "refunded"
+      payment_status:
+        | "yet_to_pay"
+        | "paid"
+        | "failed"
+        | "expired"
+        | "cancelled"
+        | "refunded"
       registration_status: "unregistered" | "registered"
       user_role: "user" | "admin"
     }
@@ -1291,9 +1317,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       app_role: [
@@ -1304,7 +1327,14 @@ export const Constants = {
         "user",
       ],
       flag_status: ["open", "resolved", "urgent"],
-      payment_status: ["yet_to_pay", "paid"],
+      payment_status: [
+        "yet_to_pay",
+        "paid",
+        "failed",
+        "expired",
+        "cancelled",
+        "refunded",
+      ],
       registration_status: ["unregistered", "registered"],
       user_role: ["user", "admin"],
     },

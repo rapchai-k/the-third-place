@@ -61,8 +61,8 @@
 | Page | Type | Phase | SSR | Metadata | SEO DB | Loading | 404 |
 |------|------|-------|-----|----------|--------|---------|-----|
 | `/events/[id]` | Detail | 1 ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `/communities/[id]` | Detail | 3 ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
-| `/discussions/[id]` | Detail | 3 ✅ | ✅ | ✅ | ❌ | ✅ | ✅ |
+| `/communities/[id]` | Detail | 3 ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `/discussions/[id]` | Detail | 3 ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | `/events` | Listing | 4 ✅ | ✅ | Static | N/A | ✅ | N/A |
 | `/communities` | Listing | 4 ✅ | ✅ | Static | N/A | ✅ | N/A |
 | `/discussions` | Listing | 4 ✅ | ✅ | Static | N/A | ✅ | N/A |
@@ -77,8 +77,8 @@
 | `getServerSession()` | 2 ✅ | ✅ Done | Server-side session access |
 | Server Supabase client | 1 ✅ | ✅ Done | `createServerSupabaseClient()` |
 | SEO columns (events) | 1 ✅ | ✅ Done | 4 columns added |
-| SEO columns (communities) | 3 | ❌ Pending | Optional |
-| SEO columns (discussions) | 3 | ❌ Pending | Optional |
+| SEO columns (communities) | 3 ✅ | ✅ Done | 4 columns added (migration `20260130000001`) |
+| SEO columns (discussions) | 3 ✅ | ✅ Done | 4 columns added (migration `20260130000001`) |
 
 ### Legend
 
@@ -202,8 +202,8 @@ Without proxy/middleware:
 | Discussion loading skeleton | P2 | `app/discussions/[id]/loading.tsx` | 20 min |
 | Discussion 404 page | P2 | `app/discussions/[id]/not-found.tsx` | 15 min |
 | Discussion client component | P2 | `src/views/DiscussionDetailClient.tsx` | 30 min |
-| (Optional) SEO columns for communities | P3 | Migration | 20 min |
-| (Optional) SEO columns for discussions | P3 | Migration | 20 min |
+| ~~(Optional) SEO columns for communities~~ | P3 ✅ | Migration `20260130000001` | ✅ Done |
+| ~~(Optional) SEO columns for discussions~~ | P3 ✅ | Migration `20260130000001` | ✅ Done |
 
 ### Task Details
 
@@ -222,10 +222,11 @@ Without proxy/middleware:
 - **Metadata:** Discussion title, first 160 chars of content
 - **Schema.org:** DiscussionForumPosting
 
-### Database Changes (Optional)
+### Database Changes (✅ Complete)
 
-- Add `seo_title`, `seo_description`, `seo_image_url`, `seo_keywords` columns to `communities` and `discussions` tables
-- Decision: Yes 
+- ✅ Added `seo_title`, `seo_description`, `seo_image_url`, `seo_keywords` columns to `communities` and `discussions` tables
+- Migration: `20260130000001_add_community_discussion_seo_columns.sql`
+- Wired into `generateMetadata` in both detail pages
 
 ### Testing Results (January 23, 2026)
 
@@ -239,7 +240,7 @@ Without proxy/middleware:
 
 - [x] Community page approach reviewed
 - [x] Discussion page approach reviewed
-- [ ] SEO columns decision (yes/no/later) - Skipped for now
+- [x] SEO columns decision - ✅ Implemented (January 30, 2026)
 - [x] SSR tested and working
 - [ ] Security review of RLS policies (see [Security Considerations](#security-considerations---rls-policies))
 

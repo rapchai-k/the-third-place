@@ -197,8 +197,15 @@ export async function getEventById(id: string): Promise<EventWithRelations | nul
 
 /**
  * Type-safe community data with relations for SSR
+ * Includes optional SEO override fields
  */
-export type CommunityWithRelations = Database['public']['Tables']['communities']['Row'];
+export type CommunityWithRelations = Database['public']['Tables']['communities']['Row'] & {
+  // SEO override fields (nullable - fall back to base fields when null)
+  seo_title?: string | null;
+  seo_description?: string | null;
+  seo_image_url?: string | null;
+  seo_keywords?: string[] | null;
+};
 
 /**
  * Fetch a single community by ID with all relations needed for the detail page.
@@ -228,6 +235,7 @@ export async function getCommunityById(id: string): Promise<CommunityWithRelatio
 
 /**
  * Type-safe discussion data with relations for SSR
+ * Includes optional SEO override fields
  */
 export type DiscussionWithRelations = Database['public']['Tables']['discussions']['Row'] & {
   communities: {
@@ -238,6 +246,11 @@ export type DiscussionWithRelations = Database['public']['Tables']['discussions'
     photo_url: string | null;
   } | null;
   discussion_comments: { count: number }[];
+  // SEO override fields (nullable - fall back to base fields when null)
+  seo_title?: string | null;
+  seo_description?: string | null;
+  seo_image_url?: string | null;
+  seo_keywords?: string[] | null;
 };
 
 /**

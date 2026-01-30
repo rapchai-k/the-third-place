@@ -11,6 +11,7 @@ interface CommunityDetailPageProps {
 /**
  * Generate dynamic metadata for the community detail page.
  * This enables SEO with proper title, description, and Open Graph tags.
+ * Uses SEO override fields when available, falling back to base content fields.
  */
 export async function generateMetadata({ params }: CommunityDetailPageProps): Promise<Metadata> {
   const { id } = await params;
@@ -25,23 +26,46 @@ export async function generateMetadata({ params }: CommunityDetailPageProps): Pr
 
   const memberCount = community.member_count || 0;
 
+  // SEO fields with fallbacks - use custom SEO values if set, otherwise derive from content
+  const seoTitle = community.seo_title || `${community.name} | My Third Place`;
+  const seoDescription =
+    community.seo_description ||
+    community.description ||
+    `Join ${community.name} community in ${community.city} with ${memberCount} members.`;
+  const seoImage = community.seo_image_url || community.image_url || '/logo.png';
+  const seoKeywords =
+    community.seo_keywords && community.seo_keywords.length > 0
+      ? community.seo_keywords
+      : [community.name, community.city, 'community', 'events', 'My Third Place'].filter(Boolean);
+
   return {
-    title: `${community.name} | My Third Place`,
-    description: community.description || `Join ${community.name} community in ${community.city} with ${memberCount} members.`,
+    title: seoTitle,
+    description: seoDescription,
+    keywords: seoKeywords,
     alternates: {
       canonical: `/communities/${id}`,
     },
     openGraph: {
-      title: `${community.name} | My Third Place`,
-      description: community.description || `Join ${community.name} community in ${community.city}.`,
+      title: seoTitle,
+      description: seoDescription,
       type: 'website',
-      images: community.image_url ? [{ url: community.image_url }] : [],
+      images: seoImage
+        ? [
+            {
+              url: seoImage,
+              width: 1200,
+              height: 630,
+              alt: community.name,
+            },
+          ]
+        : ['/logo.png'],
+      siteName: 'My Third Place',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${community.name} | My Third Place`,
-      description: community.description || `Join ${community.name} community in ${community.city}.`,
-      images: community.image_url ? [community.image_url] : [],
+      title: seoTitle,
+      description: seoDescription,
+      images: seoImage ? [seoImage] : ['/logo.png'],
     },
   };
 }
