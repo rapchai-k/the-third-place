@@ -1,5 +1,5 @@
 import { useNavigate, useLocation, Link } from "@/lib/nextRouterAdapter";
-import { Home, Users, Calendar, MessageSquare, User, Sun, Moon } from "lucide-react";
+import { Users, Calendar, MessageSquare, User, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,11 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import {
-  ThemeProvider as MuiThemeProvider,
-  createTheme,
-  CssBaseline
-} from "@mui/material";
 
 const navigation = [
   { name: "Communities", href: "/communities", icon: Users },
@@ -49,42 +44,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     navigate('/auth');
   };
 
-  // Material UI theme using CSS variables and resolvedTheme
-  const muiTheme = createTheme({
-    palette: {
-      mode: resolvedTheme === 'dark' ? 'dark' : 'light',
-      primary: {
-        main: resolvedTheme === 'dark' ? 'hsl(var(--primary))' : 'hsl(var(--primary))',
-      },
-      background: {
-        default: 'hsl(var(--background))',
-        paper: 'hsl(var(--card))',
-      },
-      text: {
-        primary: 'hsl(var(--foreground))',
-        secondary: 'hsl(var(--muted-foreground))',
-      }
-    },
-    components: {
-      MuiCssBaseline: {
-        styleOverrides: {
-          body: {
-            backgroundColor: 'hsl(var(--background))',
-            color: 'hsl(var(--foreground))',
-          }
-        }
-      }
-    }
-  });
-
-
   return (
-    <MuiThemeProvider theme={muiTheme}>
-      <CssBaseline />
-      <div className="min-h-screen flex flex-col w-full">
-        {/* Floating Glass Navbar */}
-        <div className="sticky top-4 z-50 mx-4 mt-4 mb-4">
-          <div className={`flex items-center justify-center rounded-2xl border border-border/40 bg-background/70 backdrop-blur-xl shadow-elegant ${location.pathname !== '/' ? 'h-24 md:h-28' : 'h-20'} px-6 relative transition-all duration-300`}>
+    <div className="min-h-screen flex flex-col w-full">
+        {/* Unified Material UI Top Navigation */}
+        <div className="bg-background">
+          <div className={`flex items-center justify-center ${location.pathname !== '/' ? 'h-28 md:h-[9rem]' : 'h-16'} px-4 relative`}>
             {/* Brand Logo */}
             {location.pathname !== '/' && (
               <div className="absolute left-6">
@@ -220,7 +184,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
             </nav>
           </div>
         )}
-      </div>
-    </MuiThemeProvider>
+    </div>
   );
 };
