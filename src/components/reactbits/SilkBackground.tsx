@@ -33,7 +33,7 @@ export const SilkBackground: React.FC<SilkBackgroundProps> = ({
       duration: 3 + (i % 5) * 0.8,
       delay: (i % 4) * 0.5
     })),
-  []);
+    []);
   return (
     <div className={`relative min-h-screen overflow-hidden ${className}`}>
       {/* Animated silk background */}
@@ -55,11 +55,12 @@ export const SilkBackground: React.FC<SilkBackgroundProps> = ({
               <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity="0.08" />
             </linearGradient>
           </defs>
-          
+
           {/* First silk wave */}
           <motion.path
             d="M0,400 Q300,200 600,400 T1200,400 L1200,800 L0,800 Z"
             fill="url(#silk-gradient-1)"
+            initial={{ d: "M0,400 Q300,200 600,400 T1200,400 L1200,800 L0,800 Z" }}
             animate={{
               d: [
                 "M0,400 Q300,200 600,400 T1200,400 L1200,800 L0,800 Z",
@@ -74,11 +75,12 @@ export const SilkBackground: React.FC<SilkBackgroundProps> = ({
             }}
             style={{ willChange: 'auto' }}
           />
-          
+
           {/* Second silk wave */}
           <motion.path
             d="M0,500 Q400,300 800,500 T1200,500 L1200,800 L0,800 Z"
             fill="url(#silk-gradient-2)"
+            initial={{ d: "M0,500 Q400,300 800,500 T1200,500 L1200,800 L0,800 Z" }}
             animate={{
               d: [
                 "M0,500 Q400,300 800,500 T1200,500 L1200,800 L0,800 Z",
@@ -94,11 +96,12 @@ export const SilkBackground: React.FC<SilkBackgroundProps> = ({
             }}
             style={{ willChange: 'auto' }}
           />
-          
+
           {/* Third silk wave */}
           <motion.path
             d="M0,600 Q200,450 400,600 Q600,750 800,600 Q1000,450 1200,600 L1200,800 L0,800 Z"
             fill="url(#silk-gradient-1)"
+            initial={{ d: "M0,600 Q200,450 400,600 Q600,750 800,600 Q1000,450 1200,600 L1200,800 L0,800 Z" }}
             animate={{
               d: [
                 "M0,600 Q200,450 400,600 Q600,750 800,600 Q1000,450 1200,600 L1200,800 L0,800 Z",
@@ -115,7 +118,7 @@ export const SilkBackground: React.FC<SilkBackgroundProps> = ({
             style={{ willChange: 'auto' }}
           />
         </svg>
-        
+
         {/* Floating particles - only render after mount to avoid hydration mismatch */}
         {mounted && (
           <div className="absolute inset-0">
@@ -142,7 +145,7 @@ export const SilkBackground: React.FC<SilkBackgroundProps> = ({
           </div>
         )}
       </div>
-      
+
       {/* Content */}
       <div className="relative z-10">
         {children}

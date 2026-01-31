@@ -7,86 +7,103 @@
 
 @layer base {
   :root {
-    /* Enhanced brand colors inspired by graffiti style */
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Urban Elegance - Light Mode */
+    --background: 210 40% 98%;
+    /* Soft Off-White */
+    --foreground: 224 71% 4%;
+    /* Deep Charcoal */
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 224 71% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 224 71% 4%;
 
-    /* Vibrant primary colors inspired by graffiti art */
-    --primary: 280 100% 50%; /* Vibrant purple */
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 290 100% 65%; /* Lighter purple for gradients */
+    /* Primary: Deep Midnight Blue */
+    --primary: 224 64% 12%;
+    --primary-foreground: 210 40% 98%;
+    /* Subtle glow for primary interaction */
+    --primary-glow: 224 64% 20%;
 
-    /* Bold secondary colors */
-    --secondary: 50 100% 60%; /* Bright yellow */
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary: Soft Slate / Muted Blue-Grey */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220.9 39.3% 11%;
 
-    /* Accent colors for highlights */
-    --accent: 160 100% 45%; /* Electric green */
-    --accent-foreground: 0 0% 100%;
+    /* Accent: Muted Gold / Bronze */
+    --accent: 38 45% 55%;
+    --accent-foreground: 224 71% 4%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8.9% 46.1%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 280 100% 50%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 224 64% 12%;
 
-    --radius: 1rem; /* Increased for graffiti style */
+    --radius: 0.75rem;
+    /* Cleaner, more moderate radius */
 
-    /* Graffiti-inspired gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(280 100% 50%), hsl(240 100% 60%));
-    --gradient-secondary: linear-gradient(135deg, hsl(50 100% 60%), hsl(30 100% 55%));
-    --gradient-accent: linear-gradient(135deg, hsl(160 100% 45%), hsl(180 100% 50%));
-    --gradient-warm: linear-gradient(180deg, hsl(20 100% 55%), hsl(40 100% 60%));
+    /* Glassmorphism Tokens */
+    --glass-background: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.5);
 
-    /* Enhanced shadows with color */
-    --shadow-primary: 0 10px 30px -10px hsl(280 100% 50% / 0.3);
-    --shadow-glow: 0 0 40px hsl(290 100% 65% / 0.4);
-    --shadow-elegant: 0 20px 40px -15px hsl(280 100% 50% / 0.2);
+    /* Elegant Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(224 64% 12%), hsl(224 60% 20%));
+    --gradient-secondary: linear-gradient(135deg, hsl(38 45% 55%), hsl(45 50% 60%));
+    --gradient-accent: linear-gradient(135deg, hsl(224 64% 12%), hsl(38 45% 55%));
+    --gradient-warm: linear-gradient(135deg, hsl(20 30% 96%), hsl(38 45% 90%));
 
-    /* Smooth animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    /* Sophisticated Shadows */
+    --shadow-primary: 0 10px 30px -10px rgba(11, 23, 54, 0.2);
+    --shadow-glow: 0 0 20px rgba(11, 23, 54, 0.1);
+    --shadow-elegant: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 280 100% 50%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    /* Animation */
+    --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --sidebar-background: 210 40% 98%;
+    --sidebar-foreground: 224 71% 4%;
+    --sidebar-primary: 224 64% 12%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 224 71% 4%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 280 100% 50%;
+    --sidebar-ring: 224 64% 12%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    /* Urban Elegance - Dark Mode */
+    --background: 224 71% 4%;
+    /* Deepest Midnight */
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 224 64% 6%;
+    /* Slightly lighter than bg */
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 224 64% 6%;
     --popover-foreground: 210 40% 98%;
 
-    /* Dark mode vibrant colors */
-    --primary: 285 100% 65%; /* Lighter purple for dark mode */
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --primary-glow: 295 100% 75%;
+    /* Primary: Muted Gold/Bronze (to pop against dark) OR Lighter Midnight */
+    /* Let's stick to a sophisticated lighter blue-purple or keep Gold as main primary for dark mode? 
+       Actually, standardizing on the Deep Blue might be too dark. 
+       Let's use a "Moonlight" Blue or the Gold as the primary interactive color. */
+    --primary: 210 40% 98%;
+    /* White/Off-white for high contrast actions */
+    --primary-foreground: 224 71% 4%;
 
-    --secondary: 55 100% 70%; /* Brighter yellow for dark mode */
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Alternatively, reuse the Gold as specific accent, but keep Primary simpler */
 
-    --accent: 165 100% 55%; /* Brighter green for dark mode */
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --accent: 38 45% 55%;
+    /* Gold Accent remains */
+    --accent-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
@@ -96,25 +113,19 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 285 100% 65%;
+    --ring: 224 64% 80%;
 
-    /* Dark mode gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(285 100% 65%), hsl(245 100% 70%));
-    --gradient-secondary: linear-gradient(135deg, hsl(55 100% 70%), hsl(35 100% 65%));
-    --gradient-accent: linear-gradient(135deg, hsl(165 100% 55%), hsl(185 100% 60%));
-    
-    /* Dark mode shadows */
-    --shadow-primary: 0 10px 30px -10px hsl(285 100% 65% / 0.4);
-    --shadow-glow: 0 0 40px hsl(295 100% 75% / 0.5);
+    /* Glassmorphism Tokens Dark */
+    --glass-background: rgba(11, 23, 54, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.1);
 
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 285 100% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 285 100% 65%;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(224 64% 12%), hsl(224 60% 8%));
+    /* --gradient-secondary: ... */
+
+    /* Shadows */
+    --shadow-primary: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.05);
   }
 }
 
@@ -128,9 +139,16 @@
     font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  /* Enhanced heading styles */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-bold;
-    font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "Playfair Display", "DM Sans", serif;
+    letter-spacing: -0.02em;
   }
 }
 
@@ -191,4 +209,3 @@
     overflow-x: hidden;
   }
 }
-

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import '@/index.css';
+
 import { Providers } from './providers';
 import {
   GoogleTagManagerScript,
@@ -87,6 +87,10 @@ export default function RootLayout({
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&family=Playfair+Display:wght@400;600;700&display=swap"
+          rel="stylesheet"
         />
       </head>
       <body className="min-h-screen bg-background antialiased" suppressHydrationWarning>

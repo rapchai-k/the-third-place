@@ -31,23 +31,23 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
   const [allCommunities, setAllCommunities] = useState<any[]>([]);
   const [hasMoreCommunities, setHasMoreCommunities] = useState(true);
 
-	  // Intersection Observer sentinel for infinite scroll (no extra components)
-	  const sentinelRef = (node: HTMLDivElement | null) => {
-	    if (!node) return;
-	    const observer = new IntersectionObserver((entries) => {
-	      const entry = entries[0];
-	      if (entry.isIntersecting && hasMoreCommunities && !loadingCommunities) {
-	        loadMoreCommunities();
-	      }
-	    }, { rootMargin: '200px 0px 0px 0px' });
-	    observer.observe(node);
-	  };
+  // Intersection Observer sentinel for infinite scroll (no extra components)
+  const sentinelRef = (node: HTMLDivElement | null) => {
+    if (!node) return;
+    const observer = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (entry.isIntersecting && hasMoreCommunities && !loadingCommunities) {
+        loadMoreCommunities();
+      }
+    }, { rootMargin: '200px 0px 0px 0px' });
+    observer.observe(node);
+  };
 
   const [loadingCommunities, setLoadingCommunities] = useState(false);
   const [masonryColumns, setMasonryColumns] = useState(3);
 
-	  // Page size for communities pagination
-	  const PAGE_SIZE = 6;
+  // Page size for communities pagination
+  const PAGE_SIZE = 6;
 
   useEffect(() => {
     logPageView('home');
@@ -206,11 +206,11 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
   // Use SSR data if available, otherwise use fetched data
   const featuredEvents = (initialEvents && initialEvents.length > 0)
     ? initialEvents.map(event => ({
-        ...event,
-        community_name: event.communities?.name,
-        tags: event.event_tags?.map(et => et.tags?.name).filter(Boolean) || [],
-        attendees: event.event_registrations?.[0]?.count || 0
-      }))
+      ...event,
+      community_name: event.communities?.name,
+      tags: event.event_tags?.map(et => et.tags?.name).filter(Boolean) || [],
+      attendees: event.event_registrations?.[0]?.count || 0
+    }))
     : fetchedEvents;
 
   // Fetch communities (initial page) - skip if SSR data available
@@ -246,18 +246,18 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
     return fetchedCommunities;
   }, [initialCommunities, fetchedCommunities]);
 
-	  // Track if initial data has been seeded to prevent infinite loop
-	  const hasSeededInitialData = useRef(false);
+  // Track if initial data has been seeded to prevent infinite loop
+  const hasSeededInitialData = useRef(false);
 
-	  // Seed UI with initial page on first load (only once)
-	  useEffect(() => {
-	    if (!hasSeededInitialData.current && featuredCommunities && featuredCommunities.length > 0) {
-	      hasSeededInitialData.current = true;
-	      setAllCommunities(featuredCommunities);
-	      setCommunitiesPage(1); // first page loaded
-	      setHasMoreCommunities(featuredCommunities.length === PAGE_SIZE);
-	    }
-	  }, [featuredCommunities]);
+  // Seed UI with initial page on first load (only once)
+  useEffect(() => {
+    if (!hasSeededInitialData.current && featuredCommunities && featuredCommunities.length > 0) {
+      hasSeededInitialData.current = true;
+      setAllCommunities(featuredCommunities);
+      setCommunitiesPage(1); // first page loaded
+      setHasMoreCommunities(featuredCommunities.length === PAGE_SIZE);
+    }
+  }, [featuredCommunities]);
 
 
   // Load more communities function for infinite scroll
@@ -298,118 +298,102 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
     }
   }, [communitiesPage, hasMoreCommunities, loadingCommunities]);
   return <SilkBackground>
-      <div className="min-h-screen mobile-safe overflow-x-hidden">
-        {/* Logo */}
-        <div className="text-center pt-8 md:pt-12 pb-4 md:pb-6 px-6 md:px-8">
-          <img src="/logo.png" alt="My Third Place" className="h-[12.5rem] sm:h-[15rem] md:h-[20rem] lg:h-[25rem] w-auto mx-auto" loading="eager" decoding="async" />
-        </div>
+    <div className="min-h-screen mobile-safe overflow-x-hidden">
+      {/* Logo */}
+      <div className="text-center pt-8 md:pt-12 pb-4 md:pb-6 px-6 md:px-8">
+        <img src="/logo.png" alt="My Third Place" className="h-[12.5rem] sm:h-[15rem] md:h-[20rem] lg:h-[25rem] w-auto mx-auto" loading="eager" decoding="async" />
+      </div>
 
-        {/* Tagline */}
-        <div className="text-center px-6 md:px-8 pb-4 md:pb-6">
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-primary">
-            Where communities come alive
+      {/* Tagline */}
+      <div className="text-center px-6 md:px-8 pb-4 md:pb-6">
+        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-primary">
+          Where communities come alive
+        </h2>
+      </div>
+
+      {/* Quick Description */}
+      <div className="text-center px-6 md:px-8 pb-8 md:pb-12">
+        <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          Connect with local communities, discover exciting events, and build meaningful relationships in your neighborhood.
+        </p>
+      </div>
+
+      {/* Primary CTA */}
+      <div className="text-center pb-12 md:pb-16 px-6 md:px-8">
+        {user ? <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/dashboard')}>
+          View Your Dashboard
+        </Button> : <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/auth')}>
+          Join the Community
+        </Button>}
+      </div>
+
+      {/* Community Header */}
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 pt-12 md:pt-16 pb-6 md:pb-8">
+        <div className="text-center">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground mb-4 md:mb-6">
+            Our Communities
           </h2>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+            Discover vibrant communities in your area and connect with like-minded people
+          </p>
+        </div>
+      </div>
+
+      {/* Community Scroll Carousel */}
+      <div className="pb-16 md:pb-20">
+        <div className="px-2 sm:px-4">
+          <CommunityCarousel communities={allCommunities} />
         </div>
 
-        {/* Quick Description */}
-        <div className="text-center px-6 md:px-8 pb-8 md:pb-12">
-          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Connect with local communities, discover exciting events, and build meaningful relationships in your neighborhood.
+        {hasMoreCommunities && <div className="text-center mt-8 md:mt-12 px-6 md:px-8">
+          <Button variant="outline" onClick={loadMoreCommunities} disabled={loadingCommunities} className="text-base sm:text-lg px-6 sm:px-8 py-2 w-full sm:w-auto min-w-[200px]">
+            {loadingCommunities ? "Loading..." : "Load More Communities"}
+          </Button>
+
+          {/* Invisible sentinel for auto-loading more when in view */}
+          {hasMoreCommunities && (
+            <div className="h-1" ref={sentinelRef} />
+          )}
+
+        </div>}
+      </div>
+
+      {/* Gallery */}
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground">
+            Community Moments
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto mt-4 md:mt-6 leading-relaxed">
+            Capturing the spirit of connection and shared experiences in our communities
           </p>
         </div>
 
-        {/* Primary CTA */}
-        <div className="text-center pb-12 md:pb-16 px-6 md:px-8">
-          {user ? <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/dashboard')}>
-              View Your Dashboard
-            </Button> : <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/auth')}>
-              Join the Community
-            </Button>}
+        <div className="max-w-7xl mx-auto">
+          <Masonry items={galleryImages} columns={masonryColumns} gap={16} className="w-full" />
         </div>
+      </div>
 
-        {/* Community Header */}
-        <div className="container mx-auto px-6 md:px-8 lg:px-12 pt-12 md:pt-16 pb-6 md:pb-8">
-          <div className="text-center">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground mb-4 md:mb-6">
-              Our Communities
-            </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-              Discover vibrant communities in your area and connect with like-minded people
-            </p>
-          </div>
-        </div>
-
-        {/* Community Scroll Carousel */}
-        <div className="pb-16 md:pb-20">
-          <div className="px-2 sm:px-4">
-            <CommunityCarousel communities={allCommunities} />
-          </div>
-
-          {hasMoreCommunities && <div className="text-center mt-8 md:mt-12 px-6 md:px-8">
-              <Button variant="outline" onClick={loadMoreCommunities} disabled={loadingCommunities} className="text-base sm:text-lg px-6 sm:px-8 py-2 w-full sm:w-auto min-w-[200px]">
-                {loadingCommunities ? "Loading..." : "Load More Communities"}
-              </Button>
-
-	          {/* Invisible sentinel for auto-loading more when in view */}
-	          {hasMoreCommunities && (
-	            <div className="h-1" ref={sentinelRef} />
-	          )}
-
-            </div>}
-        </div>
-
-        {/* "Why Third Place" Content Section */}
-        <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground mb-4 md:mb-6">
-              Why My Third Place?
-            </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-              A place for you to Recharge, Adapt and Prosper
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
-            {features.map((feature, index) => <SpotlightCard key={index} title={feature.title} description={feature.description} icon={feature.icon} className="h-full" />)}
-          </div>
-        </div>
-
-        {/* Gallery */}
-        <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground">
-              Community Moments
-            </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto mt-4 md:mt-6 leading-relaxed">
-              Capturing the spirit of connection and shared experiences in our communities
-            </p>
-          </div>
-
-          <div className="max-w-7xl mx-auto">
-            <Masonry items={galleryImages} columns={masonryColumns} gap={16} className="w-full" />
-          </div>
-        </div>
-
-        {/* Secondary CTA */}
-        <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
-          <div className="text-center space-y-6 md:space-y-8 bg-card/50 backdrop-blur-sm rounded-2xl md:rounded-3xl p-8 sm:p-10 md:p-16 border border-border/50 shadow-glow">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground">
-              Ready to find your Third Place?
-            </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Join thousands of people who have discovered meaningful connections and exciting opportunities in their local communities.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
-              <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" onClick={() => navigate('/communities')}>
-                Explore Communities
-              </Button>
-              <Button variant="outline" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" onClick={() => navigate('/events')}>
-                Browse Events
-              </Button>
-            </div>
+      {/* Secondary CTA */}
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
+        <div className="text-center space-y-6 md:space-y-8 bg-card/50 backdrop-blur-sm rounded-2xl md:rounded-3xl p-8 sm:p-10 md:p-16 border border-border/50 shadow-glow">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground">
+            Ready to find your Third Place?
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Join thousands of people who have discovered meaningful connections and exciting opportunities in their local communities.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
+            <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" onClick={() => navigate('/communities')}>
+              Explore Communities
+            </Button>
+            <Button variant="outline" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" onClick={() => navigate('/events')}>
+              Browse Events
+            </Button>
           </div>
         </div>
       </div>
-    </SilkBackground>;
+    </div>
+  </SilkBackground>;
 };
 export default Index;
