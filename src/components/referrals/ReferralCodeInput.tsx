@@ -104,7 +104,7 @@ export const ReferralCodeInput = ({
   };
 
   const formContent = (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="referral-code">Referral Code (Optional)</Label>
         <div className="flex gap-2">
@@ -115,9 +115,16 @@ export const ReferralCodeInput = ({
             placeholder="Enter referral code (e.g., 8D604377)"
             className="font-mono tracking-wider"
             disabled={loading || success}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
           />
           <Button
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             disabled={!referralCode.trim() || !!inputError || loading || success}
             className="shrink-0"
           >
@@ -144,7 +151,7 @@ export const ReferralCodeInput = ({
           </AlertDescription>
         </Alert>
       )}
-    </form>
+    </div>
   );
 
   if (minimal) {
