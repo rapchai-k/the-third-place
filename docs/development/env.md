@@ -1,5 +1,5 @@
 Set in Supabase/Lovable env, not in repo:
-- SUPABASE_URL, SUPABASE_ANON_KEY, SERVICE_ROLE_KEY
+- NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SERVICE_ROLE_KEY
 - GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET (Supabase Auth → Google provider)
 - RZP_KEY_ID, RZP_KEY_SECRET, RZP_WEBHOOK_SECRET (production/test)
 - RZP_BASE_URL (https://api.razorpay.com for production, default if not set)

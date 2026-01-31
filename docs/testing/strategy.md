@@ -96,16 +96,15 @@ AI agents will:
 ## 🗂️ Suggested File Structure
 
 ```bash
-/tests
-  /unit
-    Button.test.tsx
-    CommunityCard.test.tsx
-  /api
-    registerEvent.test.ts
-    postDiscussion.test.ts
-  /e2e
-    user-journey.spec.ts
-    admin-controls.spec.ts
+/src
+  /test
+    /unit
+      Button.test.tsx
+    /integration
+      registerEvent.test.ts
+    /e2e
+      user-journey.spec.ts
+/tests-examples (optional Playwright examples)
 /playwright.config.ts
 /.github/workflows/test.yml
 ```

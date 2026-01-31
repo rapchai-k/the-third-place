@@ -4,7 +4,7 @@ Name: My Third Place
 Goal: Help people in metro cities discover communities and join events, reducing urban loneliness.
 
 ## What the product does today
-- Communities: Browse and join communities (free). Mobile-first discovery UI with Material UI navigation.
+- Communities: Browse and join communities (free). Mobile-first discovery UI with mobile navigation.
 - Events: View details and register. Paid events use Razorpay; free events register directly.
 - Discussions: Admin-created, time-bound threads per community; comment access gated to members.
 - Referrals: Code-based referral flow per spec (copy code-only; shown in sign-up, hidden in sign-in; post-OAuth modal).
@@ -14,7 +14,7 @@ Goal: Help people in metro cities discover communities and join events, reducing
 - Activity logging: Edge function and storage present; some passive logs intentionally disabled to reduce noise until analytics UI lands.
 
 ## Tech stack & architecture
-- Frontend: React + TypeScript + Tailwind + Material UI patterns; mobile-first
+- Frontend: React + TypeScript + Tailwind + Shadcn UI; mobile-first
 - Backend: Supabase (Postgres, RLS, Auth, Storage) with Edge Functions
 - Payments: Razorpay (Edge Functions for create/verify/callback)
 - Email: Resend via Supabase Edge Function

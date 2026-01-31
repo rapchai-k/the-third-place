@@ -33,6 +33,14 @@ This guide explains how to set up and run the project locally with Supabase.
    VITE_SUPABASE_URL=http://127.0.0.1:54321
    VITE_SUPABASE_PUBLISHABLE_KEY=<anon key from supabase start output>
    ```
+   
+   **Note for Next.js:** Ensure that you are using variables prefixed with `NEXT_PUBLIC_` if you are using the standard Next.js Supabase client setup, or map these `VITE_` variables in your `proxy.ts` / client configuration.
+   
+   Preferred:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key from supabase start output>
+   ```
 
 4. **Start the development server**
    ```bash
@@ -40,7 +48,7 @@ This guide explains how to set up and run the project locally with Supabase.
    ```
 
 5. **Access the application**
-   - Frontend: http://localhost:8080
+   - Frontend: http://localhost:3000
    - Supabase Studio: http://127.0.0.1:54323
    - Mailpit (email testing): http://127.0.0.1:54324
 
@@ -159,14 +167,14 @@ supabase start
 
 ### For Local Development
 ```env
-VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_PUBLISHABLE_KEY=<local anon key>
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<local anon key>
 ```
 
 ### For Remote/Production
 ```env
-VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=<remote anon key>
+NEXT_PUBLIC_SUPABASE_URL=https://<your-project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<remote anon key>
 ```
 
 ## Migration History Sync
