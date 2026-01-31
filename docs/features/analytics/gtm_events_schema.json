@@ -1,0 +1,694 @@
+{
+    "containerName": "My Third Place GTM",
+    "events": [
+        {
+            "eventName": "tp_page_view",
+            "description": "Custom page view event used to prevent collisions with GA4 default page_view tracking.",
+            "trigger": {
+                "name": "Custom Event - tp_page_view",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "tp_page_view"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "page_path",
+                    "type": "dataLayer",
+                    "description": "The relative path of the page"
+                },
+                {
+                    "name": "page_title",
+                    "type": "dataLayer",
+                    "description": "The document title of the page"
+                },
+                {
+                    "name": "page_location",
+                    "type": "dataLayer",
+                    "description": "The full URL of the page"
+                },
+                {
+                    "name": "content_type",
+                    "type": "dataLayer",
+                    "description": "Optional: Type of content (e.g., event, community)"
+                },
+                {
+                    "name": "content_id",
+                    "type": "dataLayer",
+                    "description": "Optional: ID of the content being viewed"
+                }
+            ]
+        },
+        {
+            "eventName": "login",
+            "description": "Triggered when a user successfully logs in.",
+            "trigger": {
+                "name": "Custom Event - login",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "login"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "method",
+                    "type": "dataLayer",
+                    "description": "Authentication method used (e.g., email, google)"
+                },
+                {
+                    "name": "user_id",
+                    "type": "dataLayer",
+                    "description": "Unique identifier for the user"
+                }
+            ]
+        },
+        {
+            "eventName": "sign_up",
+            "description": "Triggered when a user successfully signs up for a new account.",
+            "trigger": {
+                "name": "Custom Event - sign_up",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "sign_up"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "method",
+                    "type": "dataLayer",
+                    "description": "Registration method used (e.g., email, google)"
+                },
+                {
+                    "name": "user_id",
+                    "type": "dataLayer",
+                    "description": "Unique identifier for the user"
+                }
+            ]
+        },
+        {
+            "eventName": "set_user_properties",
+            "description": "Used to set custom user properties in GA4.",
+            "trigger": {
+                "name": "Custom Event - set_user_properties",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "set_user_properties"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "user_id",
+                    "type": "dataLayer",
+                    "description": "Unique identifier for the user"
+                },
+                {
+                    "name": "user_properties",
+                    "type": "dataLayer",
+                    "description": "Object containing custom user traits"
+                }
+            ]
+        },
+        {
+            "eventName": "clear_user_properties",
+            "description": "Triggered on logout to clear user identity in analytics.",
+            "trigger": {
+                "name": "Custom Event - clear_user_properties",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "clear_user_properties"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "user_id",
+                    "type": "dataLayer",
+                    "description": "Set to null"
+                },
+                {
+                    "name": "user_properties",
+                    "type": "dataLayer",
+                    "description": "Set to null"
+                }
+            ]
+        },
+        {
+            "eventName": "view_item",
+            "description": "E-commerce event for viewing an event detail page.",
+            "trigger": {
+                "name": "Custom Event - view_item",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "view_item"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "currency",
+                    "type": "dataLayer",
+                    "description": "Currency code (default: INR)"
+                },
+                {
+                    "name": "value",
+                    "type": "dataLayer",
+                    "description": "Price of the item"
+                },
+                {
+                    "name": "items",
+                    "type": "dataLayer",
+                    "description": "Array of item objects (item_id, item_name, price, item_category, item_category2)"
+                }
+            ]
+        },
+        {
+            "eventName": "begin_checkout",
+            "description": "E-commerce event for initiating a payment.",
+            "trigger": {
+                "name": "Custom Event - begin_checkout",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "begin_checkout"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "currency",
+                    "type": "dataLayer",
+                    "description": "Currency code"
+                },
+                {
+                    "name": "value",
+                    "type": "dataLayer",
+                    "description": "Total value of the checkout"
+                },
+                {
+                    "name": "transaction_id",
+                    "type": "dataLayer",
+                    "description": "Optional: Session/Checkout ID"
+                },
+                {
+                    "name": "items",
+                    "type": "dataLayer",
+                    "description": "Array of item objects"
+                }
+            ]
+        },
+        {
+            "eventName": "purchase",
+            "description": "E-commerce event for successful payment completion.",
+            "trigger": {
+                "name": "Custom Event - purchase",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "purchase"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "transaction_id",
+                    "type": "dataLayer",
+                    "description": "Unique identifier for the transaction"
+                },
+                {
+                    "name": "currency",
+                    "type": "dataLayer",
+                    "description": "Currency code"
+                },
+                {
+                    "name": "value",
+                    "type": "dataLayer",
+                    "description": "Total purchase amount"
+                },
+                {
+                    "name": "items",
+                    "type": "dataLayer",
+                    "description": "Array of item objects"
+                }
+            ]
+        },
+        {
+            "eventName": "refund",
+            "description": "E-commerce event for registration cancellations.",
+            "trigger": {
+                "name": "Custom Event - refund",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "refund"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "transaction_id",
+                    "type": "dataLayer",
+                    "description": "ID of the transaction being refunded"
+                },
+                {
+                    "name": "currency",
+                    "type": "dataLayer",
+                    "description": "Currency code"
+                },
+                {
+                    "name": "value",
+                    "type": "dataLayer",
+                    "description": "Amount refunded"
+                },
+                {
+                    "name": "reason",
+                    "type": "dataLayer",
+                    "description": "Optional: Reason for refund"
+                }
+            ]
+        },
+        {
+            "eventName": "join_community",
+            "description": "Triggered when a user joins a community.",
+            "trigger": {
+                "name": "Custom Event - join_community",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "join_community"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "community_id",
+                    "type": "dataLayer",
+                    "description": "ID of the community"
+                },
+                {
+                    "name": "community_name",
+                    "type": "dataLayer",
+                    "description": "Name of the community"
+                },
+                {
+                    "name": "community_city",
+                    "type": "dataLayer",
+                    "description": "Optional: City of the community"
+                }
+            ]
+        },
+        {
+            "eventName": "leave_community",
+            "description": "Triggered when a user leaves a community.",
+            "trigger": {
+                "name": "Custom Event - leave_community",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "leave_community"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "community_id",
+                    "type": "dataLayer",
+                    "description": "ID of the community"
+                },
+                {
+                    "name": "community_name",
+                    "type": "dataLayer",
+                    "description": "Name of the community"
+                },
+                {
+                    "name": "community_city",
+                    "type": "dataLayer",
+                    "description": "Optional: City of the community"
+                }
+            ]
+        },
+        {
+            "eventName": "view_community",
+            "description": "Triggered when a user views a community detail page.",
+            "trigger": {
+                "name": "Custom Event - view_community",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "view_community"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "community_id",
+                    "type": "dataLayer",
+                    "description": "ID of the community"
+                },
+                {
+                    "name": "community_name",
+                    "type": "dataLayer",
+                    "description": "Name of the community"
+                },
+                {
+                    "name": "community_city",
+                    "type": "dataLayer",
+                    "description": "Optional: City of the community"
+                },
+                {
+                    "name": "member_count",
+                    "type": "dataLayer",
+                    "description": "Optional: Current number of members"
+                }
+            ]
+        },
+        {
+            "eventName": "create_discussion",
+            "description": "Triggered when a user creates a new discussion.",
+            "trigger": {
+                "name": "Custom Event - create_discussion",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "create_discussion"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "discussion_id",
+                    "type": "dataLayer",
+                    "description": "ID of the discussion"
+                },
+                {
+                    "name": "community_id",
+                    "type": "dataLayer",
+                    "description": "ID of the community"
+                },
+                {
+                    "name": "discussion_title",
+                    "type": "dataLayer",
+                    "description": "Title of the discussion"
+                }
+            ]
+        },
+        {
+            "eventName": "create_comment",
+            "description": "Triggered when a user posts a comment in a discussion.",
+            "trigger": {
+                "name": "Custom Event - create_comment",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "create_comment"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "comment_id",
+                    "type": "dataLayer",
+                    "description": "ID of the comment"
+                },
+                {
+                    "name": "discussion_id",
+                    "type": "dataLayer",
+                    "description": "ID of the discussion"
+                },
+                {
+                    "name": "comment_length",
+                    "type": "dataLayer",
+                    "description": "Optional: Character length of the comment"
+                }
+            ]
+        },
+        {
+            "eventName": "search",
+            "description": "Triggered when a user performs a search.",
+            "trigger": {
+                "name": "Custom Event - search",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "search"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "search_term",
+                    "type": "dataLayer",
+                    "description": "The search query string"
+                },
+                {
+                    "name": "search_type",
+                    "type": "dataLayer",
+                    "description": "Optional: Context of search (e.g., discussions)"
+                },
+                {
+                    "name": "results_count",
+                    "type": "dataLayer",
+                    "description": "Optional: Number of search results found"
+                }
+            ]
+        },
+        {
+            "eventName": "view_discussion",
+            "description": "Triggered when a user views a discussion detail page.",
+            "trigger": {
+                "name": "Custom Event - view_discussion",
+                "type": "customEvent",
+                "customEventFilter": [
+                    {
+                        "type": "equals",
+                        "parameter": [
+                            {
+                                "type": "template",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "template",
+                                "key": "arg1",
+                                "value": "view_discussion"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "discussion_id",
+                    "type": "dataLayer",
+                    "description": "ID of the discussion"
+                },
+                {
+                    "name": "discussion_title",
+                    "type": "dataLayer",
+                    "description": "Title of the discussion"
+                },
+                {
+                    "name": "community_id",
+                    "type": "dataLayer",
+                    "description": "ID of the community"
+                }
+            ]
+        }
+    ],
+    "globalVariables": [
+        {
+            "name": "ga4_measurement_id",
+            "type": "constant",
+            "description": "The GA4 Measurement ID (G-XXXXXXXXXX)"
+        }
+    ]
+}
