@@ -70,3 +70,5 @@ GIT_CLEANUP_SUMMARY.md
 
 # Seed data migrations (should be in seed.sql instead)
 supabase/migrations/20250806094303_seed_data.sql
+docs/features/analytics/gtm_events_schema.json
+sample_gtm.json

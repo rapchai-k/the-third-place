@@ -1,694 +1,1282 @@
 {
-    "containerName": "My Third Place GTM",
-    "events": [
+	    "containerName": "mythirdplace.rapchai.com",
+    "containerVersion": "1",
+    "description": "GTM container configuration for My Third Place analytics with GA4 integration",
+    "variables": [
         {
-            "eventName": "tp_page_view",
-            "description": "Custom page view event used to prevent collisions with GA4 default page_view tracking.",
-            "trigger": {
-                "name": "Custom Event - tp_page_view",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "tp_page_view"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - page_path",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "page_path",
-                    "type": "dataLayer",
-                    "description": "The relative path of the page"
+                    "type": "template",
+                    "key": "name",
+                    "value": "page_path"
                 },
                 {
-                    "name": "page_title",
-                    "type": "dataLayer",
-                    "description": "The document title of the page"
-                },
-                {
-                    "name": "page_location",
-                    "type": "dataLayer",
-                    "description": "The full URL of the page"
-                },
-                {
-                    "name": "content_type",
-                    "type": "dataLayer",
-                    "description": "Optional: Type of content (e.g., event, community)"
-                },
-                {
-                    "name": "content_id",
-                    "type": "dataLayer",
-                    "description": "Optional: ID of the content being viewed"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "login",
-            "description": "Triggered when a user successfully logs in.",
-            "trigger": {
-                "name": "Custom Event - login",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "login"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - page_title",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "method",
-                    "type": "dataLayer",
-                    "description": "Authentication method used (e.g., email, google)"
+                    "type": "template",
+                    "key": "name",
+                    "value": "page_title"
                 },
                 {
-                    "name": "user_id",
-                    "type": "dataLayer",
-                    "description": "Unique identifier for the user"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "sign_up",
-            "description": "Triggered when a user successfully signs up for a new account.",
-            "trigger": {
-                "name": "Custom Event - sign_up",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "sign_up"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - page_location",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "method",
-                    "type": "dataLayer",
-                    "description": "Registration method used (e.g., email, google)"
+                    "type": "template",
+                    "key": "name",
+                    "value": "page_location"
                 },
                 {
-                    "name": "user_id",
-                    "type": "dataLayer",
-                    "description": "Unique identifier for the user"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "set_user_properties",
-            "description": "Used to set custom user properties in GA4.",
-            "trigger": {
-                "name": "Custom Event - set_user_properties",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "set_user_properties"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - content_type",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "user_id",
-                    "type": "dataLayer",
-                    "description": "Unique identifier for the user"
+                    "type": "template",
+                    "key": "name",
+                    "value": "content_type"
                 },
                 {
-                    "name": "user_properties",
-                    "type": "dataLayer",
-                    "description": "Object containing custom user traits"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "clear_user_properties",
-            "description": "Triggered on logout to clear user identity in analytics.",
-            "trigger": {
-                "name": "Custom Event - clear_user_properties",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "clear_user_properties"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - content_id",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "user_id",
-                    "type": "dataLayer",
-                    "description": "Set to null"
+                    "type": "template",
+                    "key": "name",
+                    "value": "content_id"
                 },
                 {
-                    "name": "user_properties",
-                    "type": "dataLayer",
-                    "description": "Set to null"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "view_item",
-            "description": "E-commerce event for viewing an event detail page.",
-            "trigger": {
-                "name": "Custom Event - view_item",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "view_item"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - method",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "currency",
-                    "type": "dataLayer",
-                    "description": "Currency code (default: INR)"
+                    "type": "template",
+                    "key": "name",
+                    "value": "method"
                 },
                 {
-                    "name": "value",
-                    "type": "dataLayer",
-                    "description": "Price of the item"
-                },
-                {
-                    "name": "items",
-                    "type": "dataLayer",
-                    "description": "Array of item objects (item_id, item_name, price, item_category, item_category2)"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "begin_checkout",
-            "description": "E-commerce event for initiating a payment.",
-            "trigger": {
-                "name": "Custom Event - begin_checkout",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "begin_checkout"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - user_id",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "currency",
-                    "type": "dataLayer",
-                    "description": "Currency code"
+                    "type": "template",
+                    "key": "name",
+                    "value": "user_id"
                 },
                 {
-                    "name": "value",
-                    "type": "dataLayer",
-                    "description": "Total value of the checkout"
-                },
-                {
-                    "name": "transaction_id",
-                    "type": "dataLayer",
-                    "description": "Optional: Session/Checkout ID"
-                },
-                {
-                    "name": "items",
-                    "type": "dataLayer",
-                    "description": "Array of item objects"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "purchase",
-            "description": "E-commerce event for successful payment completion.",
-            "trigger": {
-                "name": "Custom Event - purchase",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "purchase"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - user_properties",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "transaction_id",
-                    "type": "dataLayer",
-                    "description": "Unique identifier for the transaction"
+                    "type": "template",
+                    "key": "name",
+                    "value": "user_properties"
                 },
                 {
-                    "name": "currency",
-                    "type": "dataLayer",
-                    "description": "Currency code"
-                },
-                {
-                    "name": "value",
-                    "type": "dataLayer",
-                    "description": "Total purchase amount"
-                },
-                {
-                    "name": "items",
-                    "type": "dataLayer",
-                    "description": "Array of item objects"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "refund",
-            "description": "E-commerce event for registration cancellations.",
-            "trigger": {
-                "name": "Custom Event - refund",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "refund"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - currency",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "transaction_id",
-                    "type": "dataLayer",
-                    "description": "ID of the transaction being refunded"
+                    "type": "template",
+                    "key": "name",
+                    "value": "currency"
                 },
                 {
-                    "name": "currency",
-                    "type": "dataLayer",
-                    "description": "Currency code"
-                },
-                {
-                    "name": "value",
-                    "type": "dataLayer",
-                    "description": "Amount refunded"
-                },
-                {
-                    "name": "reason",
-                    "type": "dataLayer",
-                    "description": "Optional: Reason for refund"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "join_community",
-            "description": "Triggered when a user joins a community.",
-            "trigger": {
-                "name": "Custom Event - join_community",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "join_community"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - value",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "community_id",
-                    "type": "dataLayer",
-                    "description": "ID of the community"
+                    "type": "template",
+                    "key": "name",
+                    "value": "value"
                 },
                 {
-                    "name": "community_name",
-                    "type": "dataLayer",
-                    "description": "Name of the community"
-                },
-                {
-                    "name": "community_city",
-                    "type": "dataLayer",
-                    "description": "Optional: City of the community"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "leave_community",
-            "description": "Triggered when a user leaves a community.",
-            "trigger": {
-                "name": "Custom Event - leave_community",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "leave_community"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - items",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "community_id",
-                    "type": "dataLayer",
-                    "description": "ID of the community"
+                    "type": "template",
+                    "key": "name",
+                    "value": "items"
                 },
                 {
-                    "name": "community_name",
-                    "type": "dataLayer",
-                    "description": "Name of the community"
-                },
-                {
-                    "name": "community_city",
-                    "type": "dataLayer",
-                    "description": "Optional: City of the community"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "view_community",
-            "description": "Triggered when a user views a community detail page.",
-            "trigger": {
-                "name": "Custom Event - view_community",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "view_community"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - transaction_id",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "community_id",
-                    "type": "dataLayer",
-                    "description": "ID of the community"
+                    "type": "template",
+                    "key": "name",
+                    "value": "transaction_id"
                 },
                 {
-                    "name": "community_name",
-                    "type": "dataLayer",
-                    "description": "Name of the community"
-                },
-                {
-                    "name": "community_city",
-                    "type": "dataLayer",
-                    "description": "Optional: City of the community"
-                },
-                {
-                    "name": "member_count",
-                    "type": "dataLayer",
-                    "description": "Optional: Current number of members"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "create_discussion",
-            "description": "Triggered when a user creates a new discussion.",
-            "trigger": {
-                "name": "Custom Event - create_discussion",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "create_discussion"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - reason",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "discussion_id",
-                    "type": "dataLayer",
-                    "description": "ID of the discussion"
+                    "type": "template",
+                    "key": "name",
+                    "value": "reason"
                 },
                 {
-                    "name": "community_id",
-                    "type": "dataLayer",
-                    "description": "ID of the community"
-                },
-                {
-                    "name": "discussion_title",
-                    "type": "dataLayer",
-                    "description": "Title of the discussion"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "create_comment",
-            "description": "Triggered when a user posts a comment in a discussion.",
-            "trigger": {
-                "name": "Custom Event - create_comment",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "create_comment"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - community_id",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "comment_id",
-                    "type": "dataLayer",
-                    "description": "ID of the comment"
+                    "type": "template",
+                    "key": "name",
+                    "value": "community_id"
                 },
                 {
-                    "name": "discussion_id",
-                    "type": "dataLayer",
-                    "description": "ID of the discussion"
-                },
-                {
-                    "name": "comment_length",
-                    "type": "dataLayer",
-                    "description": "Optional: Character length of the comment"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "search",
-            "description": "Triggered when a user performs a search.",
-            "trigger": {
-                "name": "Custom Event - search",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "search"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - community_name",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "search_term",
-                    "type": "dataLayer",
-                    "description": "The search query string"
+                    "type": "template",
+                    "key": "name",
+                    "value": "community_name"
                 },
                 {
-                    "name": "search_type",
-                    "type": "dataLayer",
-                    "description": "Optional: Context of search (e.g., discussions)"
-                },
-                {
-                    "name": "results_count",
-                    "type": "dataLayer",
-                    "description": "Optional: Number of search results found"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         },
         {
-            "eventName": "view_discussion",
-            "description": "Triggered when a user views a discussion detail page.",
-            "trigger": {
-                "name": "Custom Event - view_discussion",
-                "type": "customEvent",
-                "customEventFilter": [
-                    {
-                        "type": "equals",
-                        "parameter": [
-                            {
-                                "type": "template",
-                                "key": "arg0",
-                                "value": "{{_event}}"
-                            },
-                            {
-                                "type": "template",
-                                "key": "arg1",
-                                "value": "view_discussion"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "parameters": [
+            "name": "DLV - community_city",
+            "type": "v",
+            "parameter": [
                 {
-                    "name": "discussion_id",
-                    "type": "dataLayer",
-                    "description": "ID of the discussion"
+                    "type": "template",
+                    "key": "name",
+                    "value": "community_city"
                 },
                 {
-                    "name": "discussion_title",
-                    "type": "dataLayer",
-                    "description": "Title of the discussion"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
+                }
+            ]
+        },
+        {
+            "name": "DLV - member_count",
+            "type": "v",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "name",
+                    "value": "member_count"
                 },
                 {
-                    "name": "community_id",
-                    "type": "dataLayer",
-                    "description": "ID of the community"
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
+                }
+            ]
+        },
+        {
+            "name": "DLV - discussion_id",
+            "type": "v",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "name",
+                    "value": "discussion_id"
+                },
+                {
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
+                }
+            ]
+        },
+        {
+            "name": "DLV - discussion_title",
+            "type": "v",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "name",
+                    "value": "discussion_title"
+                },
+                {
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
+                }
+            ]
+        },
+        {
+            "name": "DLV - comment_id",
+            "type": "v",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "name",
+                    "value": "comment_id"
+                },
+                {
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
+                }
+            ]
+        },
+        {
+            "name": "DLV - comment_length",
+            "type": "v",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "name",
+                    "value": "comment_length"
+                },
+                {
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
+                }
+            ]
+        },
+        {
+            "name": "DLV - search_term",
+            "type": "v",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "name",
+                    "value": "search_term"
+                },
+                {
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
+                }
+            ]
+        },
+        {
+            "name": "DLV - search_type",
+            "type": "v",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "name",
+                    "value": "search_type"
+                },
+                {
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
+                }
+            ]
+        },
+        {
+            "name": "DLV - results_count",
+            "type": "v",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "name",
+                    "value": "results_count"
+                },
+                {
+                    "type": "template",
+                    "key": "dataLayerVersion",
+                    "value": "2"
                 }
             ]
         }
     ],
-    "globalVariables": [
+    "triggers": [
         {
-            "name": "ga4_measurement_id",
-            "type": "constant",
-            "description": "The GA4 Measurement ID (G-XXXXXXXXXX)"
+            "name": "CE - tp_page_view",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "tp_page_view"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - login",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "login"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - sign_up",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "sign_up"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - set_user_properties",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "set_user_properties"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - clear_user_properties",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "clear_user_properties"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - view_item",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "view_item"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - begin_checkout",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "begin_checkout"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - purchase",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "purchase"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - refund",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "refund"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - join_community",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "join_community"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - leave_community",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "leave_community"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - view_community",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "view_community"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - create_discussion",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "create_discussion"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - create_comment",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "create_comment"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - search",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "search"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "CE - view_discussion",
+            "type": "customEvent",
+            "customEventFilter": [
+                {
+                    "type": "equals",
+                    "parameter": [
+                        {
+                            "type": "template",
+                            "key": "arg0",
+                            "value": "{{_event}}"
+                        },
+                        {
+                            "type": "template",
+                            "key": "arg1",
+                            "value": "view_discussion"
+                        }
+                    ]
+                }
+            ]
         }
-    ]
+    ],
+    "tags": [
+        {
+	            "name": "GA4 - Config",
+	            "type": "ga4c",
+	            "parameter": [
+	                {
+	                    "type": "template",
+	                    "key": "measurementId",
+	                    "value": "G-P7JDV3NGVV"
+	                },
+	                {
+	                    "type": "template",
+	                    "key": "sendPageView",
+	                    "value": "false"
+	                }
+	            ],
+            "firingTriggerId": [
+                "All Pages"
+            ]
+        },
+        {
+            "name": "GA4 - Event - page_view",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "page_view"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "page_location={{DLV - page_location}};page_path={{DLV - page_path}};page_title={{DLV - page_title}};content_type={{DLV - content_type}};content_id={{DLV - content_id}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - tp_page_view"
+            ]
+        },
+        {
+            "name": "GA4 - Event - login",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "login"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "method={{DLV - method}};user_id={{DLV - user_id}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - login"
+            ]
+        },
+        {
+            "name": "GA4 - Event - sign_up",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "sign_up"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "method={{DLV - method}};user_id={{DLV - user_id}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - sign_up"
+            ]
+        },
+        {
+            "name": "GA4 - Event - set_user_properties",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "set_user_properties"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "user_id={{DLV - user_id}};user_properties={{DLV - user_properties}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - set_user_properties"
+            ]
+        },
+        {
+            "name": "GA4 - Event - clear_user_properties",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "clear_user_properties"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "user_id={{DLV - user_id}};user_properties={{DLV - user_properties}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - clear_user_properties"
+            ]
+        },
+        {
+            "name": "GA4 - Event - view_item",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "view_item"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "currency={{DLV - currency}};value={{DLV - value}};items={{DLV - items}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - view_item"
+            ]
+        },
+        {
+            "name": "GA4 - Event - begin_checkout",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "begin_checkout"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "currency={{DLV - currency}};value={{DLV - value}};transaction_id={{DLV - transaction_id}};items={{DLV - items}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - begin_checkout"
+            ]
+        },
+        {
+            "name": "GA4 - Event - purchase",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "purchase"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "transaction_id={{DLV - transaction_id}};currency={{DLV - currency}};value={{DLV - value}};items={{DLV - items}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - purchase"
+            ]
+        },
+        {
+            "name": "GA4 - Event - refund",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "refund"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "transaction_id={{DLV - transaction_id}};currency={{DLV - currency}};value={{DLV - value}};reason={{DLV - reason}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - refund"
+            ]
+        },
+        {
+            "name": "GA4 - Event - join_community",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "join_community"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "community_id={{DLV - community_id}};community_name={{DLV - community_name}};community_city={{DLV - community_city}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - join_community"
+            ]
+        },
+        {
+            "name": "GA4 - Event - leave_community",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "leave_community"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "community_id={{DLV - community_id}};community_name={{DLV - community_name}};community_city={{DLV - community_city}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - leave_community"
+            ]
+        },
+        {
+            "name": "GA4 - Event - view_community",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "view_community"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "community_id={{DLV - community_id}};community_name={{DLV - community_name}};community_city={{DLV - community_city}};member_count={{DLV - member_count}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - view_community"
+            ]
+        },
+        {
+            "name": "GA4 - Event - create_discussion",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "create_discussion"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "discussion_id={{DLV - discussion_id}};community_id={{DLV - community_id}};discussion_title={{DLV - discussion_title}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - create_discussion"
+            ]
+        },
+        {
+            "name": "GA4 - Event - create_comment",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "create_comment"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "comment_id={{DLV - comment_id}};discussion_id={{DLV - discussion_id}};comment_length={{DLV - comment_length}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - create_comment"
+            ]
+        },
+        {
+            "name": "GA4 - Event - search",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "search"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "search_term={{DLV - search_term}};search_type={{DLV - search_type}};results_count={{DLV - results_count}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - search"
+            ]
+        },
+        {
+            "name": "GA4 - Event - view_discussion",
+            "type": "ga4e",
+            "parameter": [
+                {
+                    "type": "template",
+                    "key": "eventName",
+                    "value": "view_discussion"
+                },
+                {
+                    "type": "template",
+                    "key": "eventParameters",
+                    "value": "discussion_id={{DLV - discussion_id}};discussion_title={{DLV - discussion_title}};community_id={{DLV - community_id}}"
+                },
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": "GA4 - Config"
+                }
+            ],
+            "firingTriggerId": [
+                "CE - view_discussion"
+            ]
+        }
+    ],
+    "eventMapping": {
+        "tp_page_view": {
+            "description": "Custom page view event used to prevent collisions with GA4 default page_view tracking",
+            "ga4EventName": "page_view",
+            "parameters": [
+                "page_path",
+                "page_title",
+                "page_location",
+                "content_type",
+                "content_id"
+            ]
+        },
+        "login": {
+            "description": "Triggered when a user successfully logs in",
+            "ga4EventName": "login",
+            "parameters": [
+                "method",
+                "user_id"
+            ]
+        },
+        "sign_up": {
+            "description": "Triggered when a user successfully signs up for a new account",
+            "ga4EventName": "sign_up",
+            "parameters": [
+                "method",
+                "user_id"
+            ]
+        },
+        "set_user_properties": {
+            "description": "Used to set custom user properties in GA4",
+            "ga4EventName": "set_user_properties",
+            "parameters": [
+                "user_id",
+                "user_properties"
+            ]
+        },
+        "clear_user_properties": {
+            "description": "Triggered on logout to clear user identity in analytics",
+            "ga4EventName": "clear_user_properties",
+            "parameters": [
+                "user_id",
+                "user_properties"
+            ]
+        },
+        "view_item": {
+            "description": "E-commerce event for viewing an event detail page",
+            "ga4EventName": "view_item",
+            "parameters": [
+                "currency",
+                "value",
+                "items"
+            ]
+        },
+        "begin_checkout": {
+            "description": "E-commerce event for initiating a payment",
+            "ga4EventName": "begin_checkout",
+            "parameters": [
+                "currency",
+                "value",
+                "transaction_id",
+                "items"
+            ]
+        },
+        "purchase": {
+            "description": "E-commerce event for successful payment completion",
+            "ga4EventName": "purchase",
+            "parameters": [
+                "transaction_id",
+                "currency",
+                "value",
+                "items"
+            ]
+        },
+        "refund": {
+            "description": "E-commerce event for registration cancellations",
+            "ga4EventName": "refund",
+            "parameters": [
+                "transaction_id",
+                "currency",
+                "value",
+                "reason"
+            ]
+        },
+        "join_community": {
+            "description": "Triggered when a user joins a community",
+            "ga4EventName": "join_community",
+            "parameters": [
+                "community_id",
+                "community_name",
+                "community_city"
+            ]
+        },
+        "leave_community": {
+            "description": "Triggered when a user leaves a community",
+            "ga4EventName": "leave_community",
+            "parameters": [
+                "community_id",
+                "community_name",
+                "community_city"
+            ]
+        },
+        "view_community": {
+            "description": "Triggered when a user views a community detail page",
+            "ga4EventName": "view_community",
+            "parameters": [
+                "community_id",
+                "community_name",
+                "community_city",
+                "member_count"
+            ]
+        },
+        "create_discussion": {
+            "description": "Triggered when a user creates a new discussion",
+            "ga4EventName": "create_discussion",
+            "parameters": [
+                "discussion_id",
+                "community_id",
+                "discussion_title"
+            ]
+        },
+        "create_comment": {
+            "description": "Triggered when a user posts a comment in a discussion",
+            "ga4EventName": "create_comment",
+            "parameters": [
+                "comment_id",
+                "discussion_id",
+                "comment_length"
+            ]
+        },
+        "search": {
+            "description": "Triggered when a user performs a search",
+            "ga4EventName": "search",
+            "parameters": [
+                "search_term",
+                "search_type",
+                "results_count"
+            ]
+        },
+        "view_discussion": {
+            "description": "Triggered when a user views a discussion detail page",
+            "ga4EventName": "view_discussion",
+            "parameters": [
+                "discussion_id",
+                "discussion_title",
+                "community_id"
+            ]
+        }
+    }
 }

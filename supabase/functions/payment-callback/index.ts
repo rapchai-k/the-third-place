@@ -40,8 +40,8 @@ serve(async (req) => {
   try {
     logStep("Webhook received");
 
-    // Get Razorpay webhook secret
-    const razorpayWebhookSecret = Deno.env.get("RZP_WEBHOOK_SECRET");
+    // Get Razorpay webhook secret (live webhook secret takes precedence)
+    const razorpayWebhookSecret = Deno.env.get("RZP_LIVE_WEBHOOK_SECRET") || Deno.env.get("RZP_WEBHOOK_SECRET");
     if (!razorpayWebhookSecret) {
       throw new Error("Razorpay webhook secret not configured");
     }

@@ -200,22 +200,23 @@ status:        pending ─────► completed (if paid)
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `RZP_KEY_ID` | Production Razorpay Key ID | `rzp_live_xxxxx` |
-| `RZP_KEY_SECRET` | Production Razorpay Key Secret | `xxxxx` |
-| `RZP_WEBHOOK_SECRET` | Webhook signature secret | `xxxxx` |
+| `RZP_LIVE_KEY_ID` | Live Razorpay Key ID | `rzp_live_xxxxx` |
+| `RZP_LIVE_KEY_SECRET` | Live Razorpay Key Secret | `xxxxx` |
+| `RZP_LIVE_WEBHOOK_SECRET` | Live Webhook signature secret | `xxxxx` |
 | `RZP_TEST_KEY_ID` | Test mode Key ID (fallback) | `rzp_test_xxxxx` |
 | `RZP_TEST_KEY_SECRET` | Test mode Key Secret (fallback) | `xxxxx` |
+| `RZP_WEBHOOK_SECRET` | Test Webhook secret (fallback) | `xxxxx` |
 | `RZP_BASE_URL` | API base URL (optional) | `https://api.razorpay.com` |
 
-> **Note:** Production keys (`RZP_KEY_*`) take precedence over test keys (`RZP_TEST_KEY_*`).
+> **Note:** Live keys (`RZP_LIVE_*`) take precedence over test keys (`RZP_TEST_*`).
 
 ### Setting Up Secrets
 
 ```bash
 # Via Supabase CLI
-supabase secrets set RZP_KEY_ID="rzp_live_xxx"
-supabase secrets set RZP_KEY_SECRET="secret_xxx"
-supabase secrets set RZP_WEBHOOK_SECRET="webhook_xxx"
+supabase secrets set RZP_LIVE_KEY_ID="rzp_live_xxx"
+supabase secrets set RZP_LIVE_KEY_SECRET="secret_xxx"
+supabase secrets set RZP_LIVE_WEBHOOK_SECRET="webhook_xxx"
 ```
 
 Or via Supabase Dashboard: **Settings → Functions → Secrets**

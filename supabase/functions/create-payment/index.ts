@@ -15,13 +15,13 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    // Get Razorpay credentials from environment (production keys take precedence over test keys)
-    const razorpayKeyId = Deno.env.get("RZP_KEY_ID") || Deno.env.get("RZP_TEST_KEY_ID");
-    const razorpayKeySecret = Deno.env.get("RZP_KEY_SECRET") || Deno.env.get("RZP_TEST_KEY_SECRET");
+    // Get Razorpay credentials from environment (live keys take precedence over test keys)
+    const razorpayKeyId = Deno.env.get("RZP_LIVE_KEY_ID") || Deno.env.get("RZP_TEST_KEY_ID");
+    const razorpayKeySecret = Deno.env.get("RZP_LIVE_KEY_SECRET") || Deno.env.get("RZP_TEST_KEY_SECRET");
     const razorpayBaseUrl = Deno.env.get("RZP_BASE_URL") || "https://api.razorpay.com";
 
     if (!razorpayKeyId || !razorpayKeySecret) {
-      throw new Error("Razorpay credentials not configured. Please add RZP_KEY_ID/RZP_KEY_SECRET or RZP_TEST_KEY_ID/RZP_TEST_KEY_SECRET to edge function secrets.");
+      throw new Error("Razorpay credentials not configured. Please add RZP_LIVE_KEY_ID/RZP_LIVE_KEY_SECRET or RZP_TEST_KEY_ID/RZP_TEST_KEY_SECRET to edge function secrets.");
     }
 
     // Initialize Supabase client with service role key

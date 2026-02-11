@@ -15,9 +15,9 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    // Get Razorpay credentials (production keys take precedence over test keys)
-    const razorpayKeyId = Deno.env.get("RZP_KEY_ID") || Deno.env.get("RZP_TEST_KEY_ID");
-    const razorpayKeySecret = Deno.env.get("RZP_KEY_SECRET") || Deno.env.get("RZP_TEST_KEY_SECRET");
+    // Get Razorpay credentials (live keys take precedence over test keys)
+    const razorpayKeyId = Deno.env.get("RZP_LIVE_KEY_ID") || Deno.env.get("RZP_TEST_KEY_ID");
+    const razorpayKeySecret = Deno.env.get("RZP_LIVE_KEY_SECRET") || Deno.env.get("RZP_TEST_KEY_SECRET");
     const razorpayBaseUrl = Deno.env.get("RZP_BASE_URL") || "https://api.razorpay.com";
 
     if (!razorpayKeyId || !razorpayKeySecret) {
