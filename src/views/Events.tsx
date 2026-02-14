@@ -244,7 +244,7 @@ export default function Events({ initialEvents }: EventsProps = {}) {
 
 
                   <div className="space-y-2 pt-2 border-t">
-                    <Badge variant="secondary" className="flex items-center gap-1 w-fit bg-background text-black border-foreground">
+                    <Badge variant="secondary" className="flex items-center gap-1 w-fit bg-background text-foreground border-foreground">
                       <Users className="h-3 w-3" />
                       {event.event_registrations?.[0]?.count || 0}/{event.capacity}
                     </Badge>
@@ -257,13 +257,13 @@ export default function Events({ initialEvents }: EventsProps = {}) {
                   <div className="flex flex-col gap-2 pt-2 border-t mt-auto">
                     {user && isRegistered ? (
                       <>
-                        <Button asChild variant="outline" size="sm" className="w-full bg-background text-black border-foreground">
+                        <Button asChild variant="outline" size="sm" className="w-full bg-background text-foreground border-foreground">
                           <Link to={`/events/${event.id}`}>
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </Link>
                         </Button>
-                        <Button asChild variant="secondary" size="sm" className="w-full bg-background text-black border-foreground">
+                        <Button asChild variant="secondary" size="sm" className="w-full bg-background text-foreground border-foreground">
                           <Link to="/discussions">
                             <MessageSquare className="h-4 w-4 mr-2" />
                             Explore Discussions
@@ -272,7 +272,7 @@ export default function Events({ initialEvents }: EventsProps = {}) {
                       </>
                     ) : (
                       <>
-                        <Button asChild variant="outline" size="sm" className="w-full bg-background text-black border-foreground">
+                        <Button asChild variant="outline" size="sm" className="w-full bg-background text-foreground border-foreground">
                           <Link to={`/events/${event.id}`}>
                             <Eye className="h-4 w-4 mr-2" />
                             View Details

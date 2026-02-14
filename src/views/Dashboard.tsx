@@ -252,7 +252,7 @@ const Dashboard = () => {
                       by {event.community_name} • {event.community_city}
                     </div>
                   )}
-                  <Button variant="outline" size="sm" asChild className="w-full">
+                  <Button variant="outline" size="sm" asChild className="w-full bg-background text-foreground border-foreground">
                     <Link to={`/events/${event.id}`}>View Details</Link>
                   </Button>
                 </CardContent>

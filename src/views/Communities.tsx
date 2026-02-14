@@ -322,7 +322,7 @@ export default function Communities({ initialCommunities }: CommunitiesProps = {
                     </CardDescription>
 
                     <div className="flex items-center justify-between">
-                      <Badge variant="secondary" className="flex items-center gap-1 bg-background text-black border-foreground">
+                      <Badge variant="secondary" className="flex items-center gap-1 bg-background text-foreground border-foreground">
                         <Users className="h-3 w-3" />
                         {community.member_count || 0} members
                       </Badge>
@@ -331,7 +331,7 @@ export default function Communities({ initialCommunities }: CommunitiesProps = {
                         <Button
                           size="sm"
                           variant={user && isUserMember(community.id) ? "outline" : "default"}
-                          className={user && isUserMember(community.id) ? "bg-background text-black border-foreground" : ""}
+                          className={user && isUserMember(community.id) ? "bg-background text-foreground border-foreground" : ""}
                           onClick={(e) => {
                             e.preventDefault();
                             if (!user) {
