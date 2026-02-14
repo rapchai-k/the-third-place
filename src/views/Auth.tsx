@@ -23,7 +23,7 @@ export const AuthPage = () => {
   const [referralCodeApplied, setReferralCodeApplied] = useState(false);
   const [referralError, setReferralError] = useState("");
   const [currentTab, setCurrentTab] = useState("signin");
-  
+
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -153,7 +153,7 @@ export const AuthPage = () => {
 
   const handleApplyReferralCode = async (code: string) => {
     setReferralError("");
-    
+
     // For now, just mark it as applied - we'll apply it after successful registration
     setReferralCodeApplied(true);
     toast({
@@ -165,6 +165,13 @@ export const AuthPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-2xl">
+        {/* Logo linking to home */}
+        <div className="flex justify-center mb-8">
+          <a href="/" className="inline-block border-2 border-foreground bg-background px-4 py-2 shadow-brutal hover:shadow-brutal-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-150">
+            <img src="/logo.png" alt="My Third Place" className="h-16 w-auto" loading="eager" decoding="async" />
+          </a>
+        </div>
+
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-primary">Welcome to My Third Place</CardTitle>
@@ -178,7 +185,7 @@ export const AuthPage = () => {
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="signin">
                 <div className="space-y-4 mt-6">
                   {/* Google Sign In Button - Above the fold */}
@@ -241,7 +248,7 @@ export const AuthPage = () => {
                   </form>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="signup">
                 <div className="space-y-4 mt-6">
                   {/* Google Sign In Button - Above the fold */}

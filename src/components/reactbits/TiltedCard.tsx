@@ -5,9 +5,18 @@ import { Badge } from "@/components/ui/badge";
 import { Users, MapPin } from "lucide-react";
 import { useNavigate } from "@/lib/nextRouterAdapter";
 
+// Rotating accent colors for neo-brutalism community cards
+const ACCENT_COLORS = [
+  'bg-accent',           // yellow
+  'bg-primary',          // pink
+  'bg-secondary',        // cyan
+  'bg-[#ADFF2F]',        // lime green
+];
+
 interface TiltedCardProps {
   children?: React.ReactNode;
   className?: string;
+  colorIndex?: number;
   community?: {
     id: string;
     name: string;
@@ -21,104 +30,68 @@ interface TiltedCardProps {
 export const TiltedCard: React.FC<TiltedCardProps> = ({
   children,
   className = "",
+  colorIndex = 0,
   community
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x);
-  const mouseYSpring = useSpring(y);
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["0deg", "0deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["0deg", "0deg"]);
-  
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    
-    const rect = ref.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-    
-    x.set(xPct);
-    y.set(yPct);
-  };
-  
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
 
   const handleCardClick = () => {
     if (community) {
       navigate(`/communities/${community.id}`);
     }
   };
-  
+
+  const accentColor = ACCENT_COLORS[colorIndex % ACCENT_COLORS.length];
+
   return (
     <motion.div
       ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       onClick={handleCardClick}
-      style={{
-        rotateY: rotateY,
-        rotateX: rotateX,
-        transformStyle: "preserve-3d",
-      }}
-      className={`perspective-1000 cursor-pointer ${className}`}
-      whileHover={{ scale: 1.02 }}
+      className={`cursor-pointer ${className}`}
+      whileHover={{ y: -4 }}
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
     >
-      <Card className="hover:shadow-xl transition-all duration-300 bg-card/90 backdrop-blur-md border border-border/50 h-full overflow-hidden group">
+      <Card className={`${accentColor} border-2 border-foreground shadow-brutal hover:shadow-brutal-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-150 h-full overflow-hidden group text-black`}>
         {community ? (
           <div className="h-full flex flex-col">
             {/* Community Image */}
             {community.image_url && (
-              <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={community.image_url} 
+              <div className="relative h-48 overflow-hidden border-b-2 border-foreground">
+                <img
+                  src={community.image_url}
                   alt={community.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
               </div>
             )}
-            
-            <div className="p-6 flex-1 flex flex-col">
+
+            <div className="p-5 flex-1 flex flex-col">
               {/* Community Name */}
-              <CardTitle className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-primary transition-smooth">
+              <CardTitle className="text-lg font-bold mb-2 line-clamp-2 uppercase">
                 {community.name}
               </CardTitle>
 
               {/* Community Description */}
-              <CardDescription className="text-sm text-muted-foreground mb-6 line-clamp-3 flex-grow">
+              <CardDescription className="text-sm text-black/60 mb-4 line-clamp-3 flex-grow">
                 {community.description}
               </CardDescription>
 
               {/* Stats Row */}
-              <div className="space-y-3 mt-auto">
+              <div className="space-y-2 mt-auto">
                 {/* Member Count */}
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full">
-                    <Users className="w-4 h-4 text-primary" />
-                    <span className="font-medium">{community.members} members</span>
+                <div className="flex items-center gap-2 text-sm font-bold text-black">
+                  <div className="flex items-center gap-1.5 bg-background border-2 border-foreground px-2 py-0.5">
+                    <Users className="w-3.5 h-3.5" />
+                    <span>{community.members} members</span>
                   </div>
                 </div>
 
                 {/* Location */}
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-accent" />
-                  <Badge variant="secondary" className="text-xs bg-accent/10 text-accent border-accent/20 hover:bg-accent/20 transition-smooth">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <Badge variant="outline" className="bg-background text-black border-foreground">
                     {community.city}
                   </Badge>
                 </div>

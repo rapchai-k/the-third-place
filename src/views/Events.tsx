@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { Link } from "@/lib/nextRouterAdapter";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,7 +30,6 @@ interface EventsProps {
 export default function Events({ initialEvents }: EventsProps = {}) {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTag, setSelectedTag] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
 
   // Add structured data for SEO (memoized to avoid recalculating on every render)
@@ -52,7 +51,7 @@ export default function Events({ initialEvents }: EventsProps = {}) {
   };
 
   const { data: events, isLoading } = useQuery({
-    queryKey: ["events", searchTerm, selectedTag, selectedCity],
+    queryKey: ["events", searchTerm, selectedCity],
     queryFn: async () => {
       let query = supabase
         .from("events")
@@ -85,11 +84,7 @@ export default function Events({ initialEvents }: EventsProps = {}) {
         !event.date_time || new Date(event.date_time) >= new Date()
       );
 
-      if (selectedTag) {
-        filteredData = filteredData.filter(event =>
-          event.event_tags?.some(et => et.tags?.name === selectedTag)
-        );
-      }
+
 
       if (selectedCity) {
         filteredData = filteredData.filter(event =>
@@ -99,21 +94,15 @@ export default function Events({ initialEvents }: EventsProps = {}) {
 
       return filteredData;
     },
-    // Use SSR data as initial data (avoids loading state on first render)
-    initialData: initialEvents,
+    // Only use SSR data when no filters/search are active
+    ...((!searchTerm && !selectedCity && initialEvents)
+      ? { initialData: initialEvents }
+      : {}),
+    // Keep showing previous data while refetching with new filters
+    placeholderData: keepPreviousData,
   });
 
-  const { data: tags } = useQuery({
-    queryKey: ["tags"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("tags")
-        .select("name")
-        .order("name");
-      if (error) throw error;
-      return data.map(t => t.name);
-    },
-  });
+
 
   const { data: cities } = useQuery({
     queryKey: ["eventCities"],
@@ -192,21 +181,7 @@ export default function Events({ initialEvents }: EventsProps = {}) {
               className="pl-10"
             />
           </div>
-          <div className="relative">
-            <select
-              value={selectedTag}
-              onChange={(e) => setSelectedTag(e.target.value)}
-              className="px-4 py-2 pr-12 border rounded-md bg-background appearance-none cursor-pointer w-full"
-            >
-              <option value="">All Tags</option>
-              {tags?.map((tag) => (
-                <option key={tag} value={tag}>
-                  {tag}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-          </div>
+
           <div className="relative">
             <select
               value={selectedCity}
@@ -225,11 +200,13 @@ export default function Events({ initialEvents }: EventsProps = {}) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events?.map((event) => {
+          {events?.map((event, index) => {
             const isRegistered = registeredEventIds.has(event.id);
+            const accentColors = ['bg-accent', 'bg-primary', 'bg-secondary', 'bg-[#ADFF2F]'];
+            const cardColor = accentColors[index % 4];
 
             return (
-              <Card key={event.id} className="hover:shadow-lg transition-shadow h-full flex flex-col relative">
+              <Card key={event.id} className={`${cardColor} text-black h-full flex flex-col relative hover:shadow-brutal-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-150`}>
                 {/* Registration Status Badge - Top Right */}
                 {user && (
                   <div className="absolute top-3 right-3 z-10">
@@ -246,42 +223,42 @@ export default function Events({ initialEvents }: EventsProps = {}) {
                 )}
 
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg line-clamp-2 mb-3 pr-24">{event.title || "TBD"}</CardTitle>
+                  <CardTitle className="text-lg line-clamp-2 mb-3 pr-24 text-black">{event.title || "TBD"}</CardTitle>
 
                   <div className="space-y-2">
-                    <div className="flex items-center text-sm text-muted-foreground gap-2">
+                    <div className="flex items-center text-sm text-black/60 gap-2">
                       <Calendar className="h-4 w-4 flex-shrink-0" />
                       <span>{event.date_time ? format(new Date(event.date_time), "MMM d, yyyy") : "TBD"}</span>
                     </div>
-                    <div className="flex items-center text-sm text-muted-foreground gap-2">
+                    <div className="flex items-center text-sm text-black/60 gap-2">
                       <Clock className="h-4 w-4 flex-shrink-0" />
                       <span>{event.date_time ? format(new Date(event.date_time), "h:mm a") : "TBD"}</span>
                     </div>
-                    <div className="flex items-center text-sm text-muted-foreground gap-2">
+                    <div className="flex items-center text-sm text-black/60 gap-2">
                       <MapPin className="h-4 w-4 flex-shrink-0" />
                       <span className="line-clamp-1">{event.venue || "TBD"}</span>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col space-y-4">
-                  <CardDescription className="line-clamp-3 flex-grow" style={{ height: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <CardDescription className="line-clamp-3 flex-grow text-black/60" style={{ height: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {event.description || "TBD"}
                   </CardDescription>
 
                   <div className="flex flex-wrap gap-2">
                     {event.event_tags?.map((et, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
+                      <Badge key={index} variant="outline" className="text-xs bg-background text-black border-foreground">
                         {et.tags?.name}
                       </Badge>
                     ))}
                   </div>
 
                   <div className="space-y-2 pt-2 border-t">
-                    <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+                    <Badge variant="secondary" className="flex items-center gap-1 w-fit bg-background text-black border-foreground">
                       <Users className="h-3 w-3" />
                       {event.event_registrations?.[0]?.count || 0}/{event.capacity}
                     </Badge>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-black/60">
                       by {event.communities?.name || "TBD"}
                     </p>
                   </div>
@@ -290,13 +267,13 @@ export default function Events({ initialEvents }: EventsProps = {}) {
                   <div className="flex flex-col gap-2 pt-2 border-t mt-auto">
                     {user && isRegistered ? (
                       <>
-                        <Button asChild variant="outline" size="sm" className="w-full">
+                        <Button asChild variant="outline" size="sm" className="w-full bg-background text-black border-foreground">
                           <Link to={`/events/${event.id}`}>
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </Link>
                         </Button>
-                        <Button asChild variant="secondary" size="sm" className="w-full">
+                        <Button asChild variant="secondary" size="sm" className="w-full bg-background text-black border-foreground">
                           <Link to="/discussions">
                             <MessageSquare className="h-4 w-4 mr-2" />
                             Explore Discussions
@@ -305,13 +282,13 @@ export default function Events({ initialEvents }: EventsProps = {}) {
                       </>
                     ) : (
                       <>
-                        <Button asChild variant="outline" size="sm" className="w-full">
+                        <Button asChild variant="outline" size="sm" className="w-full bg-background text-black border-foreground">
                           <Link to={`/events/${event.id}`}>
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </Link>
                         </Button>
-                        <Button asChild variant="default" size="sm" className="w-full">
+                        <Button asChild variant="default" size="sm" className="w-full bg-foreground text-background border-foreground">
                           <Link to={`/events/${event.id}`}>
                             <Users className="h-4 w-4 mr-2" />
                             Register Now

@@ -150,7 +150,6 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
           limit: 20
         });
         if (error) {
-          // Error fetching gallery images - logging removed for security
           return;
         }
         if (files && files.length > 0) {
@@ -158,12 +157,12 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
             id: file.id || `bucket-${index}`,
             src: supabase.storage.from('landing-page-images').getPublicUrl(file.name).data.publicUrl,
             alt: file.name.replace(/\.[^/.]+$/, "").replace(/-|_/g, " "),
-            height: 200 + Math.floor(Math.random() * 100) // Random height for masonry effect
+            height: 200 + Math.floor(Math.random() * 100)
           }));
           setGalleryImages(bucketImages);
         }
       } catch (error) {
-        // Error loading gallery images - logging removed for security
+        // Error loading gallery images
       }
     };
     fetchGalleryImages();
@@ -188,7 +187,6 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
         nullsFirst: false
       }).limit(4);
       if (error) throw error;
-      // Filter to include events with null dates or future dates
       const filteredEvents = events?.filter(event =>
         !event.date_time || new Date(event.date_time) >= new Date()
       ) || [];
@@ -199,11 +197,9 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
         attendees: event.event_registrations?.length || 0
       })) || [];
     },
-    // Skip query if we have SSR data
     enabled: !initialEvents || initialEvents.length === 0,
   });
 
-  // Use SSR data if available, otherwise use fetched data
   const featuredEvents = (initialEvents && initialEvents.length > 0)
     ? initialEvents.map(event => ({
       ...event,
@@ -230,12 +226,9 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
         })) || [];
       return mappedCommunities;
     },
-    // Skip query if we have SSR data
     enabled: !initialCommunities || initialCommunities.length === 0,
   });
 
-  // Use SSR data if available, otherwise use fetched data
-  // Memoize to prevent infinite re-render loop in useEffect
   const featuredCommunities = useMemo(() => {
     if (initialCommunities && initialCommunities.length > 0) {
       return initialCommunities.map(community => ({
@@ -246,15 +239,13 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
     return fetchedCommunities;
   }, [initialCommunities, fetchedCommunities]);
 
-  // Track if initial data has been seeded to prevent infinite loop
   const hasSeededInitialData = useRef(false);
 
-  // Seed UI with initial page on first load (only once)
   useEffect(() => {
     if (!hasSeededInitialData.current && featuredCommunities && featuredCommunities.length > 0) {
       hasSeededInitialData.current = true;
       setAllCommunities(featuredCommunities);
-      setCommunitiesPage(1); // first page loaded
+      setCommunitiesPage(1);
       setHasMoreCommunities(featuredCommunities.length === PAGE_SIZE);
     }
   }, [featuredCommunities]);
@@ -279,11 +270,9 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
           members: community.member_count || 0,
         })) || [];
 
-      // Deduplicate by id in case overlapping ranges or earlier bug
       setAllCommunities((prev) => {
         const existingIds = new Set(prev.map((c: any) => c.id));
         const newOnes = mappedCommunities.filter((c: any) => !existingIds.has(c.id));
-        // Update hasMore based on whether we received a full page and any truly new items
         if (mappedCommunities.length < PAGE_SIZE || newOnes.length === 0) {
           setHasMoreCommunities(false);
         }
@@ -292,23 +281,25 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
 
       setCommunitiesPage((prev) => prev + 1);
     } catch (error) {
-      // Error loading more communities - logging removed for security
+      // Error loading more communities
     } finally {
       setLoadingCommunities(false);
     }
   }, [communitiesPage, hasMoreCommunities, loadingCommunities]);
+
   return <SilkBackground>
     <div className="min-h-screen mobile-safe overflow-x-hidden">
-      {/* Logo */}
-      <div className="text-center pt-8 md:pt-12 pb-4 md:pb-6 px-6 md:px-8">
-        <img src="/logo.png" alt="My Third Place" className="h-[12.5rem] sm:h-[15rem] md:h-[20rem] lg:h-[25rem] w-auto mx-auto" loading="eager" decoding="async" />
+      {/* Hero Section - Neo-Brutalism */}
+      <div className="text-center pt-12 md:pt-20 pb-6 px-6 md:px-8">
+        <img src="/logo.png" alt="My Third Place" className="h-[10rem] sm:h-[12rem] md:h-[16rem] lg:h-[20rem] w-auto mx-auto" loading="eager" decoding="async" />
       </div>
 
-      {/* Tagline */}
-      <div className="text-center px-6 md:px-8 pb-4 md:pb-6">
-        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-primary">
-          Where communities come alive
-        </h2>
+      {/* Bold Tagline */}
+      <div className="text-center px-6 md:px-8 pb-4">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground uppercase leading-[0.95] tracking-tight">
+          My Third Place.<br />
+          Unapologetically Yours.
+        </h1>
       </div>
 
       {/* Quick Description */}
@@ -318,19 +309,52 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
         </p>
       </div>
 
-      {/* Primary CTA */}
-      <div className="text-center pb-12 md:pb-16 px-6 md:px-8">
-        {user ? <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/dashboard')}>
-          View Your Dashboard
-        </Button> : <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/auth')}>
-          Join the Community
-        </Button>}
+      {/* Primary CTAs - Neo-Brutal buttons */}
+      <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pb-16 md:pb-20 px-6 md:px-8">
+        {user ? (
+          <Button size="lg" className="bg-accent text-accent-foreground text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/dashboard')}>
+            View Dashboard
+          </Button>
+        ) : (
+          <Button size="lg" className="bg-primary text-primary-foreground text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/auth')}>
+            Join the Chaos
+          </Button>
+        )}
+        <Button variant="outline" size="lg" className="bg-secondary text-secondary-foreground text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/communities')}>
+          Explore Spaces
+        </Button>
+      </div>
+
+      {/* Features Section */}
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {features.map((feature, index) => {
+            const colors = ['bg-accent', 'bg-primary', 'bg-secondary', 'bg-[#ADFF2F]'];
+            return (
+              <Card key={index} className={`${colors[index % colors.length]} border-2 border-foreground shadow-brutal text-black`}>
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-background border-2 border-foreground">
+                      {feature.icon}
+                    </div>
+                    <CardTitle className="text-xl text-black">{feature.title}</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-black/70 text-sm">
+                    {feature.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       </div>
 
       {/* Community Header */}
-      <div className="container mx-auto px-6 md:px-8 lg:px-12 pt-12 md:pt-16 pb-6 md:pb-8">
+      <div className="container mx-auto px-6 md:px-8 lg:px-12 pt-8 md:pt-12 pb-6 md:pb-8">
         <div className="text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground mb-4 md:mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4 uppercase">
             Our Communities
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
@@ -350,7 +374,6 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
             {loadingCommunities ? "Loading..." : "Load More Communities"}
           </Button>
 
-          {/* Invisible sentinel for auto-loading more when in view */}
           {hasMoreCommunities && (
             <div className="h-1" ref={sentinelRef} />
           )}
@@ -361,7 +384,7 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
       {/* Gallery */}
       <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
         <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground uppercase">
             Community Moments
           </h2>
           <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto mt-4 md:mt-6 leading-relaxed">
@@ -376,18 +399,18 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
 
       {/* Secondary CTA */}
       <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
-        <div className="text-center space-y-6 md:space-y-8 bg-card/50 backdrop-blur-sm rounded-2xl md:rounded-3xl p-8 sm:p-10 md:p-16 border border-border/50 shadow-glow">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground">
+        <div className="text-center space-y-6 md:space-y-8 bg-accent border-2 border-foreground shadow-brutal-lg p-8 sm:p-10 md:p-16 text-black">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-accent-foreground uppercase">
             Ready to find your Third Place?
           </h2>
-          <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-black/70 max-w-3xl mx-auto leading-relaxed">
             Join thousands of people who have discovered meaningful connections and exciting opportunities in their local communities.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
-            <Button variant="gradient" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" onClick={() => navigate('/communities')}>
+            <Button size="lg" className="bg-foreground text-background text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" onClick={() => navigate('/communities')}>
               Explore Communities
             </Button>
-            <Button variant="outline" size="lg" className="text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" onClick={() => navigate('/events')}>
+            <Button variant="outline" size="lg" className="bg-background text-foreground text-base sm:text-lg px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto min-w-[180px]" onClick={() => navigate('/events')}>
               Browse Events
             </Button>
           </div>

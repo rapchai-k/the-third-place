@@ -68,6 +68,15 @@ export default {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
+			borderWidth: {
+				'3': '3px',
+			},
+			boxShadow: {
+				'brutal': 'var(--shadow-brutal)',
+				'brutal-lg': 'var(--shadow-brutal-lg)',
+				'brutal-sm': 'var(--shadow-brutal-sm)',
+				'brutal-none': 'var(--shadow-brutal-hover)',
+			},
 			keyframes: {
 				'accordion-down': {
 					from: {
@@ -84,6 +93,10 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'brutal-press': {
+					'0%': { transform: 'translate(0, 0)', boxShadow: 'var(--shadow-brutal)' },
+					'100%': { transform: 'translate(4px, 4px)', boxShadow: 'var(--shadow-brutal-hover)' },
 				}
 			},
 			animation: {
@@ -97,7 +110,7 @@ export default {
 	},
 	plugins: [
 		require("tailwindcss-animate"),
-		function({ addUtilities }: any) {
+		function ({ addUtilities }: any) {
 			addUtilities({
 				'.scrollbar-hide': {
 					'-ms-overflow-style': 'none',

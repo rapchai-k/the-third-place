@@ -2,130 +2,119 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import the existing styles from src/index.css */
-/* This file mirrors src/index.css for Next.js App Router */
+/* Neo-Brutalism Design System
+   Bold, raw, unapologetic. Thick borders, hard shadows, clashing colors.
+   All colors MUST be HSL. */
 
 @layer base {
   :root {
-    /* Urban Elegance - Light Mode */
-    --background: 210 40% 98%;
-    /* Soft Off-White */
-    --foreground: 224 71% 4%;
-    /* Deep Charcoal */
+    /* Neo-Brutalism - Light Mode */
+    --background: 48 50% 94%;       /* Warm beige */
+    --foreground: 0 0% 0%;          /* Pure black */
 
-    --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
+    --card: 0 0% 100%;              /* White */
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
+    --popover-foreground: 0 0% 0%;
 
-    /* Primary: Deep Midnight Blue */
-    --primary: 224 64% 12%;
-    --primary-foreground: 210 40% 98%;
-    /* Subtle glow for primary interaction */
-    --primary-glow: 224 64% 20%;
+    /* Primary: Hot Pink */
+    --primary: 330 100% 50%;
+    --primary-foreground: 0 0% 0%;
 
-    /* Secondary: Soft Slate / Muted Blue-Grey */
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220.9 39.3% 11%;
+    /* Secondary: Cyan */
+    --secondary: 185 100% 50%;
+    --secondary-foreground: 0 0% 0%;
 
-    /* Accent: Muted Gold / Bronze */
-    --accent: 38 45% 55%;
-    --accent-foreground: 224 71% 4%;
+    /* Accent: Bright Yellow */
+    --accent: 55 100% 50%;
+    --accent-foreground: 0 0% 0%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 8.9% 46.1%;
+    --muted: 48 30% 90%;
+    --muted-foreground: 0 0% 35%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 85% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 224 64% 12%;
+    --border: 0 0% 0%;               /* Black borders */
+    --input: 0 0% 0%;
+    --ring: 330 100% 50%;
 
-    --radius: 0.75rem;
-    /* Cleaner, more moderate radius */
+    --radius: 0px;                    /* No rounding - raw brutalist */
 
-    /* Glassmorphism Tokens */
-    --glass-background: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.5);
+    /* Hard offset shadows - the signature neo-brutal look */
+    --shadow-brutal: 4px 4px 0px hsl(0 0% 0%);
+    --shadow-brutal-lg: 6px 6px 0px hsl(0 0% 0%);
+    --shadow-brutal-sm: 2px 2px 0px hsl(0 0% 0%);
+    --shadow-brutal-hover: 0px 0px 0px hsl(0 0% 0%);
 
-    /* Elegant Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(224 64% 12%), hsl(224 60% 20%));
-    --gradient-secondary: linear-gradient(135deg, hsl(38 45% 55%), hsl(45 50% 60%));
-    --gradient-accent: linear-gradient(135deg, hsl(224 64% 12%), hsl(38 45% 55%));
-    --gradient-warm: linear-gradient(135deg, hsl(20 30% 96%), hsl(38 45% 90%));
+    /* No gradients in neo-brutalism - flat fills only */
+    --gradient-primary: none;
+    --gradient-secondary: none;
+    --gradient-accent: none;
 
-    /* Sophisticated Shadows */
-    --shadow-primary: 0 10px 30px -10px rgba(11, 23, 54, 0.2);
-    --shadow-glow: 0 0 20px rgba(11, 23, 54, 0.1);
-    --shadow-elegant: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+    /* Snappy transitions */
+    --transition-smooth: all 0.15s ease;
+    --transition-bounce: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-    /* Animation */
-    --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-    --sidebar-background: 210 40% 98%;
-    --sidebar-foreground: 224 71% 4%;
-    --sidebar-primary: 224 64% 12%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 220 14% 96%;
-    --sidebar-accent-foreground: 224 71% 4%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 224 64% 12%;
+    --sidebar-background: 48 50% 94%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-primary: 330 100% 50%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 55 100% 50%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 0 0% 0%;
+    --sidebar-ring: 330 100% 50%;
   }
 
   .dark {
-    /* Urban Elegance - Dark Mode */
-    --background: 224 71% 4%;
-    /* Deepest Midnight */
-    --foreground: 210 40% 98%;
+    /* Neo-Brutalism - Dark Mode
+       Inverted contrast: white borders/shadows, neon-shifted accents */
+    --background: 0 0% 8%;           /* Near-black */
+    --foreground: 0 0% 95%;          /* Off-white */
 
-    --card: 224 64% 6%;
-    /* Slightly lighter than bg */
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 12%;                /* Dark charcoal */
+    --card-foreground: 0 0% 95%;
 
-    --popover: 224 64% 6%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
 
-    /* Primary: Muted Gold/Bronze (to pop against dark) OR Lighter Midnight */
-    /* Let's stick to a sophisticated lighter blue-purple or keep Gold as main primary for dark mode? 
-       Actually, standardizing on the Deep Blue might be too dark. 
-       Let's use a "Moonlight" Blue or the Gold as the primary interactive color. */
-    --primary: 210 40% 98%;
-    /* White/Off-white for high contrast actions */
-    --primary-foreground: 224 71% 4%;
+    /* Primary: Neon Pink */
+    --primary: 330 100% 60%;
+    --primary-foreground: 0 0% 0%;
 
-    /* Alternatively, reuse the Gold as specific accent, but keep Primary simpler */
+    /* Secondary: Bright Cyan */
+    --secondary: 185 100% 55%;
+    --secondary-foreground: 0 0% 0%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Accent: Electric Yellow */
+    --accent: 55 100% 55%;
+    --accent-foreground: 0 0% 0%;
 
-    --accent: 38 45% 55%;
-    /* Gold Accent remains */
-    --accent-foreground: 210 40% 98%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --destructive: 0 80% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --border: 0 0% 95%;              /* White borders */
+    --input: 0 0% 95%;
+    --ring: 330 100% 60%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224 64% 80%;
+    /* Hard offset shadows in white */
+    --shadow-brutal: 4px 4px 0px hsl(0 0% 95%);
+    --shadow-brutal-lg: 6px 6px 0px hsl(0 0% 95%);
+    --shadow-brutal-sm: 2px 2px 0px hsl(0 0% 95%);
+    --shadow-brutal-hover: 0px 0px 0px hsl(0 0% 95%);
 
-    /* Glassmorphism Tokens Dark */
-    --glass-background: rgba(11, 23, 54, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.1);
-
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(224 64% 12%), hsl(224 60% 8%));
-    /* --gradient-secondary: ... */
-
-    /* Shadows */
-    --shadow-primary: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-    --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.05);
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 330 100% 60%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 55 100% 55%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 0 0% 95%;
+    --sidebar-ring: 330 100% 60%;
   }
 }
 
@@ -136,18 +125,13 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
-  /* Enhanced heading styles */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  /* Neo-Brutalism heading styles - bold, uppercase energy */
+  h1, h2, h3, h4, h5, h6 {
     @apply font-bold;
-    font-family: "Playfair Display", "DM Sans", serif;
+    font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     letter-spacing: -0.02em;
   }
 }
@@ -167,24 +151,51 @@
     -webkit-line-clamp: 3;
   }
 
+  /* Neo-Brutalism utility classes */
+  .shadow-brutal {
+    box-shadow: var(--shadow-brutal);
+  }
+
+  .shadow-brutal-lg {
+    box-shadow: var(--shadow-brutal-lg);
+  }
+
+  .shadow-brutal-sm {
+    box-shadow: var(--shadow-brutal-sm);
+  }
+
+  /* Brutal hover: shadow collapses, element shifts */
+  .brutal-hover {
+    transition: all 0.15s ease;
+  }
+  .brutal-hover:hover {
+    box-shadow: var(--shadow-brutal-hover);
+    transform: translate(4px, 4px);
+  }
+  .brutal-hover:active {
+    box-shadow: var(--shadow-brutal-hover);
+    transform: translate(4px, 4px);
+  }
+
+  /* Legacy gradient classes - now no-ops for neo-brutalism */
   .gradient-primary {
-    background: var(--gradient-primary);
+    background: hsl(var(--primary));
   }
 
   .gradient-secondary {
-    background: var(--gradient-secondary);
+    background: hsl(var(--secondary));
   }
 
   .gradient-accent {
-    background: var(--gradient-accent);
+    background: hsl(var(--accent));
   }
 
   .shadow-glow {
-    box-shadow: var(--shadow-glow);
+    box-shadow: var(--shadow-brutal);
   }
 
   .shadow-primary {
-    box-shadow: var(--shadow-primary);
+    box-shadow: var(--shadow-brutal);
   }
 
   .transition-smooth {
