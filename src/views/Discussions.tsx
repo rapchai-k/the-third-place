@@ -104,7 +104,7 @@ export default function Discussions({ initialDiscussions }: DiscussionsProps = {
         .from('communities')
         .select('id, name')
         .order('name');
-      
+
       if (error) throw error;
       return data;
     },
@@ -193,7 +193,7 @@ export default function Discussions({ initialDiscussions }: DiscussionsProps = {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              
+
               <Select
                 value={communityFilter || 'all'}
                 onValueChange={(value) => handleFilterChange('community', value)}
@@ -238,9 +238,11 @@ export default function Discussions({ initialDiscussions }: DiscussionsProps = {
         {/* Results */}
         {discussions && discussions.length > 0 ? (
           <div className="space-y-4">
-            {discussions.map((discussion) => {
+            {discussions.map((discussion, index) => {
               const isExpired = new Date(discussion.expires_at) < new Date();
               const commentCount = discussion.discussion_comments?.length || 0;
+              const accentColors = ['bg-accent', 'bg-primary', 'bg-secondary', 'bg-[#ADFF2F]'];
+              const cardColor = accentColors[index % 4];
 
               return (
                 <Link
@@ -248,7 +250,7 @@ export default function Discussions({ initialDiscussions }: DiscussionsProps = {
                   to={`/discussions/${discussion.id}`}
                   className="block"
                 >
-                  <Card className="hover:bg-accent/50 transition-colors cursor-pointer">
+                  <Card className={`${cardColor} text-black cursor-pointer hover:shadow-brutal-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-150`}>
                     <CardContent className="pt-4 pb-4">
                       <div className="space-y-3">
                         <div className="flex items-start justify-between gap-4">
@@ -257,7 +259,7 @@ export default function Discussions({ initialDiscussions }: DiscussionsProps = {
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <h3 className="text-lg font-semibold hover:text-primary transition-colors flex-1 truncate cursor-help">
+                                    <h3 className="text-lg font-semibold text-black flex-1 truncate cursor-help">
                                       {discussion.title}
                                     </h3>
                                   </TooltipTrigger>
@@ -272,14 +274,14 @@ export default function Discussions({ initialDiscussions }: DiscussionsProps = {
                             </div>
 
                             {discussion.prompt && (
-                              <p className="text-muted-foreground text-sm mb-2" style={{ height: '48px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                              <p className="text-black/60 text-sm mb-2" style={{ height: '48px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                                 {discussion.prompt}
                               </p>
                             )}
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+                        <div className="flex items-center gap-4 text-xs text-black/60 flex-wrap">
                           <div className="flex items-center gap-1">
                             <Avatar className="w-4 h-4">
                               <AvatarImage src={discussion.users?.photo_url || ''} />
@@ -303,7 +305,7 @@ export default function Discussions({ initialDiscussions }: DiscussionsProps = {
                           <div className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             <span className="truncate">
-                              {isExpired 
+                              {isExpired
                                 ? `Expired ${new Date(discussion.expires_at).toLocaleDateString()}`
                                 : `Expires ${new Date(discussion.expires_at).toLocaleDateString()}`
                               }

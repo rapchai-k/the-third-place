@@ -292,65 +292,70 @@ export default function Communities({ initialCommunities }: CommunitiesProps = {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {communities?.map((community) => (
-            <Link key={community.id} to={`/communities/${community.id}`}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <CardTitle className="text-lg">{community.name}</CardTitle>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        {community.city}
+          {communities?.map((community, index) => {
+            const accentColors = ['bg-accent', 'bg-primary', 'bg-secondary', 'bg-[#ADFF2F]'];
+            const cardColor = accentColors[index % 4];
+            return (
+              <Link key={community.id} to={`/communities/${community.id}`}>
+                <Card className={`${cardColor} text-black cursor-pointer hover:shadow-brutal-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-150`}>
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <CardTitle className="text-lg text-black">{community.name}</CardTitle>
+                        <div className="flex items-center text-sm text-black/60">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          {community.city}
+                        </div>
+                      </div>
+                      {community.image_url && (
+                        <img
+                          src={community.image_url}
+                          alt={community.name}
+                          className="w-12 h-12 object-cover border-2 border-foreground"
+                        />
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <CardDescription className="line-clamp-3 text-black/60" style={{ height: '60px', overflow: 'hidden' }}>
+                      {community.description}
+                    </CardDescription>
+
+                    <div className="flex items-center justify-between">
+                      <Badge variant="secondary" className="flex items-center gap-1 bg-background text-black border-foreground">
+                        <Users className="h-3 w-3" />
+                        {community.member_count || 0} members
+                      </Badge>
+
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant={user && isUserMember(community.id) ? "outline" : "default"}
+                          className={user && isUserMember(community.id) ? "bg-background text-black border-foreground" : ""}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (!user) {
+                              handleJoinCommunity(community.id);
+                              return;
+                            }
+                            isUserMember(community.id)
+                              ? handleLeaveCommunity(community.id)
+                              : handleJoinCommunity(community.id);
+                          }}
+                          disabled={loadingCommunityId === community.id}
+                        >
+                          {loadingCommunityId === community.id
+                            ? (user && isUserMember(community.id) ? "Leaving..." : "Joining...")
+                            : (user && isUserMember(community.id) ? "Leave" : "Join")
+                          }
+                        </Button>
                       </div>
                     </div>
-                    {community.image_url && (
-                      <img
-                        src={community.image_url}
-                        alt={community.name}
-                        className="w-12 h-12 rounded-lg object-cover"
-                      />
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <CardDescription className="line-clamp-3" style={{ height: '60px', overflow: 'hidden' }}>
-                    {community.description}
-                  </CardDescription>
-                  
-                  <div className="flex items-center justify-between">
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      <Users className="h-3 w-3" />
-                      {community.member_count || 0} members
-                    </Badge>
-                    
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant={user && isUserMember(community.id) ? "outline" : "default"}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          if (!user) {
-                            handleJoinCommunity(community.id);
-                            return;
-                          }
-                          isUserMember(community.id)
-                            ? handleLeaveCommunity(community.id)
-                            : handleJoinCommunity(community.id);
-                        }}
-                        disabled={loadingCommunityId === community.id}
-                      >
-                        {loadingCommunityId === community.id
-                          ? (user && isUserMember(community.id) ? "Leaving..." : "Joining...")
-                          : (user && isUserMember(community.id) ? "Leave" : "Join")
-                        }
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
 
         {communities?.length === 0 && (

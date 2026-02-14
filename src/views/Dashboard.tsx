@@ -82,7 +82,7 @@ const Dashboard = () => {
     queryKey: ['user-events', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      
+
       const { data, error } = await supabase
         .from('event_registrations')
         .select(`
@@ -97,7 +97,7 @@ const Dashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
+
       return data?.map(registration => ({
         ...registration.events,
         registration_status: registration.status,
@@ -178,25 +178,25 @@ const Dashboard = () => {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
+        <Card className="bg-accent text-black">
           <CardContent className="p-4 text-center">
-            <CalendarDays className="w-8 h-8 mx-auto mb-2 text-primary" />
-            <div className="text-2xl font-bold">{upcomingEvents.length}</div>
-            <div className="text-sm text-muted-foreground">Upcoming Events</div>
+            <CalendarDays className="w-8 h-8 mx-auto mb-2 text-black" />
+            <div className="text-2xl font-bold text-black">{upcomingEvents.length}</div>
+            <div className="text-sm text-black/60">Upcoming Events</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-primary text-black">
           <CardContent className="p-4 text-center">
-            <Users className="w-8 h-8 mx-auto mb-2 text-primary" />
-            <div className="text-2xl font-bold">{userCommunities.length}</div>
-            <div className="text-sm text-muted-foreground">Communities</div>
+            <Users className="w-8 h-8 mx-auto mb-2 text-black" />
+            <div className="text-2xl font-bold text-black">{userCommunities.length}</div>
+            <div className="text-sm text-black/60">Communities</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-secondary text-black">
           <CardContent className="p-4 text-center">
-            <Star className="w-8 h-8 mx-auto mb-2 text-primary" />
-            <div className="text-2xl font-bold">{pastEvents.length}</div>
-            <div className="text-sm text-muted-foreground">Events Attended</div>
+            <Star className="w-8 h-8 mx-auto mb-2 text-black" />
+            <div className="text-2xl font-bold text-black">{pastEvents.length}</div>
+            <div className="text-sm text-black/60">Events Attended</div>
           </CardContent>
         </Card>
       </div>
@@ -209,7 +209,7 @@ const Dashboard = () => {
             <Link to="/events">Browse More Events</Link>
           </Button>
         </div>
-        
+
         {upcomingEvents.length === 0 ? (
           <Card>
             <CardContent className="p-8 text-center">
@@ -224,11 +224,11 @@ const Dashboard = () => {
           </Card>
         ) : (
           <div className="grid md:grid-cols-2 gap-4">
-            {upcomingEvents.slice(0, 4).map((event) => (
-              <Card key={event.id} className="hover:shadow-lg transition-shadow">
+            {upcomingEvents.slice(0, 4).map((event, index) => (
+              <Card key={event.id} className={`${['bg-accent', 'bg-primary', 'bg-secondary', 'bg-[#ADFF2F]'][index % 4]} text-black hover:shadow-brutal-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-150`}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg">{event.title}</CardTitle>
+                    <CardTitle className="text-lg text-black">{event.title}</CardTitle>
                     <Badge
                       variant={event.registration_status === 'registered' ? 'default' : 'secondary'}
                       className={event.registration_status === 'registered' ? "bg-green-600 hover:bg-green-700" : ""}
@@ -236,10 +236,10 @@ const Dashboard = () => {
                       {event.registration_status === 'registered' ? 'Confirmed' : event.registration_status}
                     </Badge>
                   </div>
-                  <CardDescription>{event.description}</CardDescription>
+                  <CardDescription className="text-black/60">{event.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-4 text-sm text-black/60">
                     <div className="flex items-center gap-1">
                       <CalendarDays className="w-4 h-4" />
                       {format(new Date(event.date_time), 'MMM dd, yyyy')}
@@ -250,7 +250,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                   {event.community_name && (
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-black/60">
                       by {event.community_name} • {event.community_city}
                     </div>
                   )}
@@ -277,7 +277,7 @@ const Dashboard = () => {
             <Link to="/communities">Explore Communities</Link>
           </Button>
         </div>
-        
+
         {userCommunities.length === 0 ? (
           <Card>
             <CardContent className="p-8 text-center">
@@ -292,23 +292,23 @@ const Dashboard = () => {
           </Card>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {userCommunities.map((community) => (
-              <Card key={community.id} className="hover:shadow-lg transition-shadow h-full flex flex-col">
+            {userCommunities.map((community, index) => (
+              <Card key={community.id} className={`${['bg-accent', 'bg-primary', 'bg-secondary', 'bg-[#ADFF2F]'][index % 4]} text-black h-full flex flex-col hover:shadow-brutal-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-150`}>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg line-clamp-2 mb-3" style={{ height: '48px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                  <CardTitle className="text-lg line-clamp-2 mb-3 text-black" style={{ height: '48px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                     {community.name}
                   </CardTitle>
-                  <CardDescription style={{ height: '60px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+                  <CardDescription className="text-black/60" style={{ height: '60px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
                     {community.description}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col justify-end">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-sm text-black/60">
                       <Users className="w-4 h-4" />
                       {community.member_count} members
                     </div>
-                    <Badge>{community.city}</Badge>
+                    <Badge className="bg-background text-black border-foreground">{community.city}</Badge>
                   </div>
                   <Button variant="outline" size="sm" asChild className="w-full">
                     <Link to={`/communities/${community.id}`}>View Community</Link>
