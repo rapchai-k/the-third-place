@@ -17,13 +17,13 @@ export const queryKeys = {
   // Event-related keys
   events: {
     all: ['events'] as const,
-    list: (searchTerm?: string, tag?: string, city?: string) => 
+    list: (searchTerm?: string, tag?: string, city?: string) =>
       ['events', searchTerm, tag, city] as const,
     detail: (eventId: string) => ['event', eventId] as const,
     featured: () => ['featured-events'] as const,
-    registration: (eventId: string, userId?: string) => 
+    registration: (eventId: string, userId?: string) =>
       ['event-registration', eventId, userId] as const,
-    pendingPayment: (eventId: string, userId?: string) => 
+    pendingPayment: (eventId: string, userId?: string) =>
       ['pending-payment', eventId, userId] as const,
   },
 
@@ -34,7 +34,7 @@ export const queryKeys = {
     detail: (communityId: string) => ['community', communityId] as const,
     featured: () => ['featured-communities'] as const,
     forFilter: () => ['communities-for-filter'] as const,
-    membership: (communityId: string, userId: string) => 
+    membership: (communityId: string, userId: string) =>
       ['community-membership', communityId, userId] as const,
   },
 
@@ -64,7 +64,6 @@ export const queryKeys = {
   },
 
   // Misc keys
-  tags: () => ['tags'] as const,
   cities: () => ['event-cities'] as const,
 } as const;
 

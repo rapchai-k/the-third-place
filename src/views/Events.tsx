@@ -58,10 +58,7 @@ export default function Events({ initialEvents }: EventsProps = {}) {
         .select(`
           *,
           communities(name, city),
-          event_registrations(count),
-          event_tags(
-            tags(name)
-          )
+          event_registrations(count)
         `)
         .eq("is_cancelled", false)
         .order("date_time", { ascending: true, nullsFirst: false });
@@ -83,7 +80,6 @@ export default function Events({ initialEvents }: EventsProps = {}) {
       filteredData = filteredData.filter(event =>
         !event.date_time || new Date(event.date_time) >= new Date()
       );
-
 
 
       if (selectedCity) {
@@ -245,13 +241,7 @@ export default function Events({ initialEvents }: EventsProps = {}) {
                     {event.description || "TBD"}
                   </CardDescription>
 
-                  <div className="flex flex-wrap gap-2">
-                    {event.event_tags?.map((et, index) => (
-                      <Badge key={index} variant="outline" className="text-xs bg-background text-black border-foreground">
-                        {et.tags?.name}
-                      </Badge>
-                    ))}
-                  </div>
+
 
                   <div className="space-y-2 pt-2 border-t">
                     <Badge variant="secondary" className="flex items-center gap-1 w-fit bg-background text-black border-foreground">

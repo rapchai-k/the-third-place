@@ -180,7 +180,6 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
       } = await supabase.from('events').select(`
           *,
           communities(name),
-          event_tags(tags(name)),
           event_registrations(id)
         `).eq('is_cancelled', false).order('date_time', {
         ascending: true,
@@ -193,7 +192,6 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
       return filteredEvents.map(event => ({
         ...event,
         community_name: event.communities?.name,
-        tags: event.event_tags?.map(et => et.tags?.name).filter(Boolean) || [],
         attendees: event.event_registrations?.length || 0
       })) || [];
     },
@@ -204,7 +202,6 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
     ? initialEvents.map(event => ({
       ...event,
       community_name: event.communities?.name,
-      tags: event.event_tags?.map(et => et.tags?.name).filter(Boolean) || [],
       attendees: event.event_registrations?.[0]?.count || 0
     }))
     : fetchedEvents;

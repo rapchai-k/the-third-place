@@ -152,9 +152,6 @@ export type EventWithRelations = Database['public']['Tables']['events']['Row'] &
     city: string;
   } | null;
   event_registrations: { count: number }[];
-  event_tags: {
-    tags: { name: string } | null;
-  }[];
   users: {
     name: string;
     photo_url: string | null;
@@ -167,16 +164,13 @@ export type EventWithRelations = Database['public']['Tables']['events']['Row'] &
  */
 export async function getEventById(id: string): Promise<EventWithRelations | null> {
   const supabase = await createServerSupabaseClient();
-  
+
   const { data, error } = await supabase
     .from('events')
     .select(`
       *,
       communities(id, name, city),
       event_registrations(count),
-      event_tags(
-        tags(name)
-      ),
       users!events_host_id_fkey(name, photo_url)
     `)
     .eq('id', id)
@@ -302,7 +296,6 @@ export interface ListingOptions {
 export type EventListItem = Database['public']['Tables']['events']['Row'] & {
   communities: { name: string; city: string } | null;
   event_registrations: { count: number }[];
-  event_tags: { tags: { name: string } | null }[];
 };
 
 /**
@@ -318,8 +311,7 @@ export async function getEvents(options: ListingOptions = {}): Promise<EventList
     .select(`
       *,
       communities(name, city),
-      event_registrations(count),
-      event_tags(tags(name))
+      event_registrations(count)
     `)
     .eq('is_cancelled', false)
     .order('date_time', { ascending: true, nullsFirst: false })

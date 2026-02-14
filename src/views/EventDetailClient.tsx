@@ -168,13 +168,6 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {event.event_tags?.map((et, index) => (
-                    <Badge key={index} variant="outline">
-                      {et.tags?.name}
-                    </Badge>
-                  ))}
-                </div>
                 <h1 className="text-3xl font-bold tracking-tight">{event.title || "TBD"}</h1>
                 <div className="space-y-2 text-muted-foreground">
                   <div className="flex items-center">
@@ -273,7 +266,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
                     <Badge
                       variant={
                         userRegistration.status === "registered" ? "default" :
-                        "destructive"
+                          "destructive"
                       }
                       className={userRegistration.status === "registered" ? "bg-green-600 hover:bg-green-700" : ""}
                     >

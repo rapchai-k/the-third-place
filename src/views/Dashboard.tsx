@@ -89,8 +89,7 @@ const Dashboard = () => {
           *,
           events (
             *,
-            communities(name, city),
-            event_tags(tags(name))
+            communities(name, city)
           )
         `)
         .eq('user_id', user.id)
@@ -103,7 +102,6 @@ const Dashboard = () => {
         registration_status: registration.status,
         community_name: registration.events?.communities?.name,
         community_city: registration.events?.communities?.city,
-        tags: registration.events?.event_tags?.map(et => et.tags?.name).filter(Boolean) || []
       })) || [];
     },
     enabled: !!user
@@ -254,11 +252,6 @@ const Dashboard = () => {
                       by {event.community_name} • {event.community_city}
                     </div>
                   )}
-                  <div className="flex gap-2">
-                    {event.tags.slice(0, 3).map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>
-                    ))}
-                  </div>
                   <Button variant="outline" size="sm" asChild className="w-full">
                     <Link to={`/events/${event.id}`}>View Details</Link>
                   </Button>

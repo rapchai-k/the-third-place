@@ -46,13 +46,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     event.seo_keywords && event.seo_keywords.length > 0
       ? event.seo_keywords
       : [
-          event.title,
-          event.communities?.name || '',
-          event.communities?.city || '',
-          'event',
-          'community event',
-          ...(event.event_tags?.map((t) => t.tags?.name || '') || []),
-        ].filter(Boolean);
+        event.title,
+        event.communities?.name || '',
+        event.communities?.city || '',
+        'event',
+        'community event',
+      ].filter(Boolean);
 
   return {
     title: seoTitle,
@@ -67,13 +66,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'website',
       images: seoImage
         ? [
-            {
-              url: seoImage,
-              width: 1200,
-              height: 630,
-              alt: seoTitle,
-            },
-          ]
+          {
+            url: seoImage,
+            width: 1200,
+            height: 630,
+            alt: seoTitle,
+          },
+        ]
         : ['/logo.png'],
       siteName: 'My Third Place',
     },
