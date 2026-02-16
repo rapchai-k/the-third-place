@@ -8,7 +8,6 @@ import { toast } from "@/hooks/use-toast";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { Send, Loader2 } from "lucide-react";
 import { analytics } from "@/utils/analytics";
-import { analytics } from "@/utils/analytics";
 
 interface CommentFormProps {
   discussionId: string;
