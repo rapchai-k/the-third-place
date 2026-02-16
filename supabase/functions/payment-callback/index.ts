@@ -176,6 +176,37 @@ serve(async (req) => {
     // Create registration if payment was successful
     // Use upsert with onConflict to handle race condition between webhook and polling
     if (newPaymentStatus === "paid") {
+      // Auto-join community: ensure the user is a member of the event's community
+      const { data: eventData } = await supabaseClient
+        .from("events")
+        .select("community_id")
+        .eq("id", paymentSession.event_id)
+        .single();
+
+      if (eventData?.community_id) {
+        const { data: existingMembership } = await supabaseClient
+          .from("community_members")
+          .select("user_id")
+          .eq("community_id", eventData.community_id)
+          .eq("user_id", paymentSession.user_id)
+          .maybeSingle();
+
+        if (!existingMembership) {
+          const { error: joinError } = await supabaseClient
+            .from("community_members")
+            .insert({
+              community_id: eventData.community_id,
+              user_id: paymentSession.user_id
+            });
+
+          if (joinError) {
+            logStep("Failed to auto-join community", { error: joinError.message });
+          } else {
+            logStep("User auto-joined community via payment webhook");
+          }
+        }
+      }
+
       const { error: regError } = await supabaseClient
         .from("event_registrations")
         .upsert({
