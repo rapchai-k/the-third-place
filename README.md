@@ -113,7 +113,7 @@ The app uses Supabase with comprehensive Row Level Security (RLS) policies:
 
 To enable Google authentication:
 
-1. Go to [Supabase Dashboard > Authentication > Providers](https://supabase.com/dashboard/project/ggochdssgkfnvcrrmtlp/auth/providers)
+1. Go to [Supabase Dashboard > Authentication > Providers]
 2. Enable Google provider
 3. Configure Google Cloud Console OAuth credentials
 4. Set Site URL and Redirect URLs in Authentication > URL Configuration
@@ -153,9 +153,6 @@ Troubleshooting:
 - Missing env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY must be set in Supabase
 - Delivery failures: inspect email_logs.error_message and provider dashboard (Resend Activity)
 
-## Project URL
-
-**Lovable Project**: https://lovable.dev/projects/99bdd782-1d5e-4414-8dcc-7b9b24d22ad7
 
 ## Support
 
