@@ -22,6 +22,7 @@ export const AuthPage = () => {
   const [error, setError] = useState("");
   const [referralCodeApplied, setReferralCodeApplied] = useState(false);
   const [referralError, setReferralError] = useState("");
+  const [manualReferralCode, setManualReferralCode] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState("signin");
 
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ export const AuthPage = () => {
     if (referralCodeFromUrl && !referralCodeApplied) {
       setReferralCodeApplied(true);
     }
-  }, [referralCodeFromUrl]);
+  }, [referralCodeFromUrl, referralCodeApplied]);
 
   useEffect(() => {
     if (user) {
@@ -46,8 +47,9 @@ export const AuthPage = () => {
       const applyReferralAfterAuth = async () => {
         // Only apply referral code automatically for non-OAuth users
         // OAuth users will be handled by the Dashboard modal
-        if (referralCodeFromUrl && referralCodeApplied && user.id && !shouldShowReferralModal(user)) {
-          const success = await applyReferralCode(referralCodeFromUrl, user.id);
+        const codeToApply = referralCodeFromUrl || manualReferralCode;
+        if (codeToApply && referralCodeApplied && user.id && !shouldShowReferralModal(user)) {
+          const success = await applyReferralCode(codeToApply, user.id);
           if (success) {
             toast({
               title: "Referral applied!",
@@ -55,12 +57,13 @@ export const AuthPage = () => {
             });
           }
         }
+        // Navigate only after referral application completes (or is skipped)
+        navigate(from, { replace: true });
       };
 
       applyReferralAfterAuth();
-      navigate(from, { replace: true });
     }
-  }, [user, navigate, from, referralCodeFromUrl, referralCodeApplied, applyReferralCode]);
+  }, [user, navigate, from, referralCodeFromUrl, manualReferralCode, referralCodeApplied, applyReferralCode]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,8 +136,10 @@ export const AuthPage = () => {
     setLoading(true);
 
     // Store referral code in localStorage before OAuth redirect
-    if (referralCodeFromUrl) {
-      localStorage.setItem('pendingReferralCode', referralCodeFromUrl);
+    // Prefer URL code, fallback to manually entered code
+    const codeToStore = referralCodeFromUrl || manualReferralCode;
+    if (codeToStore) {
+      localStorage.setItem('pendingReferralCode', codeToStore);
     }
 
     const result = await signInWithGoogle();
@@ -154,7 +159,8 @@ export const AuthPage = () => {
   const handleApplyReferralCode = async (code: string) => {
     setReferralError("");
 
-    // For now, just mark it as applied - we'll apply it after successful registration
+    // Store the manually entered code and mark as ready to apply after signup
+    setManualReferralCode(code);
     setReferralCodeApplied(true);
     toast({
       title: "Referral code ready!",
