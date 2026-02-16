@@ -37,6 +37,7 @@ export const PaymentButton = ({
   const paymentSessionIdRef = useRef<string | null>(null);
   const isPollingRef = useRef(false);
   const pollCountRef = useRef<number>(0);
+  const paymentTabRef = useRef<Window | null>(null);
   const MAX_POLL_ATTEMPTS = 60; // Max 60 attempts (5 minutes at 5-second intervals)
 
   // Cleanup function to stop all polling
@@ -120,6 +121,25 @@ export const PaymentButton = ({
           description: "You are now registered for the event.",
         });
         onPaymentSuccess?.();
+        return;
+      }
+
+      if (data?.payment_status === 'failed' || data?.payment_status === 'expired' || data?.payment_status === 'cancelled') {
+        stopPolling();
+        setIsProcessing(false);
+
+        const errorDescription = data.payment_status === 'failed'
+          ? 'Your payment failed. Please retry with a valid payment method.'
+          : data.payment_status === 'expired'
+            ? 'Your payment link has expired. Please start a new payment.'
+            : 'Your payment was cancelled. You can start again when ready.';
+
+        logPaymentFailed(eventId, price, currency, `Payment ${data.payment_status}`);
+        toast({
+          title: `Payment ${data.payment_status}`,
+          description: errorDescription,
+          variant: "destructive",
+        });
       }
       // If still 'yet_to_pay', polling will continue automatically
     } catch (error) {
@@ -161,8 +181,12 @@ export const PaymentButton = ({
         ],
       });
 
-      // Open payment URL in new tab
-      window.open(data.payment_url, '_blank');
+      // Use pre-opened tab to avoid popup blockers; fallback to current tab if blocked
+      if (paymentTabRef.current && !paymentTabRef.current.closed) {
+        paymentTabRef.current.location.href = data.payment_url;
+      } else {
+        window.location.href = data.payment_url;
+      }
 
       // Start polling for payment status
       startPolling(data.payment_session_id);
@@ -173,6 +197,11 @@ export const PaymentButton = ({
       });
     },
     onError: (error) => {
+      if (paymentTabRef.current && !paymentTabRef.current.closed) {
+        paymentTabRef.current.close();
+      }
+      paymentTabRef.current = null;
+
       // Log payment initialization failure
       logPaymentFailed(eventId, price, currency, `Initialization failed: ${error.message}`);
 
@@ -254,6 +283,9 @@ export const PaymentButton = ({
       });
       return;
     }
+
+    // Pre-open blank tab synchronously on user click to avoid popup blockers
+    paymentTabRef.current = window.open('about:blank', '_blank');
     createPaymentMutation.mutate();
   };
 
