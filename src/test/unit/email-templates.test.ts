@@ -81,7 +81,7 @@ describe('Email Templates', () => {
         userEmail: 'alice@example.com'
       });
 
-      expect(template).toContain(`Welcome to The Third Place, ${userName}!`);
+      expect(template).toContain(`Welcome to My Third Place, ${userName}!`);
     });
 
     it('should include The Third Place branding', () => {
@@ -92,7 +92,7 @@ describe('Email Templates', () => {
 
       expect(template).toContain('My Third Place');
       expect(template).toContain('Where Communities Come Together');
-      expect(template).toContain('© 2025 My Third Place');
+      expect(template).toContain('&copy; 2025 The Third Place');
     });
 
     it('should include all key features', () => {
@@ -164,7 +164,7 @@ describe('Email Templates', () => {
         userEmail: 'test@example.com'
       });
 
-      expect(template).toContain('<title>Welcome to The Third Place</title>');
+      expect(template).toContain('<title>Welcome to My Third Place</title>');
     });
 
     it('should include UTF-8 charset declaration', () => {

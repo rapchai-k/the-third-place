@@ -478,14 +478,19 @@ describe('User Data Isolation RLS Policy Tests', () => {
         error: null,
       })
 
-      vi.mocked(supabase.from).mockReturnValue({
+      let eqCallCount = 0
+      const queryBuilder: any = {
         delete: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockResolvedValue({
-          data: null,
-          error: null,
+        eq: vi.fn().mockImplementation(() => {
+          eqCallCount += 1
+          if (eqCallCount === 1) {
+            return queryBuilder
+          }
+          return Promise.resolve({ data: null, error: null })
         }),
-      } as any)
+      }
+
+      vi.mocked(supabase.from).mockReturnValue(queryBuilder)
 
       const { error } = await supabase
         .from('discussion_comments')
@@ -502,14 +507,22 @@ describe('User Data Isolation RLS Policy Tests', () => {
         error: null,
       })
 
-      vi.mocked(supabase.from).mockReturnValue({
+      let eqCallCount = 0
+      const queryBuilder: any = {
         delete: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockResolvedValue({
-          data: null,
-          error: { message: 'RLS policy violation - can only delete own comments', code: 'RLS_VIOLATION' },
+        eq: vi.fn().mockImplementation(() => {
+          eqCallCount += 1
+          if (eqCallCount === 1) {
+            return queryBuilder
+          }
+          return Promise.resolve({
+            data: null,
+            error: { message: 'RLS policy violation - can only delete own comments', code: 'RLS_VIOLATION' },
+          })
         }),
-      } as any)
+      }
+
+      vi.mocked(supabase.from).mockReturnValue(queryBuilder)
 
       const { error } = await supabase
         .from('discussion_comments')

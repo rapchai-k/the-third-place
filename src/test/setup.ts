@@ -1,6 +1,30 @@
 import '@testing-library/jest-dom'
 import { vi, beforeEach, afterEach } from 'vitest'
 
+const ensureStorage = (storage: Storage | undefined) => {
+  if (!storage || typeof storage.clear !== 'function') {
+    return {
+      getItem: vi.fn().mockReturnValue(null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+      key: vi.fn().mockReturnValue(null),
+      length: 0,
+    } as unknown as Storage
+  }
+  return storage
+}
+
+Object.defineProperty(globalThis, 'localStorage', {
+  writable: true,
+  value: ensureStorage(globalThis.localStorage),
+})
+
+Object.defineProperty(globalThis, 'sessionStorage', {
+  writable: true,
+  value: ensureStorage(globalThis.sessionStorage),
+})
+
 // Global test setup
 beforeEach(() => {
   // Clear all mocks before each test
@@ -10,8 +34,8 @@ beforeEach(() => {
   document.body.innerHTML = ''
 
   // Reset localStorage and sessionStorage
-  localStorage.clear()
-  sessionStorage.clear()
+  globalThis.localStorage.clear()
+  globalThis.sessionStorage.clear()
 
   // Reset console methods to avoid noise in tests
   vi.spyOn(console, 'error').mockImplementation(() => {})

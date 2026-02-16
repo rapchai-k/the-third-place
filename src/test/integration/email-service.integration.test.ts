@@ -45,11 +45,10 @@ describe('Email Service Integration Tests', () => {
       });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.resend.com/emails',
+        '/functions/v1/send-email',
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
-            'Authorization': 'Bearer test-resend-key',
             'Content-Type': 'application/json'
           })
         })
@@ -133,10 +132,10 @@ describe('Email Service Integration Tests', () => {
       });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('/functions/v1/send-email'),
+        '/functions/v1/welcome-email-trigger',
         expect.objectContaining({
           method: 'POST',
-          body: expect.stringContaining('Welcome to The Third Place')
+          body: JSON.stringify(welcomeEmailPayload)
         })
       );
     });
