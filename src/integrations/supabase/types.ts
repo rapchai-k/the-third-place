@@ -1092,6 +1092,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_referral_code: {
+        Args: { _referral_code: string; _new_user_id: string }
+        Returns: Json
+      }
       dispatch_webhook: {
         Args: { actor_user_id?: string; event_data: Json; event_type: string }
         Returns: undefined

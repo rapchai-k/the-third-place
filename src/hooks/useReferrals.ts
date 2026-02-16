@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -117,53 +117,21 @@ export const useReferrals = (userId?: string) => {
     }
   });
 
-  // Apply referral code during registration
-  const applyReferralCode = async (referralCode: string, newUserId: string) => {
+  // Apply referral code during registration using server-side RPC
+  const applyReferralCode = useCallback(async (referralCode: string, newUserId: string): Promise<boolean> => {
     try {
-      // Find the referrer by referral code
-      const { data: referrer, error: referrerError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('referral_code', referralCode)
-        .single();
+      const { data, error } = await supabase.rpc('apply_referral_code', {
+        _referral_code: referralCode,
+        _new_user_id: newUserId,
+      });
 
-      if (referrerError || !referrer) {
-        throw new Error('Invalid referral code');
-      }
+      if (error) throw error;
 
-      // Update the new user's referred_by field
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({ referred_by: referrer.id })
-        .eq('id', newUserId);
+      // The RPC returns { success: boolean, error?: string, referrer_id?: string }
+      const result = data as { success: boolean; error?: string };
 
-      if (updateError) throw updateError;
-
-      // Create a referral record
-      const { error: referralError } = await supabase
-        .from('referrals')
-        .insert({
-          referrer_id: referrer.id,
-          referred_user_id: newUserId,
-        });
-
-      if (referralError) throw referralError;
-
-      // Dispatch webhook event for referral
-      const { error: webhookError } = await supabase
-        .rpc('dispatch_webhook', {
-          event_type: 'user.referred_user',
-          event_data: {
-            referred_user_id: newUserId,
-            referrer_id: referrer.id,
-            referral_code: referralCode
-          },
-          actor_user_id: referrer.id
-        });
-
-      if (webhookError) {
-        // Webhook dispatch failed - logging removed for security
-        // Don't throw here as the referral is still valid
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to apply referral code');
       }
 
       return true;
@@ -171,7 +139,7 @@ export const useReferrals = (userId?: string) => {
       // Error applying referral code - logging removed for security
       return false;
     }
-  };
+  }, []);
 
   // Share referral code
   const shareReferralCode = async (code: string, method: 'copy' | 'copyUrl' | 'whatsapp' | 'email') => {
