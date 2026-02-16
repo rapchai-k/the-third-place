@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { corsHeaders, getSecureHeaders } from "../shared/security-headers.ts";
 
-const logStep = (step: string, details?: any) => {
+const logStep = (step: string, details?: Record<string, unknown>) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   // Logging removed for security
 };
@@ -126,6 +126,43 @@ serve(async (req) => {
         newStatus = "pending";
         // Payment status remains 'yet_to_pay' for pending payments
         break;
+    }
+
+    // --- State machine guard: never downgrade from terminal states ---
+    // 'paid' is terminal (only 'refunded' can follow it).
+    // This prevents stale API reads from regressing a confirmed payment.
+    const TERMINAL_PAYMENT_STATES = ["paid", "refunded"];
+    const currentPaymentStatus = paymentSession.payment_status || "yet_to_pay";
+
+    if (
+      TERMINAL_PAYMENT_STATES.includes(currentPaymentStatus) &&
+      newPaymentStatus !== currentPaymentStatus &&
+      newPaymentStatus !== "refunded"
+    ) {
+      logStep("Skipping state downgrade — session already terminal", {
+        current: currentPaymentStatus,
+        attempted: newPaymentStatus,
+        razorpay_status: linkStatus.status,
+      });
+
+      // Still return current state to the frontend so it can react correctly
+      return new Response(JSON.stringify({
+        success: true,
+        payment_status: currentPaymentStatus,
+        order_status: orderStatusResponse,
+        gateway: gateway,
+        payment_session: {
+          id: paymentSession.id,
+          status: paymentSession.status,
+          payment_status: currentPaymentStatus,
+          amount: paymentSession.amount,
+          currency: paymentSession.currency,
+          event_id: paymentSession.event_id
+        }
+      }), {
+        headers: getSecureHeaders({ "Content-Type": "application/json" }),
+        status: 200,
+      });
     }
 
     // Update payment session if status, payment_status, or payment_id changed

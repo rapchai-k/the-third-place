@@ -4,7 +4,7 @@ import { corsHeaders, getSecureHeaders } from "../shared/security-headers.ts";
 import { crypto } from "https://deno.land/std@0.190.0/crypto/mod.ts";
 import { encodeHex } from "https://deno.land/std@0.190.0/encoding/hex.ts";
 
-const logStep = (step: string, details?: any) => {
+const logStep = (step: string, details?: Record<string, unknown>) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   // Logging removed for security
 };
@@ -83,7 +83,7 @@ serve(async (req) => {
     });
 
     // Find payment session by Razorpay payment link ID or reference_id (which is our session ID)
-    let paymentSession: any = null;
+    let paymentSession: Record<string, unknown> | null = null;
     if (referenceId) {
       const { data, error } = await supabaseClient
         .from("payment_sessions")
@@ -119,7 +119,7 @@ serve(async (req) => {
     // Handle different Razorpay webhook events
     let newStatus = paymentSession.status;
     let newPaymentStatus = paymentSession.payment_status || 'yet_to_pay';
-    const updateData: any = {};
+    const updateData: Record<string, string> = {};
 
     switch (webhookData.event) {
       case "payment_link.paid":
@@ -149,6 +149,25 @@ serve(async (req) => {
         break;
       default:
         logStep("Unknown Razorpay webhook event", { event: webhookData.event });
+    }
+
+    // --- State machine guard: never downgrade from terminal states ---
+    // 'paid' is terminal (only 'refunded' can follow it).
+    // This prevents out-of-order or delayed webhooks from regressing state.
+    const TERMINAL_PAYMENT_STATES = ["paid", "refunded"];
+    const currentPaymentStatus = paymentSession.payment_status || "yet_to_pay";
+
+    if (
+      TERMINAL_PAYMENT_STATES.includes(currentPaymentStatus) &&
+      newPaymentStatus !== currentPaymentStatus &&
+      newPaymentStatus !== "refunded"
+    ) {
+      logStep("Skipping state downgrade — session already terminal", {
+        current: currentPaymentStatus,
+        attempted: newPaymentStatus,
+        webhook_event: webhookData.event,
+      });
+      return new Response("OK", { headers: corsHeaders, status: 200 });
     }
 
     // Set update data
