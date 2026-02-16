@@ -19,6 +19,7 @@ interface TiltedCardProps {
   colorIndex?: number;
   community?: {
     id: string;
+    slug?: string | null;
     name: string;
     description: string;
     members: number;
@@ -38,7 +39,7 @@ export const TiltedCard: React.FC<TiltedCardProps> = ({
 
   const handleCardClick = () => {
     if (community) {
-      navigate(`/communities/${community.id}`);
+      navigate(community.slug ? `/c/${community.slug}` : `/communities/${community.id}`);
     }
   };
 

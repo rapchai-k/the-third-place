@@ -296,7 +296,7 @@ export default function Communities({ initialCommunities }: CommunitiesProps = {
             const accentColors = ['bg-accent', 'bg-primary', 'bg-secondary', 'bg-[#ADFF2F]'];
             const cardColor = accentColors[index % 4];
             return (
-              <Link key={community.id} to={`/communities/${community.id}`}>
+              <Link key={community.id} to={community.slug ? `/c/${community.slug}` : `/communities/${community.id}`}>
                 <Card className={`${cardColor} text-black cursor-pointer hover:shadow-brutal-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-150`}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -338,9 +338,11 @@ export default function Communities({ initialCommunities }: CommunitiesProps = {
                               handleJoinCommunity(community.id);
                               return;
                             }
-                            isUserMember(community.id)
-                              ? handleLeaveCommunity(community.id)
-                              : handleJoinCommunity(community.id);
+                            if (isUserMember(community.id)) {
+                              handleLeaveCommunity(community.id);
+                            } else {
+                              handleJoinCommunity(community.id);
+                            }
                           }}
                           disabled={loadingCommunityId === community.id}
                         >

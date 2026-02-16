@@ -320,7 +320,7 @@ export default function Events({ initialEvents, initialPastEvents }: EventsProps
                     {user && isRegistered ? (
                       <>
                         <Button asChild variant="outline" size="sm" className="w-full bg-background text-foreground border-foreground">
-                          <Link to={`/events/${event.id}`}>
+                          <Link to={event.short_code ? `/e/${event.short_code}` : `/events/${event.id}`}>
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </Link>
@@ -335,13 +335,13 @@ export default function Events({ initialEvents, initialPastEvents }: EventsProps
                     ) : (
                       <>
                         <Button asChild variant="outline" size="sm" className="w-full bg-background text-foreground border-foreground">
-                          <Link to={`/events/${event.id}`}>
+                          <Link to={event.short_code ? `/e/${event.short_code}` : `/events/${event.id}`}>
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </Link>
                         </Button>
                         <Button asChild variant="default" size="sm" className="w-full bg-foreground text-background border-foreground">
-                          <Link to={`/events/${event.id}`}>
+                          <Link to={event.short_code ? `/e/${event.short_code}` : `/events/${event.id}`}>
                             <Users className="h-4 w-4 mr-2" />
                             Register Now
                           </Link>
@@ -423,7 +423,7 @@ export default function Events({ initialEvents, initialPastEvents }: EventsProps
 
                       <div className="flex flex-col gap-2 pt-2 border-t mt-auto">
                         <Button asChild variant="outline" size="sm" className="w-full bg-background text-foreground border-foreground">
-                          <Link to={`/events/${event.id}`}>
+                          <Link to={event.short_code ? `/e/${event.short_code}` : `/events/${event.id}`}>
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </Link>

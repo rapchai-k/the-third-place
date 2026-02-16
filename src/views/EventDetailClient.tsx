@@ -239,7 +239,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Community</span>
                   <Link
-                    to={`/communities/${event.communities?.id}`}
+                    to={event.communities?.slug ? `/c/${event.communities.slug}` : `/communities/${event.communities?.id}`}
                     className="text-primary hover:underline"
                   >
                     {event.communities?.name || "TBD"}
@@ -298,7 +298,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button variant="outline" asChild className="w-full justify-start">
-                  <Link to={`/communities/${event.communities?.id}`}>
+                  <Link to={event.communities?.slug ? `/c/${event.communities.slug}` : `/communities/${event.communities?.id}`}>
                     View Community
                   </Link>
                 </Button>

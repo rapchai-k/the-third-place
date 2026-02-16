@@ -73,29 +73,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const supabase = createSitemapSupabaseClient();
 
-    // Fetch all community IDs + updated_at
+    // Fetch all community slugs + updated_at for canonical /c/:slug URLs
     const { data: communities } = await supabase
       .from('communities')
-      .select('id, updated_at');
+      .select('id, slug, updated_at');
 
     if (communities) {
       communityRoutes = communities.map((c) => ({
-        url: `${SITE_URL}/communities/${c.id}`,
+        url: c.slug ? `${SITE_URL}/c/${c.slug}` : `${SITE_URL}/communities/${c.id}`,
         lastModified: c.updated_at ? new Date(c.updated_at) : new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
       }));
     }
 
-    // Fetch all active event IDs + updated_at
+    // Fetch all active event IDs + short_code + updated_at
     const { data: events } = await supabase
       .from('events')
-      .select('id, updated_at')
+      .select('id, short_code, updated_at')
       .eq('is_cancelled', false);
 
     if (events) {
       eventRoutes = events.map((e) => ({
-        url: `${SITE_URL}/events/${e.id}`,
+        url: e.short_code ? `${SITE_URL}/e/${e.short_code}` : `${SITE_URL}/events/${e.id}`,
         lastModified: e.updated_at ? new Date(e.updated_at) : new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.7,

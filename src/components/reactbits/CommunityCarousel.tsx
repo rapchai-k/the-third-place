@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Community {
   id: string;
+  slug?: string | null;
   name: string;
   description: string;
   members: number;
