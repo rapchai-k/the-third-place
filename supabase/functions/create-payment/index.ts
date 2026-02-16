@@ -98,6 +98,37 @@ serve(async (req) => {
       throw new Error("User is already registered for this event");
     }
 
+    // Reuse active payment session to make create-payment idempotent for repeated clicks/retries
+    const { data: existingSession, error: existingSessionError } = await supabaseClient
+      .from("payment_sessions")
+      .select("id, payment_url, razorpay_payment_link_id, status, payment_status")
+      .eq("event_id", eventId)
+      .eq("user_id", user.id)
+      .in("status", ["pending", "completed"])
+      .eq("payment_status", "yet_to_pay")
+      .not("razorpay_payment_link_id", "is", null)
+      .not("payment_url", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (existingSessionError) {
+      throw new Error(`Failed to check existing payment session: ${existingSessionError.message}`);
+    }
+
+    if (existingSession) {
+      logStep("Reusing existing active payment session", { sessionId: existingSession.id });
+      return new Response(JSON.stringify({
+        success: true,
+        payment_session_id: existingSession.id,
+        payment_url: existingSession.payment_url,
+        payment_link_id: existingSession.razorpay_payment_link_id
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     // Create payment session in database with payment_status='yet_to_pay' and gateway='razorpay'
     const { data: paymentSession, error: sessionError } = await supabaseClient
       .from("payment_sessions")
