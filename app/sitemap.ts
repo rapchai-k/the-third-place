@@ -1,8 +1,24 @@
 import type { MetadataRoute } from 'next';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || 'https://mythirdplace.rapchai.com';
+
+/**
+ * Lightweight Supabase client for the sitemap.
+ * Does NOT use cookies / headers so the route can be statically rendered
+ * (or cached via ISR) without triggering Next.js dynamic-server errors.
+ */
+function createSitemapSupabaseClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
+
+  return createClient(url, key, {
+    auth: { persistSession: false },
+  });
+}
 
 /**
  * Next.js dynamic sitemap generator.
@@ -55,7 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let discussionRoutes: MetadataRoute.Sitemap = [];
 
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createSitemapSupabaseClient();
 
     // Fetch all community IDs + updated_at
     const { data: communities } = await supabase
