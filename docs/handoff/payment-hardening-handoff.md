@@ -10,6 +10,22 @@
 
 ## Current Status
 
+### ✅ Completed: KAR-69 — Cleanup Orphaned Sessions
+
+**Branch:** `kar-69/cleanup-orphaned-sessions` (merged to `main`)  
+**Feature Commit:** [`9d611f9`](https://github.com/rapchai-k/the-third-place/commit/9d611f9)  
+**Merge Commit:** [`ed1dc89`](https://github.com/rapchai-k/the-third-place/commit/ed1dc89)  
+**Linear Status:** Done  
+**Priority:** 🟠 High
+
+**What was done:**
+- Wrapped Razorpay payment link creation in `try/catch` in `create-payment`
+- Marks `payment_sessions.status` as `failed` if Razorpay call fails after row creation
+- Writes `payment_link_creation_failed` event to `payment_logs`
+- Returns retry-safe user error when payment link creation fails
+
+**Build verification:** `npm run build` passed on 2026-02-16.
+
 ### ✅ Completed: KAR-66 — State Machine Transition Guard
 
 **Branch:** `kar-66/payment-state-machine-guard` (pushed to origin)  
@@ -35,14 +51,14 @@
 
 ## Remaining Work — Two-Track Execution Plan
 
-All branches have been created. Current branch: `kar-66/payment-state-machine-guard`
+Current branch: `main`
 
 ### Track A — Backend (Edge Functions + Migration)
 
 | Order | Ticket | Branch | Status | Priority | What to do |
 |-------|--------|--------|--------|----------|------------|
 | ✅ 1 | **KAR-66** | `kar-66/payment-state-machine-guard` | In Review | 🔴 Urgent | Create PR, merge after review |
-| 2 | **KAR-69** | `kar-69/cleanup-orphaned-sessions` | Todo | 🟠 High | Cleanup orphaned sessions on Razorpay API failure |
+| ✅ 2 | **KAR-69** | `kar-69/cleanup-orphaned-sessions` | Done | 🟠 High | Cleanup orphaned sessions on Razorpay API failure |
 | 3 | **KAR-70** | `kar-70/idempotent-session-creation` | Todo | 🟠 High | Idempotent session creation (reuse active payment link) |
 | 4 | **KAR-68** (backend) | `kar-68/cancellation-conflict-guard` | Todo | 🔴 Urgent | Migration + edge function guard for user cancellation |
 
@@ -222,4 +238,3 @@ git checkout kar-67/terminal-state-polling-ux
 - Should I create PRs for each branch individually, or one mega-PR at the end?
 - Do you want me to deploy edge functions after each merge, or wait until all are done?
 - Should I write tests for these changes?
-
