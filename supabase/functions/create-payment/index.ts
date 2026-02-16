@@ -151,23 +151,52 @@ serve(async (req) => {
 
     logStep("Creating Razorpay Payment Link", { reference_id: paymentSession.id });
 
-    // Make request to Razorpay API
-    const razorpayResponse = await fetch(`${razorpayBaseUrl}/v1/payment_links`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Basic ${btoa(`${razorpayKeyId}:${razorpayKeySecret}`)}`
-      },
-      body: JSON.stringify(razorpayPaymentLink)
-    });
+    let razorpayData: { id: string; short_url: string };
+    try {
+      // Make request to Razorpay API
+      const razorpayResponse = await fetch(`${razorpayBaseUrl}/v1/payment_links`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Basic ${btoa(`${razorpayKeyId}:${razorpayKeySecret}`)}`
+        },
+        body: JSON.stringify(razorpayPaymentLink)
+      });
 
-    if (!razorpayResponse.ok) {
-      const errorData = await razorpayResponse.text();
-      logStep("Razorpay API error", { status: razorpayResponse.status, error: errorData });
-      throw new Error(`Razorpay API error: ${razorpayResponse.status} - ${errorData}`);
+      if (!razorpayResponse.ok) {
+        const errorData = await razorpayResponse.text();
+        logStep("Razorpay API error", { status: razorpayResponse.status, error: errorData });
+        throw new Error(`Razorpay API error: ${razorpayResponse.status} - ${errorData}`);
+      }
+
+      razorpayData = await razorpayResponse.json();
+    } catch (razorpayError) {
+      const errorMessage = razorpayError instanceof Error ? razorpayError.message : String(razorpayError);
+      logStep("Payment link creation failed, marking session failed", {
+        sessionId: paymentSession.id,
+        error: errorMessage
+      });
+
+      const { error: markFailedError } = await supabaseClient
+        .from("payment_sessions")
+        .update({ status: "failed" })
+        .eq("id", paymentSession.id);
+
+      if (markFailedError) {
+        logStep("Failed to mark payment session as failed", { sessionId: paymentSession.id, error: markFailedError.message });
+      }
+
+      await supabaseClient
+        .from("payment_logs")
+        .insert({
+          payment_session_id: paymentSession.id,
+          event_type: "payment_link_creation_failed",
+          event_data: { error: errorMessage }
+        });
+
+      throw new Error("Payment initialization failed. Please try again.");
     }
 
-    const razorpayData = await razorpayResponse.json();
     logStep("Razorpay Payment Link created", { paymentLinkId: razorpayData.id });
 
     // Update payment session with Razorpay details
