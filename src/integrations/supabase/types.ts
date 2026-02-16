@@ -734,6 +734,84 @@ export type Database = {
         ]
       }
 
+      topic_requests: {
+        Row: {
+          id: string
+          user_id: string
+          community_id: string
+          topic: string
+          description: string
+          reason: string
+          status: string
+          admin_notes: string | null
+          reviewed_by: string | null
+          reviewed_at: string | null
+          discussion_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          community_id: string
+          topic: string
+          description: string
+          reason: string
+          status?: string
+          admin_notes?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          discussion_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          community_id?: string
+          topic?: string
+          description?: string
+          reason?: string
+          status?: string
+          admin_notes?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          discussion_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "topic_requests_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "topic_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "topic_requests_discussion_id_fkey"
+            columns: ["discussion_id"]
+            isOneToOne: false
+            referencedRelation: "discussions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
       user_activity_log: {
         Row: {
           action_type: string

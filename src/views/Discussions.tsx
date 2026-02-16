@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MessageCircle, Clock, Users, Filter } from 'lucide-react';
+import { MessageCircle, Clock, Users, Filter, Lightbulb } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -16,6 +16,9 @@ import { useState, useMemo } from 'react';
 import { useStructuredData, createCollectionSchema, createBreadcrumbSchema } from '@/utils/schema';
 import type { DiscussionListItem } from '@/lib/supabase/server';
 import { analytics } from '@/utils/analytics';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from '@/lib/nextRouterAdapter';
+import { RequestTopicModal } from '@/components/RequestTopicModal';
 
 // SSR-safe helper to get the base URL
 const getBaseUrl = () => {
@@ -30,10 +33,26 @@ interface DiscussionsProps {
 }
 
 export default function Discussions({ initialDiscussions }: DiscussionsProps = {}) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const communityFilter = searchParams.get('community');
   const statusFilter = searchParams.get('status') || 'all';
+
+  const handleRequestTopic = () => {
+    if (!user) {
+      navigate('/auth', {
+        state: {
+          from: { pathname: '/discussions' },
+          message: 'Please sign in to request a topic',
+        },
+      });
+      return;
+    }
+    setIsRequestModalOpen(true);
+  };
 
   // Add structured data for SEO (memoized to avoid recalculating)
   const breadcrumbSchema = useMemo(() => {
@@ -231,6 +250,15 @@ export default function Discussions({ initialDiscussions }: DiscussionsProps = {
                   Clear
                 </Button>
               </div>
+
+              <Button
+                type="button"
+                onClick={handleRequestTopic}
+                className="shrink-0"
+              >
+                <Lightbulb className="w-4 h-4 mr-2" />
+                Request a Topic
+              </Button>
             </form>
           </CardContent>
         </Card>
@@ -339,6 +367,12 @@ export default function Discussions({ initialDiscussions }: DiscussionsProps = {
           </Card>
         )}
       </div>
+
+      {/* Request a Topic modal */}
+      <RequestTopicModal
+        isOpen={isRequestModalOpen}
+        onClose={() => setIsRequestModalOpen(false)}
+      />
     </div>
   );
 }
