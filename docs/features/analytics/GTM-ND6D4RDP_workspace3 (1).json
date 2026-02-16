@@ -1,0 +1,352 @@
+{
+    "exportFormatVersion": 2,
+    "exportTime": "2026-02-16 10:24:03",
+    "containerVersion": {
+        "path": "accounts/6323639318/containers/235031966/versions/0",
+        "accountId": "6323639318",
+        "containerId": "235031966",
+        "containerVersionId": "0",
+        "container": {
+            "path": "accounts/6323639318/containers/235031966",
+            "accountId": "6323639318",
+            "containerId": "235031966",
+            "name": "mythirdplace.rapchai.com",
+            "publicId": "GTM-ND6D4RDP",
+            "usageContext": [
+                "WEB"
+            ],
+            "fingerprint": "1763039529887",
+            "tagManagerUrl": "https://tagmanager.google.com/#/container/accounts/6323639318/containers/235031966/workspaces?apiLink=container",
+            "features": {
+                "supportUserPermissions": true,
+                "supportEnvironments": true,
+                "supportWorkspaces": true,
+                "supportGtagConfigs": false,
+                "supportBuiltInVariables": true,
+                "supportClients": false,
+                "supportFolders": true,
+                "supportTags": true,
+                "supportTemplates": true,
+                "supportTriggers": true,
+                "supportVariables": true,
+                "supportVersions": true,
+                "supportZones": true,
+                "supportTransformations": false
+            },
+            "tagIds": [
+                "GTM-ND6D4RDP"
+            ]
+        },
+        "tag": [
+            {
+                "accountId": "6323639318",
+                "containerId": "235031966",
+                "tagId": "9",
+                "name": "GA4 – Config",
+                "type": "googtag",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "tagId",
+                        "value": "G-P7JDV3NGVV"
+                    }
+                ],
+                "fingerprint": "1769691958078",
+                "firingTriggerId": [
+                    "2147479573"
+                ],
+                "tagFiringOption": "ONCE_PER_EVENT",
+                "monitoringMetadata": {
+                    "type": "MAP"
+                },
+                "consentSettings": {
+                    "consentStatus": "NOT_SET"
+                }
+            },
+            {
+                "accountId": "6323639318",
+                "containerId": "235031966",
+                "tagId": "11",
+                "name": "page_view",
+                "type": "gaawe",
+                "parameter": [
+                    {
+                        "type": "BOOLEAN",
+                        "key": "sendEcommerceData",
+                        "value": "false"
+                    },
+                    {
+                        "type": "LIST",
+                        "key": "eventSettingsTable",
+                        "list": [
+                            {
+                                "type": "MAP",
+                                "map": [
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameter",
+                                        "value": "page_path"
+                                    },
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameterValue",
+                                        "value": "{{dlv.page_path}}"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "MAP",
+                                "map": [
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameter",
+                                        "value": "page_location"
+                                    },
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameterValue",
+                                        "value": "{{dlv.page_location}}"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "MAP",
+                                "map": [
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameter",
+                                        "value": "page_title"
+                                    },
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameterValue",
+                                        "value": "{{dlv.page_title}}"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "MAP",
+                                "map": [
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameter",
+                                        "value": "page_referrer"
+                                    },
+                                    {
+                                        "type": "TEMPLATE",
+                                        "key": "parameterValue",
+                                        "value": "{{dlv.page_referrer}}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "eventName",
+                        "value": "Custom Event - tp_page_view"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "measurementIdOverride",
+                        "value": "{{GA4_Measurement ID}}"
+                    }
+                ],
+                "fingerprint": "1769692066437",
+                "firingTriggerId": [
+                    "10"
+                ],
+                "tagFiringOption": "ONCE_PER_EVENT",
+                "monitoringMetadata": {
+                    "type": "MAP"
+                },
+                "consentSettings": {
+                    "consentStatus": "NOT_SET"
+                }
+            }
+        ],
+        "trigger": [
+            {
+                "accountId": "6323639318",
+                "containerId": "235031966",
+                "triggerId": "10",
+                "name": "trigger_tp_page_view",
+                "type": "CUSTOM_EVENT",
+                "customEventFilter": [
+                    {
+                        "type": "EQUALS",
+                        "parameter": [
+                            {
+                                "type": "TEMPLATE",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "TEMPLATE",
+                                "key": "arg1",
+                                "value": "tp_page_view"
+                            }
+                        ]
+                    }
+                ],
+                "fingerprint": "1769692019271"
+            }
+        ],
+        "variable": [
+            {
+                "accountId": "6323639318",
+                "containerId": "235031966",
+                "variableId": "4",
+                "name": "GA4_Measurement ID",
+                "type": "c",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "value",
+                        "value": "G-P7JDV3NGVV"
+                    }
+                ],
+                "fingerprint": "1769691486796",
+                "formatValue": {}
+            },
+            {
+                "accountId": "6323639318",
+                "containerId": "235031966",
+                "variableId": "5",
+                "name": "dlv.page_path",
+                "type": "v",
+                "parameter": [
+                    {
+                        "type": "INTEGER",
+                        "key": "dataLayerVersion",
+                        "value": "2"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "setDefaultValue",
+                        "value": "false"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "name",
+                        "value": "page_path"
+                    }
+                ],
+                "fingerprint": "1769691746999",
+                "formatValue": {}
+            },
+            {
+                "accountId": "6323639318",
+                "containerId": "235031966",
+                "variableId": "6",
+                "name": "dlv.page_location",
+                "type": "v",
+                "parameter": [
+                    {
+                        "type": "INTEGER",
+                        "key": "dataLayerVersion",
+                        "value": "2"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "setDefaultValue",
+                        "value": "false"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "name",
+                        "value": "page_location"
+                    }
+                ],
+                "fingerprint": "1769691775980",
+                "formatValue": {}
+            },
+            {
+                "accountId": "6323639318",
+                "containerId": "235031966",
+                "variableId": "7",
+                "name": "dlv.page_title",
+                "type": "v",
+                "parameter": [
+                    {
+                        "type": "INTEGER",
+                        "key": "dataLayerVersion",
+                        "value": "2"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "setDefaultValue",
+                        "value": "false"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "name",
+                        "value": "page_title"
+                    }
+                ],
+                "fingerprint": "1769691792897",
+                "formatValue": {}
+            },
+            {
+                "accountId": "6323639318",
+                "containerId": "235031966",
+                "variableId": "8",
+                "name": "dlv.page_referrer",
+                "type": "v",
+                "parameter": [
+                    {
+                        "type": "INTEGER",
+                        "key": "dataLayerVersion",
+                        "value": "2"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "setDefaultValue",
+                        "value": "false"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "name",
+                        "value": "page_referrer"
+                    }
+                ],
+                "fingerprint": "1769691811290",
+                "formatValue": {}
+            }
+        ],
+        "builtInVariable": [
+            {
+                "accountId": "6323639318",
+                "containerId": "235031966",
+                "type": "PAGE_URL",
+                "name": "Page URL"
+            },
+            {
+                "accountId": "6323639318",
+                "containerId": "235031966",
+                "type": "PAGE_HOSTNAME",
+                "name": "Page Hostname"
+            },
+            {
+                "accountId": "6323639318",
+                "containerId": "235031966",
+                "type": "PAGE_PATH",
+                "name": "Page Path"
+            },
+            {
+                "accountId": "6323639318",
+                "containerId": "235031966",
+                "type": "REFERRER",
+                "name": "Referrer"
+            },
+            {
+                "accountId": "6323639318",
+                "containerId": "235031966",
+                "type": "EVENT",
+                "name": "Event"
+            }
+        ],
+        "fingerprint": "1771237443054",
+        "tagManagerUrl": "https://tagmanager.google.com/#/versions/accounts/6323639318/containers/235031966/versions/0?apiLink=version"
+    }
+}

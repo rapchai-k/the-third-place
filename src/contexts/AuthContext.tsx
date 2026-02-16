@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { analytics } from '@/utils/analytics';
 
@@ -7,14 +7,15 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signInWithGoogle: () => Promise<{ error: any }>;
-  signOut: () => Promise<{ error: any }>;
+  signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signInWithGoogle: () => Promise<{ error: AuthError | null }>;
+  signOut: () => Promise<{ error: AuthError | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -39,6 +40,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Set user properties for GA4 when user signs in
+        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+          analytics.setUser(session.user.id, {
+            email_domain: session.user.email?.split('@')[1],
+            auth_provider: session.user.app_metadata?.provider || 'email',
+          });
+        }
       }
     );
 

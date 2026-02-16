@@ -8,6 +8,7 @@ import { toast } from "@/hooks/use-toast";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { Send, Loader2 } from "lucide-react";
 import { analytics } from "@/utils/analytics";
+import { analytics } from "@/utils/analytics";
 
 interface CommentFormProps {
   discussionId: string;
@@ -69,6 +70,13 @@ export const CommentForm = ({ discussionId, onCommentAdded }: CommentFormProps) 
       logCommentCreate(discussionId, optimisticComment.id, {
         comment_text: text.trim(),
         comment_length: text.trim().length
+      });
+
+      // Track create_comment for GA4
+      analytics.createComment({
+        comment_id: optimisticComment.id,
+        discussion_id: discussionId,
+        comment_length: text.trim().length,
       });
 
       // Track create_comment for GA4
