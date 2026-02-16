@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { Link } from "@/lib/nextRouterAdapter";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { useStructuredData, createCollectionSchema, createBreadcrumbSchema } from "@/utils/schema";
 import { useAuth } from "@/contexts/AuthContext";
 import type { EventListItem } from "@/lib/supabase/server";
+import { analytics } from "@/utils/analytics";
 
 // SSR-safe helper to get the base URL
 const getBaseUrl = () => {
@@ -97,6 +98,23 @@ export default function Events({ initialEvents }: EventsProps = {}) {
     // Keep showing previous data while refetching with new filters
     placeholderData: keepPreviousData,
   });
+
+  // Track event searches for GA4 (debounced to avoid noise from live typing)
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => {
+    if (!searchTerm || searchTerm.length < 3) return;
+
+    clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => {
+      analytics.search({
+        search_term: searchTerm,
+        search_type: 'events',
+        results_count: events?.length,
+      });
+    }, 800);
+
+    return () => clearTimeout(searchTimerRef.current);
+  }, [searchTerm, events?.length]);
 
 
 

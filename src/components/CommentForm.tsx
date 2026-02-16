@@ -78,6 +78,13 @@ export const CommentForm = ({ discussionId, onCommentAdded }: CommentFormProps) 
         comment_length: text.trim().length,
       });
 
+      // Track create_comment for GA4
+      analytics.createComment({
+        comment_id: optimisticComment.id,
+        discussion_id: discussionId,
+        comment_length: text.trim().length,
+      });
+
       // Show success toast immediately
       toast({
         title: "Comment posted!",
