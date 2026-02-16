@@ -655,6 +655,7 @@ export type Database = {
       payment_sessions: {
         Row: {
           amount: number
+          cancelled_by_user_at: string | null
           created_at: string
           currency: string
           event_id: string
@@ -671,6 +672,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          cancelled_by_user_at?: string | null
           created_at?: string
           currency?: string
           event_id: string
@@ -687,6 +689,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          cancelled_by_user_at?: string | null
           created_at?: string
           currency?: string
           event_id?: string

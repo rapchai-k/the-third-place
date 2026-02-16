@@ -59,6 +59,8 @@ serve(async (req) => {
       throw new Error("Payment session not found");
     }
 
+    const isCancelledByUser = Boolean(paymentSession.cancelled_by_user_at);
+
     // Only Razorpay is supported
     const gateway = paymentSession.gateway || 'razorpay';
     if (gateway !== 'razorpay') {
@@ -164,57 +166,77 @@ serve(async (req) => {
     // This is a fallback in case the webhook failed to create registration
     // Use upsert with onConflict to handle race condition between webhook and polling
     if (newPaymentStatus === "paid") {
-      // Auto-join community: ensure the user is a member of the event's community
-      const { data: eventData } = await supabaseClient
-        .from("events")
-        .select("community_id")
-        .eq("id", paymentSession.event_id)
-        .single();
-
-      if (eventData?.community_id) {
-        const { data: existingMembership } = await supabaseClient
-          .from("community_members")
-          .select("user_id")
-          .eq("community_id", eventData.community_id)
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        if (!existingMembership) {
-          const { error: joinError } = await supabaseClient
-            .from("community_members")
-            .insert({
-              community_id: eventData.community_id,
-              user_id: user.id
-            });
-
-          if (joinError) {
-            logStep("Failed to auto-join community", { error: joinError.message });
-          } else {
-            logStep("User auto-joined community via verify-payment");
-          }
-        }
-      }
-
-      // Use the extracted razorpayPaymentId or the one from payment session
-      const paymentId = razorpayPaymentId || paymentSession.razorpay_payment_id || null;
-
-      const { error: regError } = await supabaseClient
-        .from("event_registrations")
-        .upsert({
-          event_id: paymentSession.event_id,
-          user_id: user.id,
-          status: "registered",
-          payment_session_id: paymentSession.id,
-          payment_id: paymentId
-        }, {
-          onConflict: 'user_id,event_id',
-          ignoreDuplicates: true
+      if (isCancelledByUser) {
+        logStep("Skipping registration create: user cancelled before paid status", {
+          sessionId: paymentSession.id,
+          cancelled_by_user_at: paymentSession.cancelled_by_user_at
         });
 
-      if (regError) {
-        logStep("Failed to create/update registration", { error: regError.message });
+        if (paymentSession.payment_status !== "paid") {
+          await supabaseClient
+            .from("payment_logs")
+            .insert({
+              payment_session_id: paymentSession.id,
+              event_type: "payment_paid_after_user_cancel",
+              event_data: {
+                source: "verify-payment",
+                cancelled_by_user_at: paymentSession.cancelled_by_user_at
+              }
+            });
+        }
       } else {
-        logStep("Registration upserted via verify-payment fallback", { payment_id: paymentId });
+        // Auto-join community: ensure the user is a member of the event's community
+        const { data: eventData } = await supabaseClient
+          .from("events")
+          .select("community_id")
+          .eq("id", paymentSession.event_id)
+          .single();
+
+        if (eventData?.community_id) {
+          const { data: existingMembership } = await supabaseClient
+            .from("community_members")
+            .select("user_id")
+            .eq("community_id", eventData.community_id)
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+          if (!existingMembership) {
+            const { error: joinError } = await supabaseClient
+              .from("community_members")
+              .insert({
+                community_id: eventData.community_id,
+                user_id: user.id
+              });
+
+            if (joinError) {
+              logStep("Failed to auto-join community", { error: joinError.message });
+            } else {
+              logStep("User auto-joined community via verify-payment");
+            }
+          }
+        }
+
+        // Use the extracted razorpayPaymentId or the one from payment session
+        const paymentId = razorpayPaymentId || paymentSession.razorpay_payment_id || null;
+
+        const { error: regError } = await supabaseClient
+          .from("event_registrations")
+          .upsert({
+            event_id: paymentSession.event_id,
+            user_id: user.id,
+            status: "registered",
+            payment_session_id: paymentSession.id,
+            payment_id: paymentId
+          }, {
+            onConflict: 'user_id,event_id',
+            ignoreDuplicates: true
+          });
+
+        if (regError) {
+          logStep("Failed to create/update registration", { error: regError.message });
+        } else {
+          logStep("Registration upserted via verify-payment fallback", { payment_id: paymentId });
+        }
       }
     }
 

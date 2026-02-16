@@ -188,7 +188,8 @@ export const useEventRegistration = ({
           .from('payment_sessions')
           .update({
             status: 'cancelled',
-            payment_status: 'cancelled'
+            payment_status: 'cancelled',
+            cancelled_by_user_at: new Date().toISOString()
           })
           .eq('event_id', eventId)
           .eq('user_id', user.id)
