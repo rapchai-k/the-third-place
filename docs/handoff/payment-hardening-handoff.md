@@ -1,6 +1,7 @@
 # Payment Hardening — Agent Handoff Document
 
 **Date:** 2026-02-16  
+**Last Updated:** 2026-02-16 (consolidated branch workflow active: `features/payment-flow-review`)  
 **Project:** the-third-place (mythirdplace.rapchai.com)  
 **Repository:** https://github.com/rapchai-k/the-third-place  
 **Linear Project:** [the-third-place](https://linear.app/karans/project/the-third-place-d5a16ae88122) (ID: `78d29d88-c954-4f43-b575-013e3e278010`)  
