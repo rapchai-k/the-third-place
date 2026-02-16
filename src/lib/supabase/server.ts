@@ -150,6 +150,7 @@ export type EventWithRelations = Database['public']['Tables']['events']['Row'] &
     id: string;
     name: string;
     city: string;
+    slug: string | null;
   } | null;
   event_registrations: { count: number }[];
   users: {
@@ -169,7 +170,7 @@ export async function getEventById(id: string): Promise<EventWithRelations | nul
     .from('events')
     .select(`
       *,
-      communities(id, name, city),
+      communities(id, name, city, slug),
       event_registrations(count),
       users!events_host_id_fkey(name, photo_url)
     `)
@@ -178,6 +179,37 @@ export async function getEventById(id: string): Promise<EventWithRelations | nul
 
   if (error) {
     console.error('Error fetching event:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
+    return null;
+  }
+
+  return data as EventWithRelations;
+}
+
+/**
+ * Fetch a single event by its short_code with all relations.
+ * Used for rendering the canonical event page at /e/:shortCode.
+ */
+export async function getEventByShortCode(shortCode: string): Promise<EventWithRelations | null> {
+  const supabase = await createServerSupabaseClient();
+
+  const { data, error } = await supabase
+    .from('events')
+    .select(`
+      *,
+      communities(id, name, city, slug),
+      event_registrations(count),
+      users!events_host_id_fkey(name, photo_url)
+    `)
+    .eq('short_code', shortCode)
+    .single();
+
+  if (error) {
+    console.error('Error fetching event by short_code:', {
       message: error.message,
       code: error.code,
       details: error.details,
@@ -228,12 +260,39 @@ export async function getCommunityById(id: string): Promise<CommunityWithRelatio
 }
 
 /**
+ * Fetch a single community by its slug with all relations needed for the detail page.
+ * Used for the canonical community URL /c/:slug.
+ */
+export async function getCommunityBySlug(slug: string): Promise<CommunityWithRelations | null> {
+  const supabase = await createServerSupabaseClient();
+
+  const { data, error } = await supabase
+    .from('communities')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (error) {
+    console.error('Error fetching community by slug:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
+    return null;
+  }
+
+  return data as CommunityWithRelations;
+}
+
+/**
  * Type-safe discussion data with relations for SSR
  * Includes optional SEO override fields
  */
 export type DiscussionWithRelations = Database['public']['Tables']['discussions']['Row'] & {
   communities: {
     name: string;
+    slug: string | null;
   } | null;
   users: {
     name: string;
@@ -258,7 +317,7 @@ export async function getDiscussionById(id: string): Promise<DiscussionWithRelat
     .from('discussions')
     .select(`
       *,
-      communities(name),
+      communities(name, slug),
       users(name, photo_url),
       discussion_comments(count)
     `)

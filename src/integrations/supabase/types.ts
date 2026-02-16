@@ -101,6 +101,7 @@ export type Database = {
           seo_image_url: string | null
           seo_keywords: string[] | null
           seo_title: string | null
+          slug: string | null
           updated_at: string
         }
         Insert: {
@@ -115,6 +116,7 @@ export type Database = {
           seo_image_url?: string | null
           seo_keywords?: string[] | null
           seo_title?: string | null
+          slug?: string | null
           updated_at?: string
         }
         Update: {
@@ -129,6 +131,7 @@ export type Database = {
           seo_image_url?: string | null
           seo_keywords?: string[] | null
           seo_title?: string | null
+          slug?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -458,6 +461,7 @@ export type Database = {
           seo_image_url: string | null
           seo_keywords: string[] | null
           seo_title: string | null
+          short_code: string | null
           title: string
           updated_at: string
           venue: string
@@ -479,6 +483,7 @@ export type Database = {
           seo_image_url?: string | null
           seo_keywords?: string[] | null
           seo_title?: string | null
+          short_code?: string | null
           title: string
           updated_at?: string
           venue: string
@@ -500,6 +505,7 @@ export type Database = {
           seo_image_url?: string | null
           seo_keywords?: string[] | null
           seo_title?: string | null
+          short_code?: string | null
           title?: string
           updated_at?: string
           venue?: string

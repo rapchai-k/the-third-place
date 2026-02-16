@@ -40,7 +40,7 @@ export default function DiscussionDetailClient({ initialDiscussion }: Discussion
         .from('discussions')
         .select(`
           *,
-          communities (name),
+          communities (name, slug),
           users (name, photo_url)
         `)
         .eq('id', id)
@@ -278,7 +278,7 @@ export default function DiscussionDetailClient({ initialDiscussion }: Discussion
               <p className="text-muted-foreground mb-4">
                 You need to be a member of this community to comment
               </p>
-              <Button onClick={() => navigate(`/communities/${discussion.community_id}`)}>
+              <Button onClick={() => navigate(discussion.communities?.slug ? `/c/${discussion.communities.slug}` : `/communities/${discussion.community_id}`)}>
                 Join Community
               </Button>
             </CardContent>

@@ -253,7 +253,7 @@ const Dashboard = () => {
                     </div>
                   )}
                   <Button variant="outline" size="sm" asChild className="w-full bg-background text-foreground border-foreground">
-                    <Link to={`/events/${event.id}`}>View Details</Link>
+                    <Link to={event.short_code ? `/e/${event.short_code}` : `/events/${event.id}`}>View Details</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -304,7 +304,7 @@ const Dashboard = () => {
                     <Badge className="bg-background text-black border-foreground">{community.city}</Badge>
                   </div>
                   <Button variant="outline" size="sm" asChild className="w-full">
-                    <Link to={`/communities/${community.id}`}>View Community</Link>
+                    <Link to={community.slug ? `/c/${community.slug}` : `/communities/${community.id}`}>View Community</Link>
                   </Button>
                 </CardContent>
               </Card>

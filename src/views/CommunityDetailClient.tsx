@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, useNavigate, Link } from "@/lib/nextRouterAdapter";
+import { useNavigate, Link } from "@/lib/nextRouterAdapter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,7 +20,7 @@ interface CommunityDetailClientProps {
 }
 
 export default function CommunityDetailClient({ initialCommunity }: CommunityDetailClientProps) {
-  const { id } = useParams<{ id: string }>();
+  const id = initialCommunity.id;
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -166,9 +166,9 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
       queryClient.setQueryData(["isMember", id, user?.id], true);
 
       if (previousCommunity) {
-        queryClient.setQueryData(["community", id], (old: any) => ({
+        queryClient.setQueryData(["community", id], (old: Record<string, unknown>) => ({
           ...old,
-          member_count: (old.member_count || 0) + 1
+          member_count: ((old.member_count as number) || 0) + 1
         }));
       }
 
@@ -236,9 +236,9 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
       queryClient.setQueryData(["isMember", id, user?.id], false);
 
       if (previousCommunity) {
-        queryClient.setQueryData(["community", id], (old: any) => ({
+        queryClient.setQueryData(["community", id], (old: Record<string, unknown>) => ({
           ...old,
-          member_count: Math.max((old.member_count || 0) - 1, 0)
+          member_count: Math.max(((old.member_count as number) || 0) - 1, 0)
         }));
       }
 
@@ -385,7 +385,7 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
                           <Link
-                            to={`/events/${event.id}`}
+                            to={event.short_code ? `/e/${event.short_code}` : `/events/${event.id}`}
                             className="font-medium hover:underline"
                           >
                             {event.title}
