@@ -26,9 +26,10 @@ const getBaseUrl = () => {
 
 interface EventsProps {
   initialEvents?: EventListItem[];
+  initialPastEvents?: EventListItem[];
 }
 
-export default function Events({ initialEvents }: EventsProps = {}) {
+export default function Events({ initialEvents, initialPastEvents }: EventsProps = {}) {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
@@ -154,6 +155,49 @@ export default function Events({ initialEvents }: EventsProps = {}) {
 
   // Create a Set of registered event IDs for quick lookup
   const registeredEventIds = new Set(userRegistrations.map(reg => reg.event_id));
+
+  // Fetch past/completed events — visible to everyone regardless of registration or membership
+  const { data: pastEvents, isLoading: isPastLoading } = useQuery({
+    queryKey: ["past-events", searchTerm, selectedCity],
+    queryFn: async () => {
+      let query = supabase
+        .from("events")
+        .select(`
+          *,
+          communities(name, city),
+          event_registrations(count)
+        `)
+        .eq("is_cancelled", false)
+        .lt("date_time", new Date().toISOString())
+        .not("date_time", "is", null)
+        .order("date_time", { ascending: false })
+        .limit(12);
+
+      if (searchTerm) {
+        const sanitized = sanitizeSearchTerm(searchTerm);
+        if (sanitized) {
+          query = query.ilike("title", `%${sanitized}%`);
+        }
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      let filteredData = data || [];
+
+      if (selectedCity) {
+        filteredData = filteredData.filter(event =>
+          event.communities?.city === selectedCity
+        );
+      }
+
+      return filteredData;
+    },
+    ...((!searchTerm && !selectedCity && initialPastEvents)
+      ? { initialData: initialPastEvents }
+      : {}),
+    placeholderData: keepPreviousData,
+  });
 
   if (isLoading) {
     return (
@@ -313,10 +357,91 @@ export default function Events({ initialEvents }: EventsProps = {}) {
 
         {events?.length === 0 && (
           <div className="text-center py-12">
-            <h3 className="text-lg font-medium">No events found</h3>
+            <h3 className="text-lg font-medium">No upcoming events found</h3>
             <p className="text-muted-foreground">
-              Try adjusting your search or filters
+              Try adjusting your search or filters, or check out past events below
             </p>
+          </div>
+        )}
+
+        {/* Past / Completed Events — visible to everyone */}
+        {(pastEvents && pastEvents.length > 0) && (
+          <div className="space-y-4 pt-8 border-t">
+            <div className="text-center space-y-1">
+              <h2 className="text-2xl font-bold">Past Events</h2>
+              <p className="text-muted-foreground text-sm">
+                Completed events from the community
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {pastEvents.map((event, index) => {
+                const accentColors = ['bg-accent', 'bg-primary', 'bg-secondary', 'bg-[#ADFF2F]'];
+                const cardColor = accentColors[index % 4];
+
+                return (
+                  <Card key={event.id} className={`${cardColor} text-black h-full flex flex-col relative opacity-80 hover:opacity-100 hover:shadow-brutal-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-150`}>
+                    {/* Completed Badge */}
+                    <div className="absolute top-3 right-3 z-10">
+                      <Badge className="bg-gray-600 hover:bg-gray-700 text-white">
+                        Completed
+                      </Badge>
+                    </div>
+
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg line-clamp-2 mb-3 pr-24 text-black">{event.title || "TBD"}</CardTitle>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center text-sm text-black/60 gap-2">
+                          <Calendar className="h-4 w-4 flex-shrink-0" />
+                          <span>{event.date_time ? format(new Date(event.date_time), "MMM d, yyyy") : "TBD"}</span>
+                        </div>
+                        <div className="flex items-center text-sm text-black/60 gap-2">
+                          <Clock className="h-4 w-4 flex-shrink-0" />
+                          <span>{event.date_time ? format(new Date(event.date_time), "h:mm a") : "TBD"}</span>
+                        </div>
+                        <div className="flex items-center text-sm text-black/60 gap-2">
+                          <MapPin className="h-4 w-4 flex-shrink-0" />
+                          <span className="line-clamp-1">{event.venue || "TBD"}</span>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex-1 flex flex-col space-y-4">
+                      <CardDescription className="line-clamp-3 flex-grow text-black/60" style={{ height: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {event.description || "TBD"}
+                      </CardDescription>
+
+                      <div className="space-y-2 pt-2 border-t">
+                        <Badge variant="secondary" className="flex items-center gap-1 w-fit bg-background text-foreground border-foreground">
+                          <Users className="h-3 w-3" />
+                          {event.event_registrations?.[0]?.count || 0} attended
+                        </Badge>
+                        <p className="text-xs text-black/60">
+                          by {event.communities?.name || "TBD"}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col gap-2 pt-2 border-t mt-auto">
+                        <Button asChild variant="outline" size="sm" className="w-full bg-background text-foreground border-foreground">
+                          <Link to={`/events/${event.id}`}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </Link>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {isPastLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-8 border-t">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-64" />
+            ))}
           </div>
         )}
       </div>

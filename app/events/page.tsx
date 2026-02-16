@@ -1,5 +1,6 @@
+/* eslint-disable react-refresh/only-export-components */
 import type { Metadata } from 'next';
-import { getEvents } from '@/lib/supabase/server';
+import { getEvents, getPastEvents } from '@/lib/supabase/server';
 import EventsClient from '@/views/Events';
 import { AppLayoutWrapper } from '@/components/layout/AppLayoutWrapper';
 
@@ -27,11 +28,14 @@ export const metadata: Metadata = {
  * Client Component handles filters, search, and pagination.
  */
 export default async function EventsPage() {
-  const events = await getEvents({ limit: 20 });
+  const [events, pastEvents] = await Promise.all([
+    getEvents({ limit: 20 }),
+    getPastEvents({ limit: 12 }),
+  ]);
 
   return (
     <AppLayoutWrapper>
-      <EventsClient initialEvents={events} />
+      <EventsClient initialEvents={events} initialPastEvents={pastEvents} />
     </AppLayoutWrapper>
   );
 }

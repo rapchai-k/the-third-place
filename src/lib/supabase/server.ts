@@ -331,6 +331,36 @@ export async function getEvents(options: ListingOptions = {}): Promise<EventList
 }
 
 /**
+ * Fetch past/completed events for SSR.
+ * Returns events whose date_time is in the past, ordered by most recent first.
+ * Visible to everyone regardless of registration or membership.
+ */
+export async function getPastEvents(options: ListingOptions = {}): Promise<EventListItem[]> {
+  const { limit = 12 } = options;
+  const supabase = await createServerSupabaseClient();
+
+  const { data, error } = await supabase
+    .from('events')
+    .select(`
+      *,
+      communities(name, city),
+      event_registrations(count)
+    `)
+    .eq('is_cancelled', false)
+    .lt('date_time', new Date().toISOString())
+    .not('date_time', 'is', null)
+    .order('date_time', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching past events:', error);
+    return [];
+  }
+
+  return (data || []) as EventListItem[];
+}
+
+/**
  * Type-safe community list item for SSR
  */
 export type CommunityListItem = Database['public']['Tables']['communities']['Row'];
