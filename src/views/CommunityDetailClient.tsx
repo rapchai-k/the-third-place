@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { format } from "date-fns";
 import type { CommunityWithRelations } from "@/lib/supabase/server";
+import { GalleryDisplay } from "@/components/GalleryDisplay";
 import { analytics } from "@/utils/analytics";
 
 interface CommunityDetailClientProps {
@@ -107,6 +108,22 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
     enabled: !!id,
   });
 
+  const { data: galleryMedia = [] } = useQuery({
+    queryKey: ["communityGallery", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('gallery_media')
+        .select('*')
+        .eq('community_id', id)
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!id,
+  });
+
   // Log community view when community data is loaded
   useEffect(() => {
     if (id && community) {
@@ -140,7 +157,7 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
       if (error) {
         return false;
       }
-      
+
       return !!data;
     },
     enabled: !!user && !!id,
@@ -149,7 +166,7 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
   const joinCommunityMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('User not authenticated');
-      
+
       const { error } = await supabase
         .from("community_members")
         .insert({ community_id: id!, user_id: user.id });
@@ -457,6 +474,16 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
             </CardContent>
           </Card>
         </div>
+
+        {galleryMedia && galleryMedia.length > 0 && (
+          <div className="mt-12 md:mt-16">
+            <GalleryDisplay
+              media={galleryMedia}
+              title="Community Gallery"
+              subtitle={`Photos and videos from ${community.name}`}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

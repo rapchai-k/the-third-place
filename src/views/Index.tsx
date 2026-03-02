@@ -9,7 +9,8 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { SilkBackground, SpotlightCard, Masonry, CommunityCarousel } from "@/components/reactbits";
+import { SilkBackground, SpotlightCard, CommunityCarousel } from "@/components/reactbits";
+import { GalleryDisplay, GalleryMediaItem } from "@/components/GalleryDisplay";
 import { useStructuredData, websiteSchema, organizationSchema, createCollectionSchema } from "@/utils/schema";
 import type { CommunityListItem, EventListItem } from "@/lib/supabase/server";
 import { useNavigate } from "@/lib/nextRouterAdapter";
@@ -96,76 +97,59 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
     description: "Participate in discussions, share experiences, and contribute to your community"
   }];
 
-  // Photo gallery data for Masonry - Using Supabase bucket for landing page images
-  const [galleryImages, setGalleryImages] = useState([{
-    id: '1',
-    src: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400',
-    alt: 'Community Gathering',
-    height: 250
-  }, {
-    id: '2',
-    src: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400',
-    alt: 'Local Event',
-    height: 300
-  }, {
-    id: '3',
-    src: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=400',
-    alt: 'Workshop Session',
-    height: 200
-  }, {
-    id: '4',
-    src: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=400',
-    alt: 'Community Meeting',
-    height: 280
-  }, {
-    id: '5',
-    src: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=400',
-    alt: 'Social Activity',
-    height: 220
-  }, {
-    id: '6',
-    src: 'https://images.unsplash.com/photo-1543269664-647b4d4c4c2e?w=400',
-    alt: 'Group Discussion',
-    height: 260
-  }, {
-    id: '7',
-    src: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400',
-    alt: 'Team Building',
-    height: 240
-  }, {
-    id: '8',
-    src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
-    alt: 'Community Service',
-    height: 290
-  }]);
+  // Fetch gallery media from DB
+  const [galleryMedia, setGalleryMedia] = useState<GalleryMediaItem[]>([
+    {
+      id: 'fallback-1',
+      media_url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400',
+      mimetype: 'image/jpeg',
+      alt: 'Community Gathering'
+    },
+    {
+      id: 'fallback-2',
+      media_url: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400',
+      mimetype: 'image/jpeg',
+      alt: 'Local Event'
+    },
+    {
+      id: 'fallback-3',
+      media_url: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=400',
+      mimetype: 'image/jpeg',
+      alt: 'Workshop Session'
+    },
+    {
+      id: 'fallback-4',
+      media_url: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=400',
+      mimetype: 'image/jpeg',
+      alt: 'Community Meeting'
+    }
+  ]);
 
-  // Fetch images from Supabase bucket when available
   useEffect(() => {
-    const fetchGalleryImages = async () => {
+    const fetchGalleryMedia = async () => {
       try {
-        const {
-          data: files,
-          error
-        } = await supabase.storage.from('landing-page-images').list('', {
-          limit: 20
-        });
-        if (error) {
-          return;
-        }
-        if (files && files.length > 0) {
-          const bucketImages = files.map((file, index) => ({
-            id: file.id || `bucket-${index}`,
-            src: supabase.storage.from('landing-page-images').getPublicUrl(file.name).data.publicUrl,
-            alt: file.name.replace(/\.[^/.]+$/, "").replace(/-|_/g, " "),
-            height: 200 + Math.floor(Math.random() * 100)
-          }));
-          setGalleryImages(bucketImages);
+        const { data, error } = await supabase
+          .from('gallery_media')
+          .select('*')
+          .order('sort_order', { ascending: true })
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          setGalleryMedia(data.map(item => ({
+            id: item.id,
+            media_url: item.media_url,
+            mimetype: item.mimetype,
+            alt: 'Community memory'
+          })));
         }
       } catch (error) {
-        // Error loading gallery images
+        console.error('Error fetching gallery media:', error);
       }
     };
-    fetchGalleryImages();
+    fetchGalleryMedia();
   }, []);
 
   // Fetch featured events with registration counts (skip if SSR data available)
@@ -380,18 +364,11 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
 
       {/* Gallery */}
       <div className="container mx-auto px-6 md:px-8 lg:px-12 pb-16 md:pb-20">
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground uppercase">
-            Community Moments
-          </h2>
-          <p className="text-base sm:text-lg text-muted-foreground max-w-4xl mx-auto mt-4 md:mt-6 leading-relaxed">
-            Capturing the spirit of connection and shared experiences in our communities
-          </p>
-        </div>
-
-        <div className="max-w-7xl mx-auto">
-          <Masonry items={galleryImages} columns={masonryColumns} gap={16} className="w-full" />
-        </div>
+        <GalleryDisplay
+          media={galleryMedia}
+          title="Community Moments"
+          subtitle="Capturing the spirit of connection and shared experiences in our communities"
+        />
       </div>
 
       {/* Secondary CTA */}

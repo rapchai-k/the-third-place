@@ -20,7 +20,8 @@ VALUES
   ('20250908000001'),
   ('20250910000001'),
   ('20260113201018'),
-  ('20260115201244')
+  ('20260115201244'),
+  ('20260302083111')
 ON CONFLICT (version) DO NOTHING;
 
 -- Step 2: Add SEO columns to events table

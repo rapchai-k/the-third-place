@@ -585,6 +585,54 @@ export type Database = {
           },
         ]
       }
+      gallery_media: {
+        Row: {
+          id: string
+          event_id: string | null
+          community_id: string | null
+          media_url: string
+          mimetype: string
+          sort_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          event_id?: string | null
+          community_id?: string | null
+          media_url: string
+          mimetype: string
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          event_id?: string | null
+          community_id?: string | null
+          media_url?: string
+          mimetype?: string
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gallery_media_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gallery_media_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           created_at: string

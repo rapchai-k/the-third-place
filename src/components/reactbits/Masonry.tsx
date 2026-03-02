@@ -6,6 +6,7 @@ interface MasonryItem {
   src: string;
   alt: string;
   height?: number;
+  type?: 'image' | 'video';
 }
 
 interface MasonryProps {
@@ -90,16 +91,31 @@ export const Masonry: React.FC<MasonryProps> = ({
             }}
             whileHover={{ zIndex: 10 }}
           >
-            <img
-              src={item.src}
-              alt={item.alt}
-              className="w-full h-auto object-cover"
-              style={{
-                height: item.height || 200 + Math.random() * 200,
-                objectFit: 'cover'
-              }}
-              loading="lazy"
-            />
+            {item.type === 'video' ? (
+              <video
+                src={item.src}
+                className="w-full h-auto object-cover"
+                style={{
+                  height: item.height || 200 + Math.random() * 200,
+                  objectFit: 'cover'
+                }}
+                autoPlay
+                loop
+                muted
+                playsInline
+              />
+            ) : (
+              <img
+                src={item.src}
+                alt={item.alt}
+                className="w-full h-auto object-cover"
+                style={{
+                  height: item.height || 200 + Math.random() * 200,
+                  objectFit: 'cover'
+                }}
+                loading="lazy"
+              />
+            )}
 
           </motion.div>
         );

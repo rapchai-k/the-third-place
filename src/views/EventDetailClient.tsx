@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { useActivityLogger } from "@/hooks/useActivityLogger";
 import { useEffect } from "react";
 import { Link } from "@/lib/nextRouterAdapter";
+import { GalleryDisplay } from "@/components/GalleryDisplay";
 import type { EventWithRelations } from "@/lib/supabase/server";
 import { analytics } from "@/utils/analytics";
 
@@ -55,6 +56,21 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
     },
     initialData: event.event_registrations?.[0]?.count || 0,
     staleTime: 30000, // Consider fresh for 30 seconds
+  });
+
+  const { data: galleryMedia = [] } = useQuery({
+    queryKey: ["eventGallery", event.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('gallery_media')
+        .select('*')
+        .eq('event_id', event.id)
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
   });
 
   const registrationCount = liveRegistrationCount;
@@ -311,6 +327,16 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
             </Card>
           </div>
         </div>
+
+        {galleryMedia && galleryMedia.length > 0 && (
+          <div className="mt-12 md:mt-16">
+            <GalleryDisplay
+              media={galleryMedia}
+              title="Event Gallery"
+              subtitle={`Photos and videos from ${event.title}`}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

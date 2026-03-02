@@ -109,6 +109,17 @@ entity "flags" as FLAG {
     created_at : timestamp
 }
 
+entity "gallery_media" as GMED {
+    *id : UUID <<PK>>
+    event_id : UUID <<FK, optional>>
+    community_id : UUID <<FK, optional>>
+    media_url : text
+    mimetype : text
+    sort_order : int
+    created_at : timestamp
+    updated_at : timestamp
+}
+
 entity "referrals" as REF {
     *id : UUID <<PK>>
     referrer_id : UUID <<FK>>
@@ -145,4 +156,6 @@ USERS ||--o{ ACT : activity
 REG ||--o{ ACT : logs
 CMEM ||--o{ ACT : logs
 DCOM ||--o{ ACT : logs
+EVENT ||--o{ GMED : has media
+COMM ||--o{ GMED : has media
 @enduml
