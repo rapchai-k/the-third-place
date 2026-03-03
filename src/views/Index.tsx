@@ -3,7 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, Search, MessageCircle } from "lucide-react";
+import { Zap, RefreshCcw, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -84,17 +84,17 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
 
   // Features data for SpotlightCard
   const features = [{
-    icon: <Heart className="w-6 h-6" />,
-    title: "Connect",
-    description: "Build meaningful relationships with like-minded people in your community"
+    icon: <Zap className="w-6 h-6" />,
+    title: "Recharge",
+    description: "Take time to relax, unwind, and restore your energy with like-minded people in your community."
   }, {
-    icon: <Search className="w-6 h-6" />,
-    title: "Discover",
-    description: "Find exciting events, activities, and opportunities happening around you"
+    icon: <RefreshCcw className="w-6 h-6" />,
+    title: "Adapt",
+    description: "Embrace change, learn new skills, and grow through diverse experiences and connections."
   }, {
-    icon: <MessageCircle className="w-6 h-6" />,
-    title: "Engage",
-    description: "Participate in discussions, share experiences, and contribute to your community"
+    icon: <TrendingUp className="w-6 h-6" />,
+    title: "Prosper",
+    description: "Thrive together, achieve your goals, and unlock your full potential with community support."
   }];
 
   // Fetch gallery media from DB
@@ -269,41 +269,42 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
   }, [communitiesPage, hasMoreCommunities, loadingCommunities]);
 
   return <SilkBackground>
-    <div className="min-h-screen mobile-safe overflow-x-hidden">
+    <div className="min-h-screen mobile-safe overflow-x-hidden flex flex-col">
       {/* Hero Section - Neo-Brutalism */}
-      <div className="text-center pt-12 md:pt-20 pb-6 px-6 md:px-8">
-        <img src="/logo.png" alt="My Third Place" className="h-[10rem] sm:h-[12rem] md:h-[16rem] lg:h-[20rem] w-auto mx-auto" loading="eager" decoding="async" />
-      </div>
+      <div className="flex-grow flex flex-col md:flex-row items-center justify-center max-w-[90rem] mx-auto pt-6 md:pt-8 pb-8 md:pb-12 px-6 md:px-12 xl:px-20 gap-8 lg:gap-12 xl:gap-20 min-h-0 md:min-h-[80vh] w-full">
 
-      {/* Bold Tagline */}
-      <div className="text-center px-6 md:px-8 pb-4">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground uppercase leading-[0.95] tracking-tight">
-          My Third Place.<br />
-          Unapologetically Yours.
-        </h1>
-      </div>
+        {/* Logo - Left on desktop, centered on mobile */}
+        <div className="flex-shrink-0 flex justify-center w-full md:w-5/12 lg:w-4/12 xl:w-5/12 md:justify-end lg:justify-end">
+          <img src="/logo.png" alt="My Third Place" className="h-[12rem] sm:h-[14rem] md:h-[20rem] lg:h-[28rem] xl:h-[32rem] w-auto max-h-[35vh] md:max-h-none drop-shadow-sm" loading="eager" decoding="async" />
+        </div>
 
-      {/* Quick Description */}
-      <div className="text-center px-6 md:px-8 pb-8 md:pb-12">
-        <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-          Connect with local communities, discover exciting events, and build meaningful relationships in your neighborhood.
-        </p>
-      </div>
+        {/* Text Content - Right on desktop, centered on mobile */}
+        <div className="text-center md:text-left flex-1 max-w-xl md:max-w-3xl lg:max-w-[45rem] xl:max-w-[55rem] flex flex-col items-center md:items-start">
+          <div className="space-y-4 md:space-y-6 text-foreground leading-[1.1] mb-8 md:mb-10 w-full">
+            <h1 className="text-4xl sm:text-5xl md:text-[3rem] lg:text-[4rem] xl:text-[4.25rem] font-bold uppercase tracking-tight">
+              We believe that <br className="hidden md:block lg:hidden" />everyone needs a Thirdplace.
+            </h1>
+            <p className="text-lg sm:text-xl md:text-2xl font-medium text-foreground/80 leading-relaxed md:leading-snug max-w-lg md:max-w-full mx-auto md:mx-0">
+              We bring together people and spaces to create meaningful experiences.
+            </p>
+          </div>
 
-      {/* Primary CTAs - Neo-Brutal buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pb-16 md:pb-20 px-6 md:px-8">
-        {user ? (
-          <Button size="lg" className="bg-accent text-accent-foreground text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/dashboard')}>
-            View Dashboard
-          </Button>
-        ) : (
-          <Button size="lg" className="bg-primary text-primary-foreground text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/auth')}>
-            Join the Chaos
-          </Button>
-        )}
-        <Button variant="outline" size="lg" className="bg-secondary text-secondary-foreground text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 w-full sm:w-auto min-w-[200px]" onClick={() => navigate('/communities')}>
-          Explore Spaces
-        </Button>
+          {/* Primary CTAs - Neo-Brutal buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto justify-center md:justify-start items-center">
+            {user ? (
+              <Button size="lg" className="bg-accent text-accent-foreground text-base sm:text-lg px-8 py-3 sm:py-4 w-full sm:w-auto shadow-brutal hover:translate-y-[2px] hover:shadow-none transition-all" onClick={() => navigate('/dashboard')}>
+                View Dashboard
+              </Button>
+            ) : (
+              <Button size="lg" className="bg-primary text-primary-foreground text-base sm:text-lg px-8 py-3 sm:py-4 w-full sm:w-auto shadow-brutal hover:translate-y-[2px] hover:shadow-none transition-all" onClick={() => navigate('/auth')}>
+                Find Yours With Us
+              </Button>
+            )}
+            <Button variant="outline" size="lg" className="bg-secondary text-secondary-foreground text-base sm:text-lg px-8 py-3 sm:py-4 w-full sm:w-auto border-2 border-foreground shadow-brutal hover:translate-y-[2px] hover:shadow-none transition-all" onClick={() => navigate('/communities')}>
+              Explore Spaces
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Features Section */}
