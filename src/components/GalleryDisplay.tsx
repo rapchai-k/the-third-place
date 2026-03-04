@@ -56,8 +56,7 @@ export const GalleryDisplay = ({ media, emptyMessage = "No media available for t
             src: item.media_url,
             alt: item.alt || `Gallery item ${index + 1}`,
             type: isVideo ? 'video' as const : 'image' as const,
-            // deterministic pseudo-random height to keep masonry tight, similar to previous design
-            height: 200 + (index % 3) * 60 + (item.id.length % 50)
+            // Height will be calculated dynamically based on actual image dimensions
         };
     });
 

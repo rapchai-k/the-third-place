@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 
 interface MasonryItem {
@@ -7,6 +7,12 @@ interface MasonryItem {
   alt: string;
   height?: number;
   type?: 'image' | 'video';
+}
+
+interface ImageDimensions {
+  width: number;
+  height: number;
+  loaded: boolean;
 }
 
 interface MasonryProps {
@@ -24,39 +30,84 @@ export const Masonry: React.FC<MasonryProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [columnHeights, setColumnHeights] = useState<number[]>([]);
-  const [itemPositions, setItemPositions] = useState<{ x: number; y: number }[]>([]);
+  const [itemPositions, setItemPositions] = useState<{ x: number; y: number; height: number }[]>([]);
+  const [imageDimensions, setImageDimensions] = useState<Map<string, ImageDimensions>>(new Map());
+  const [containerWidth, setContainerWidth] = useState(0);
 
+  // Load image dimensions
+  const loadImageDimensions = useCallback((item: MasonryItem) => {
+    if (imageDimensions.has(item.id)) return;
+
+    const img = new Image();
+    img.onload = () => {
+      setImageDimensions(prev => {
+        const newMap = new Map(prev);
+        newMap.set(item.id, {
+          width: img.naturalWidth,
+          height: img.naturalHeight,
+          loaded: true
+        });
+        return newMap;
+      });
+    };
+    img.onerror = () => {
+      setImageDimensions(prev => {
+        const newMap = new Map(prev);
+        newMap.set(item.id, { width: 400, height: 300, loaded: true });
+        return newMap;
+      });
+    };
+    img.src = item.src;
+  }, [imageDimensions]);
+
+  // Load all image dimensions on mount or when items change
   useEffect(() => {
-    if (!containerRef.current) return;
+    items.forEach(item => loadImageDimensions(item));
+  }, [items, loadImageDimensions]);
 
-    const container = containerRef.current;
-    const containerWidth = container.offsetWidth;
+  // Update container width on resize
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) setContainerWidth(containerRef.current.offsetWidth);
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
+  // Calculate positions once we have dimensions
+  useEffect(() => {
+    if (!containerRef.current || containerWidth === 0) return;
+
     const columnWidth = (containerWidth - gap * (columns - 1)) / columns;
-
     const heights = new Array(columns).fill(0);
-    const positions: { x: number; y: number }[] = [];
+    const positions: { x: number; y: number; height: number }[] = [];
 
-    items.forEach((item, index) => {
-      // Find the shortest column
+    items.forEach((item) => {
       const shortestColumnIndex = heights.indexOf(Math.min(...heights));
-
-      // Calculate position
       const x = shortestColumnIndex * (columnWidth + gap);
       const y = heights[shortestColumnIndex];
 
-      positions.push({ x, y });
+      const dims = imageDimensions.get(item.id);
+      let itemHeight: number;
+      if (dims && dims.loaded) {
+        const aspectRatio = dims.height / dims.width;
+        itemHeight = columnWidth * aspectRatio;
+      } else {
+        itemHeight = item.height || 250;
+      }
 
-      // Update column height (using a default height if not provided)
-      const itemHeight = item.height || 200 + Math.random() * 200;
+      positions.push({ x, y, height: itemHeight });
       heights[shortestColumnIndex] += itemHeight + gap;
     });
 
     setColumnHeights(heights);
     setItemPositions(positions);
-  }, [items, columns, gap]);
+  }, [items, columns, gap, imageDimensions, containerWidth]);
 
-  const containerHeight = columnHeights.length > 0 ? Math.max(...columnHeights) : 0;
-  const safeContainerHeight = isFinite(containerHeight) ? containerHeight : 0;
+  const maxHeight = columnHeights.length > 0 ? Math.max(...columnHeights) : 0;
+  const safeContainerHeight = isFinite(maxHeight) ? maxHeight : 0;
+  const columnWidth = containerWidth > 0 ? (containerWidth - gap * (columns - 1)) / columns : 0;
 
   return (
     <div
@@ -68,9 +119,6 @@ export const Masonry: React.FC<MasonryProps> = ({
         const position = itemPositions[index];
         if (!position) return null;
 
-        const containerWidth = containerRef.current?.offsetWidth || 0;
-        const columnWidth = (containerWidth - gap * (columns - 1)) / columns;
-
         return (
           <motion.div
             key={item.id}
@@ -79,6 +127,7 @@ export const Masonry: React.FC<MasonryProps> = ({
               left: position.x,
               top: position.y,
               width: columnWidth,
+              height: position.height,
             }}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -94,11 +143,7 @@ export const Masonry: React.FC<MasonryProps> = ({
             {item.type === 'video' ? (
               <video
                 src={item.src}
-                className="w-full h-auto object-cover"
-                style={{
-                  height: item.height || 200 + Math.random() * 200,
-                  objectFit: 'cover'
-                }}
+                className="w-full h-full object-cover block"
                 autoPlay
                 loop
                 muted
@@ -108,15 +153,10 @@ export const Masonry: React.FC<MasonryProps> = ({
               <img
                 src={item.src}
                 alt={item.alt}
-                className="w-full h-auto object-cover"
-                style={{
-                  height: item.height || 200 + Math.random() * 200,
-                  objectFit: 'cover'
-                }}
+                className="w-full h-full object-cover block"
                 loading="lazy"
               />
             )}
-
           </motion.div>
         );
       })}
