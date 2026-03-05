@@ -159,7 +159,13 @@ export class TemplateProcessor {
           subject: `Don't forget: ${context.variables.eventName || 'Your Event'} is coming up!`,
           html: generateEventReminderTemplate(context.variables as any)
         };
-      
+
+      case 'payment_confirmation':
+        return {
+          subject: `Payment Confirmed – You're registered for ${context.variables.eventTitle || 'the event'}! 🎉`,
+          html: generatePaymentConfirmationEmailTemplate(context.variables as any)
+        };
+
       default:
         throw new Error(`Unknown template: ${context.templateName}`);
     }
@@ -454,10 +460,128 @@ export function generateEventReminderTemplate(data: EmailTemplateData & {
                 <a href="${eventUrl}" class="cta-button">View Event Details</a>
             </div>
         </div>
-        
+
         <div class="footer">
             <p>See you at the event!</p>
             <p>&copy; 2025 The Third Place. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+}
+
+/**
+ * Payment confirmation email template
+ */
+export function generatePaymentConfirmationEmailTemplate(data: EmailTemplateData & {
+  eventTitle: string;
+  eventDateTime?: string;
+  eventVenue?: string;
+  amount: number;
+  currency: string;
+  paymentId?: string;
+  paymentSessionId: string;
+  eventUrl?: string;
+}): string {
+  const {
+    userName,
+    eventTitle,
+    eventDateTime,
+    eventVenue,
+    amount,
+    currency,
+    paymentId,
+    paymentSessionId,
+    eventUrl = "https://mythirdplace.rapchai.com/events",
+  } = data;
+
+  const formattedAmount = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: currency || 'INR',
+  }).format(amount);
+
+  const formattedDate = eventDateTime
+    ? new Date(eventDateTime).toLocaleString('en-IN', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Asia/Kolkata',
+      })
+    : null;
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Confirmation - ${eventTitle}</title>
+    <style>${baseStyles}</style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">My Third Place</div>
+            <p class="tagline">Payment Confirmation</p>
+        </div>
+
+        <div class="content">
+            <h1 class="welcome-text">You're all set, ${userName || 'there'}! 🎉</h1>
+
+            <p class="description">
+                Your payment has been successfully processed and you are now registered for <strong>${eventTitle}</strong>.
+            </p>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon"></div>
+                    <p class="feature-text"><strong>Event:</strong> ${eventTitle}</p>
+                </div>
+                ${formattedDate ? `
+                <div class="feature">
+                    <div class="feature-icon"></div>
+                    <p class="feature-text"><strong>Date &amp; Time:</strong> ${formattedDate}</p>
+                </div>` : ''}
+                ${eventVenue ? `
+                <div class="feature">
+                    <div class="feature-icon"></div>
+                    <p class="feature-text"><strong>Venue:</strong> ${eventVenue}</p>
+                </div>` : ''}
+                <div class="feature">
+                    <div class="feature-icon"></div>
+                    <p class="feature-text"><strong>Amount Paid:</strong> ${formattedAmount}</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon"></div>
+                    <p class="feature-text"><strong>Transaction Ref:</strong> ${paymentId || paymentSessionId}</p>
+                </div>
+            </div>
+
+            <p class="description">
+                Please save this email for your records. If you have any questions about the event, feel free to reach out to the event organizer or our support team.
+            </p>
+
+            <div style="text-align: center;">
+                <a href="${eventUrl}" class="cta-button">View Event Details</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>See you at the event!</strong></p>
+            <p>If you need to cancel or have questions, please contact the event organizer.</p>
+
+            <div class="social-links">
+                <a href="https://mythirdplace.rapchai.com/events" class="social-link">Browse Events</a>
+                <a href="https://mythirdplace.rapchai.com/communities" class="social-link">Communities</a>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 12px; color: #94a3b8;">
+                &copy; 2025 My Third Place. All rights reserved.<br>
+                You're receiving this email because you made a payment on My Third Place.
+            </p>
         </div>
     </div>
 </body>

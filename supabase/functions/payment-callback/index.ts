@@ -247,6 +247,33 @@ serve(async (req) => {
         } else {
           logStep("Registration upserted successfully for paid event", { payment_id: paymentEntity?.id });
         }
+
+        // Trigger payment confirmation email (best-effort, fire-and-forget)
+        try {
+          const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+          const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+          const emailRes = await fetch(`${SUPABASE_URL}/functions/v1/payment-confirmation-email-trigger`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              paymentSessionId: paymentSession.id,
+              userId: paymentSession.user_id,
+            }),
+          });
+          const emailTxt = await emailRes.text();
+          logStep("Payment confirmation email trigger", {
+            status: emailRes.status,
+            ok: emailRes.ok,
+            bodyPreview: emailTxt.slice(0, 500),
+          });
+        } catch (emailErr) {
+          logStep("Payment confirmation email trigger failed (non-fatal)", {
+            error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+          });
+        }
       }
     }
 

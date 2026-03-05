@@ -18,6 +18,9 @@ verify_jwt = false
 [functions.webhook-dispatcher]
 verify_jwt = false
 
+[functions.payment-confirmation-email-trigger]
+verify_jwt = false
+
 [functions.welcome-email-trigger]
 verify_jwt = false
 
