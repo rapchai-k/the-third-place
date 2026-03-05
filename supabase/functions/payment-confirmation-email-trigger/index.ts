@@ -197,7 +197,7 @@ serve(async (req) => {
     }
 
     const emailPayload = {
-      from: "onboarding@rapchai.com",
+      from: "events@rapchai.com",
       to: userEmail,
       subject: templateResult.subject,
       html: templateResult.html,
