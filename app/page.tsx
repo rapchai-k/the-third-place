@@ -7,20 +7,20 @@ import { AppLayoutWrapper } from '@/components/layout/AppLayoutWrapper';
  * Static metadata for the home page.
  */
 export const metadata: Metadata = {
-  title: 'My Third Place | Connect, Discover, Engage',
+  title: 'My Third Place | Recharge, Adapt, Prosper',
   description: 'Find your community and connect with like-minded people. Discover events, join discussions, and build meaningful relationships in your third place.',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'My Third Place | Connect, Discover, Engage',
+    title: 'My Third Place | Recharge, Adapt, Prosper',
     description: 'Find your community and connect with like-minded people.',
     type: 'website',
     siteName: 'My Third Place',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'My Third Place | Connect, Discover, Engage',
+    title: 'My Third Place | Recharge, Adapt, Prosper',
     description: 'Find your community and connect with like-minded people.',
   },
 };
