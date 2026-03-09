@@ -29,6 +29,7 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
   } = useActivityLogger();
   const navigate = useNavigate();
   const [communitiesPage, setCommunitiesPage] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [allCommunities, setAllCommunities] = useState<any[]>([]);
   const [hasMoreCommunities, setHasMoreCommunities] = useState(true);
 
@@ -130,8 +131,7 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
       try {
         const { data, error } = await supabase
           .from('gallery_media')
-          .select('*')
-          .order('sort_order', { ascending: true })
+          .select('*, communities(name)')
           .order('created_at', { ascending: false })
           .limit(20);
 
@@ -142,7 +142,9 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
             id: item.id,
             media_url: item.media_url,
             mimetype: item.mimetype,
-            alt: 'Community memory'
+            alt: 'Community memory',
+            created_at: item.created_at,
+            community_name: (item.communities as { name: string } | null)?.name,
           })));
         }
       } catch (error) {
@@ -252,7 +254,9 @@ const Index = ({ initialCommunities, initialEvents }: IndexProps = {}) => {
         })) || [];
 
       setAllCommunities((prev) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const existingIds = new Set(prev.map((c: any) => c.id));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const newOnes = mappedCommunities.filter((c: any) => !existingIds.has(c.id));
         if (mappedCommunities.length < PAGE_SIZE || newOnes.length === 0) {
           setHasMoreCommunities(false);

@@ -1,11 +1,14 @@
 import { Masonry } from "@/components/reactbits";
 import { useEffect, useState } from "react";
+import { format } from "date-fns";
 
 export interface GalleryMediaItem {
     id: string;
     media_url: string;
     mimetype: string;
     alt?: string;
+    created_at?: string;
+    community_name?: string;
 }
 
 interface GalleryDisplayProps {
@@ -56,7 +59,8 @@ export const GalleryDisplay = ({ media, emptyMessage = "No media available for t
             src: item.media_url,
             alt: item.alt || `Gallery item ${index + 1}`,
             type: isVideo ? 'video' as const : 'image' as const,
-            // Height will be calculated dynamically based on actual image dimensions
+            date: item.created_at ? format(new Date(item.created_at), 'MMM d, yyyy') : undefined,
+            communityName: item.community_name,
         };
     });
 

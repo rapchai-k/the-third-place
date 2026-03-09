@@ -7,6 +7,8 @@ interface MasonryItem {
   alt: string;
   height?: number;
   type?: 'image' | 'video';
+  date?: string;
+  communityName?: string;
 }
 
 interface MasonryProps {
@@ -33,7 +35,7 @@ export const Masonry: React.FC<MasonryProps> = ({
       {items.map((item, index) => (
         <motion.div
           key={item.id}
-          className="overflow-hidden border-2 border-foreground shadow-brutal hover:shadow-brutal-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-150"
+          className="relative overflow-hidden border-2 border-foreground shadow-brutal hover:shadow-brutal-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-150"
           style={{
             breakInside: 'avoid',
             marginBottom: gap,
@@ -65,6 +67,16 @@ export const Masonry: React.FC<MasonryProps> = ({
               className="w-full h-auto block"
               loading="lazy"
             />
+          )}
+          {(item.date || item.communityName) && (
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-2 pt-6">
+              {item.communityName && (
+                <p className="text-white text-sm font-semibold leading-tight">{item.communityName}</p>
+              )}
+              {item.date && (
+                <p className="text-white/80 text-xs">{item.date}</p>
+              )}
+            </div>
           )}
         </motion.div>
       ))}
