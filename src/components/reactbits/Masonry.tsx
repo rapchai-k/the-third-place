@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface MasonryItem {
@@ -33,37 +33,36 @@ export const Masonry: React.FC<MasonryProps> = ({
   const [itemPositions, setItemPositions] = useState<{ x: number; y: number; height: number }[]>([]);
   const [imageDimensions, setImageDimensions] = useState<Map<string, ImageDimensions>>(new Map());
   const [containerWidth, setContainerWidth] = useState(0);
-
-  // Load image dimensions
-  const loadImageDimensions = useCallback((item: MasonryItem) => {
-    if (imageDimensions.has(item.id)) return;
-
-    const img = new Image();
-    img.onload = () => {
-      setImageDimensions(prev => {
-        const newMap = new Map(prev);
-        newMap.set(item.id, {
-          width: img.naturalWidth,
-          height: img.naturalHeight,
-          loaded: true
-        });
-        return newMap;
-      });
-    };
-    img.onerror = () => {
-      setImageDimensions(prev => {
-        const newMap = new Map(prev);
-        newMap.set(item.id, { width: 400, height: 300, loaded: true });
-        return newMap;
-      });
-    };
-    img.src = item.src;
-  }, [imageDimensions]);
+  const loadingRef = useRef<Set<string>>(new Set());
 
   // Load all image dimensions on mount or when items change
   useEffect(() => {
-    items.forEach(item => loadImageDimensions(item));
-  }, [items, loadImageDimensions]);
+    items.forEach(item => {
+      if (loadingRef.current.has(item.id)) return;
+      loadingRef.current.add(item.id);
+
+      const img = new Image();
+      img.onload = () => {
+        setImageDimensions(prev => {
+          const newMap = new Map(prev);
+          newMap.set(item.id, {
+            width: img.naturalWidth,
+            height: img.naturalHeight,
+            loaded: true
+          });
+          return newMap;
+        });
+      };
+      img.onerror = () => {
+        setImageDimensions(prev => {
+          const newMap = new Map(prev);
+          newMap.set(item.id, { width: 400, height: 300, loaded: true });
+          return newMap;
+        });
+      };
+      img.src = item.src;
+    });
+  }, [items]);
 
   // Update container width on resize
   useEffect(() => {
