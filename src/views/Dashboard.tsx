@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { Link, useSearchParams } from "@/lib/nextRouterAdapter";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReferralCodeModal } from "@/components/referrals/ReferralCodeModal";
+import { NamePromptModal } from "@/components/onboarding/NamePromptModal";
 import { useReferrals } from "@/hooks/useReferrals";
 import { shouldShowReferralModal } from "@/utils/userUtils";
 import { toast } from "@/hooks/use-toast";
@@ -19,6 +20,9 @@ const Dashboard = () => {
   const [searchParams] = useSearchParams();
   const { applyReferralCode } = useReferrals();
 
+  // Name prompt modal state
+  const [showNameModal, setShowNameModal] = useState(false);
+
   // Referral modal state
   const [showReferralModal, setShowReferralModal] = useState(false);
   const [referralCodeApplied, setReferralCodeApplied] = useState(false);
@@ -27,6 +31,34 @@ const Dashboard = () => {
   const [currentReferralCode, setCurrentReferralCode] = useState<string | null>(null);
 
   const referralCodeFromUrl = searchParams.get('ref');
+
+  // Show name prompt modal if user has default/placeholder name
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const PLACEHOLDER_NAMES = [
+      'user', 'random', 'test', 'guest', 'anonymous',
+      'unknown', 'noname', 'no name', 'na', 'n/a', 'none',
+      'admin', 'default', 'temp', 'abc', 'xyz', 'asdf',
+    ];
+
+    const isPlaceholderName = (name: string | null | undefined): boolean => {
+      if (!name || !name.trim()) return true;
+      const lower = name.trim().toLowerCase();
+      return PLACEHOLDER_NAMES.includes(lower);
+    };
+
+    supabase
+      .from('users')
+      .select('name')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (isPlaceholderName(data?.name)) {
+          setShowNameModal(true);
+        }
+      });
+  }, [user?.id]);
 
   // Show referral modal for new Google OAuth users
   useEffect(() => {
@@ -312,6 +344,16 @@ const Dashboard = () => {
           </div>
         )}
       </section>
+
+      {/* Name Prompt Modal for users with default name */}
+      {user?.id && (
+        <NamePromptModal
+          open={showNameModal}
+          onOpenChange={setShowNameModal}
+          userId={user.id}
+          onNameSaved={() => setShowNameModal(false)}
+        />
+      )}
 
       {/* Referral Code Modal for new Google OAuth users */}
       <ReferralCodeModal
