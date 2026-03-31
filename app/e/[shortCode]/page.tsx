@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getEventByShortCode } from '@/lib/supabase/server';
 import EventDetailClient from '@/views/EventDetailClient';
 import { AppLayoutWrapper } from '@/components/layout/AppLayoutWrapper';
-import { format } from 'date-fns';
+import { formatEventDate, formatEventTime } from '@/utils/dateFormatters';
 
 type Props = {
   params: Promise<{ shortCode: string }>;
@@ -13,6 +13,7 @@ type Props = {
  * Generate dynamic metadata for SEO and social sharing.
  * Canonical URL is /e/:shortCode.
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { shortCode } = await params;
   const event = await getEventByShortCode(shortCode);
@@ -25,11 +26,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const eventDate = event.date_time
-    ? format(new Date(event.date_time), 'EEEE, MMMM d, yyyy')
+    ? formatEventDate(event.date_time)
     : 'Date TBD';
 
   const eventTime = event.date_time
-    ? format(new Date(event.date_time), 'h:mm a')
+    ? formatEventTime(event.date_time)
     : '';
 
   const price = event.price && event.price > 0 ? `₹${event.price}` : 'Free';
