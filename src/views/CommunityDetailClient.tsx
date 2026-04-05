@@ -56,14 +56,11 @@ export default function CommunityDetailClient({ initialCommunity }: CommunityDet
         `)
         .eq("community_id", id)
         .eq("is_cancelled", false)
+        .or(`date_time.is.null,date_time.gte.${new Date().toISOString()}`)
         .order("date_time", { ascending: true, nullsFirst: false })
         .limit(3);
       if (error) throw error;
-      // Filter to include events with null dates or future dates
-      const filteredData = data?.filter(event =>
-        !event.date_time || new Date(event.date_time) >= new Date()
-      ) || [];
-      return filteredData;
+      return data || [];
     },
     enabled: !!id,
   });
