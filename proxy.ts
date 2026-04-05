@@ -1,6 +1,32 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
+// In-memory rate limiter (per-process only).
+// WARNING: In serverless/multi-instance deployments (e.g. Vercel) each instance
+// maintains its own Map, so the effective limit per user may be multiplied by
+// the number of active instances. For distributed rate limiting, replace this
+// with a shared store such as Upstash Redis + @upstash/ratelimit.
+const _rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+
+const RATE_LIMIT_RULES = [
+  { pattern: /^\/auth\/forgot-password/, maxRequests: 5, windowMs: 60_000 },
+  { pattern: /^\/api\//, maxRequests: 60, windowMs: 60_000 },
+] as const;
+
+function _checkRateLimit(ip: string, patternKey: string, maxRequests: number, windowMs: number): boolean {
+  const key = `${ip}:${patternKey}`;
+  const now = Date.now();
+  const entry = _rateLimitStore.get(key);
+
+  if (!entry || now > entry.resetAt) {
+    _rateLimitStore.set(key, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+  if (entry.count >= maxRequests) return false;
+  entry.count++;
+  return true;
+}
+
 /**
  * Next.js Proxy for Supabase Auth Session Refresh
  * 
@@ -17,6 +43,32 @@ export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
+
+  // Prune stale entries if store grows large (prevents unbounded memory growth)
+  if (_rateLimitStore.size > 10_000) {
+    const now = Date.now();
+    for (const [key, val] of _rateLimitStore) {
+      if (now > val.resetAt) _rateLimitStore.delete(key);
+    }
+  }
+
+  const pathname = request.nextUrl.pathname;
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown';
+
+  for (const rule of RATE_LIMIT_RULES) {
+    if (rule.pattern.test(pathname)) {
+      if (!_checkRateLimit(ip, rule.pattern.source, rule.maxRequests, rule.windowMs)) {
+        return new NextResponse('Too Many Requests', {
+          status: 429,
+          headers: { 'Retry-After': '60', 'Content-Type': 'text/plain' },
+        });
+      }
+      break;
+    }
+  }
 
   // Support both naming conventions for the anon key
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -77,9 +129,9 @@ export async function proxy(request: NextRequest) {
     if (error) {
       console.warn('[Proxy] Supabase getUser() returned an error. Skipping session refresh.', {
         pathname: request.nextUrl?.pathname,
-        status: (error as any)?.status,
-        code: (error as any)?.code,
-        message: (error as any)?.message,
+        status: (error as { status?: number })?.status,
+        code: (error as { code?: string })?.code,
+        message: (error as { message?: string })?.message,
       });
     }
   } catch (error) {

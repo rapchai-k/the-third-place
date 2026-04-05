@@ -32,6 +32,7 @@ const nextConfig = {
 
   // Turbopack configuration (Next.js 16+ default bundler)
   turbopack: {
+    root: __dirname,
     resolveAlias: {
       '@': path.resolve(__dirname, './src'),
     },
