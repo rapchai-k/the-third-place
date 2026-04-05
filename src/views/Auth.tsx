@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation, useSearchParams } from "@/lib/nextRouterAdapter";
+import { useNavigate, useLocation, useSearchParams, Link } from "@/lib/nextRouterAdapter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -242,6 +242,12 @@ export const AuthPage = () => {
                       />
                     </div>
 
+                    <div className="flex justify-end">
+                      <Link to="/auth/forgot-password" className="text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary">
+                        Forgot password?
+                      </Link>
+                    </div>
+
                     {error && (
                       <Alert variant="destructive">
                         <AlertDescription>{error}</AlertDescription>
@@ -363,6 +369,19 @@ export const AuthPage = () => {
             )}
           </CardContent>
         </Card>
+
+        {currentTab === "signup" && (
+          <p className="text-center text-xs text-muted-foreground mt-4">
+            By creating an account, you agree to our{" "}
+            <Link to="/terms" className="font-bold underline hover:text-primary">
+              Terms of Service
+            </Link>
+            {" "}and{" "}
+            <Link to="/privacy" className="font-bold underline hover:text-primary">
+              Privacy Policy
+            </Link>
+          </p>
+        )}
       </div>
     </div>
   );

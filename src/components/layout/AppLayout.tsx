@@ -1,4 +1,5 @@
 import { useNavigate, useLocation, Link } from "@/lib/nextRouterAdapter";
+import { Footer } from "./Footer";
 import { Users, Calendar, MessageSquare, User, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
@@ -151,6 +152,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           {children}
         </div>
       </main>
+
+      <Footer />
 
       {/* Mobile Bottom Navigation - Neo-Brutal */}
       {user && (
