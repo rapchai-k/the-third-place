@@ -5,8 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useAuth } from "@/contexts/AuthContext";
-
 type State = "idle" | "loading" | "success";
 
 export const ForgotPassword = () => {
@@ -14,21 +12,37 @@ export const ForgotPassword = () => {
   const [state, setState] = useState<State>("idle");
   const [error, setError] = useState("");
 
-  const { resetPassword } = useAuth();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setState("loading");
     setError("");
 
-    const { error } = await resetPassword(email);
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-    if (error) {
-      setError(error.message);
+      if (res.status === 429) {
+        setError("Too many requests. Please wait a minute before trying again.");
+        setState("idle");
+        return;
+      }
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Something went wrong. Please try again.");
+        setState("idle");
+        return;
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.");
       setState("idle");
-    } else {
-      setState("success");
+      return;
     }
+
+    setState("success");
   };
 
   return (

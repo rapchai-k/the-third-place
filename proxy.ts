@@ -9,7 +9,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 const _rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
 const RATE_LIMIT_RULES = [
-  { pattern: /^\/auth\/forgot-password/, maxRequests: 5, windowMs: 60_000 },
+  // Rate-limit the server action that sends the email, not the page view
+  { pattern: /^\/api\/auth\/reset-password/, maxRequests: 5, windowMs: 60_000 },
   { pattern: /^\/api\//, maxRequests: 60, windowMs: 60_000 },
 ] as const;
 
@@ -56,11 +57,13 @@ export async function proxy(request: NextRequest) {
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
     request.headers.get('x-real-ip') ||
-    'unknown';
+    null;
 
+  // Skip rate limiting when IP cannot be determined — a shared fallback key
+  // would let one client exhaust the quota for all unidentified clients.
   for (const rule of RATE_LIMIT_RULES) {
     if (rule.pattern.test(pathname)) {
-      if (!_checkRateLimit(ip, rule.pattern.source, rule.maxRequests, rule.windowMs)) {
+      if (ip && !_checkRateLimit(ip, rule.pattern.source, rule.maxRequests, rule.windowMs)) {
         return new NextResponse('Too Many Requests', {
           status: 429,
           headers: { 'Retry-After': '60', 'Content-Type': 'text/plain' },
