@@ -216,8 +216,8 @@ export default function PrivacyPage() {
             </ul>
             <p className="text-base leading-relaxed">
               To exercise any of these rights, please contact us at{" "}
-              <a href="mailto:hello@mythirdplace.in" className="font-bold underline hover:text-primary">
-                hello@mythirdplace.in
+              <a href="mailto:hello@rapchai.com" className="font-bold underline hover:text-primary">
+                hello@rapchai.com
               </a>
               . We will respond within 30 days.
             </p>
@@ -252,10 +252,10 @@ export default function PrivacyPage() {
               If you have questions or concerns about this Privacy Policy or how we handle your data, please
               contact us at{" "}
               <a
-                href="mailto:hello@mythirdplace.in"
+                href="mailto:hello@rapchai.com"
                 className="font-bold underline hover:text-primary"
               >
-                hello@mythirdplace.in
+                hello@rapchai.com
               </a>
             </p>
           </section>

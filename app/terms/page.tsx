@@ -253,10 +253,10 @@ export default function TermsPage() {
             <p className="text-base leading-relaxed">
               If you have questions about these Terms, please contact us at{" "}
               <a
-                href="mailto:hello@mythirdplace.in"
+                href="mailto:hello@rapchai.com"
                 className="font-bold underline hover:text-primary"
               >
-                hello@mythirdplace.in
+                hello@rapchai.com
               </a>
             </p>
           </section>
