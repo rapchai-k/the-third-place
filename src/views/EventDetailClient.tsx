@@ -97,6 +97,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
       item_category: 'event',
       item_category2: event.communities?.name,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [event.id, logEventView, registrationCount, userRegistration]);
 
   const handleRegister = async () => {
@@ -202,7 +203,7 @@ export default function EventDetailClient({ event }: EventDetailClientProps) {
               </CardHeader>
               <CardContent>
                 <div className="prose max-w-none">
-                  <p className="text-muted-foreground leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
                     {event.description || "TBD"}
                   </p>
                 </div>
