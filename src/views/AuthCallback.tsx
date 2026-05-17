@@ -14,6 +14,20 @@ export const AuthCallback = () => {
   const location = useLocation();
 
   useEffect(() => {
+    const syncGoogleName = async (session: { user: { id: string; app_metadata?: Record<string, unknown>; user_metadata?: Record<string, unknown> } }) => {
+      const provider = session.user.app_metadata?.provider;
+      if (provider !== 'google') return;
+
+      const googleName = (session.user.user_metadata?.full_name as string) || (session.user.user_metadata?.name as string);
+      if (!googleName?.trim() || googleName === 'User') return;
+
+      // Only overwrite if the stored name is still the default placeholder
+      const { data: profile } = await supabase.from('users').select('name').eq('id', session.user.id).single();
+      if (!profile?.name || profile.name === 'User') {
+        await supabase.from('users').update({ name: googleName.trim() }).eq('id', session.user.id);
+      }
+    };
+
     const handleAuthCallback = async () => {
       try {
         // Parse URL fragment for tokens
@@ -51,6 +65,9 @@ export const AuthCallback = () => {
               analytics.login('google', session.user.id);
             }
 
+            // For Google OAuth users, ensure their name is saved from Google metadata
+            await syncGoogleName(session);
+
             setStatus('success');
             // Clean URL and redirect
             cleanURLAndRedirect();
@@ -84,14 +101,17 @@ export const AuthCallback = () => {
           analytics.login('google', session.user.id);
         }
 
+        // For Google OAuth users, ensure their name is saved from Google metadata
+        await syncGoogleName(session);
+
         setStatus('success');
 
         // Clean URL and redirect after successful authentication
         cleanURLAndRedirect();
         
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Auth callback error - logging removed for security
-        setError(err.message || 'An unexpected error occurred during authentication.');
+        setError(err instanceof Error ? err.message : 'An unexpected error occurred during authentication.');
         setStatus('error');
       }
     };

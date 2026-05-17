@@ -19,6 +19,7 @@ interface NamePromptModalProps {
   onOpenChange: (open: boolean) => void;
   userId: string;
   onNameSaved: () => void;
+  defaultName?: string;
 }
 
 export const NamePromptModal = ({
@@ -26,8 +27,9 @@ export const NamePromptModal = ({
   onOpenChange,
   userId,
   onNameSaved,
+  defaultName,
 }: NamePromptModalProps) => {
-  const [name, setName] = useState('');
+  const [name, setName] = useState(defaultName || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 

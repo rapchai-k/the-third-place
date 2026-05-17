@@ -352,6 +352,7 @@ const Dashboard = () => {
           onOpenChange={setShowNameModal}
           userId={user.id}
           onNameSaved={() => setShowNameModal(false)}
+          defaultName={user.user_metadata?.full_name || user.user_metadata?.name}
         />
       )}
 
